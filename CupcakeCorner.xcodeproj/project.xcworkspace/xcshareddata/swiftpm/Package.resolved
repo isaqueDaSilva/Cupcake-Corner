@@ -1,0 +1,33 @@
+{
+  "originHash" : "2af2e4664a9292915d931ee8e1b667c5cba98253c1f26a788758a930b437ebdb",
+  "pins" : [
+    {
+      "identity" : "errorwrapper",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/isaqueDaSilva/ErrorWrapper",
+      "state" : {
+        "revision" : "8272eb3005d6d09fb459ec21313fe2c9053933ae",
+        "version" : "1.0.7"
+      }
+    },
+    {
+      "identity" : "keychainservice",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/isaqueDaSilva/KeychainService.git",
+      "state" : {
+        "revision" : "c453ffd6b04ea38512963a63ec19ec7276a38cb8",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "networkkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/isaqueDaSilva/NetworkKit.git",
+      "state" : {
+        "revision" : "8e15c99ef17a105140b6044c1723831810e29fb5",
+        "version" : "1.1.4"
+      }
+    }
+  ],
+  "version" : 3
+}

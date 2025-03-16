@@ -6,14 +6,145 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7E9765922D838FBC003DE54B /* NetworkKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7E9765912D838FBC003DE54B /* NetworkKit */; };
+		7E9765942D838FC1003DE54B /* NetworkKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7E9765932D838FC1003DE54B /* NetworkKit */; };
+		7EAE76F12D7E469200A69FF7 /* ErrorWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = 7EAE76F02D7E469200A69FF7 /* ErrorWrapper */; };
+		7EAE76F42D7E46C800A69FF7 /* KeychainService in Frameworks */ = {isa = PBXBuildFile; productRef = 7EAE76F32D7E46C800A69FF7 /* KeychainService */; };
+		7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */; };
+		7EAE77AD2D7E5EC200A69FF7 /* ErrorWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = 7EAE77AC2D7E5EC200A69FF7 /* ErrorWrapper */; };
+		7EAE77AF2D7E5EC200A69FF7 /* KeychainService in Frameworks */ = {isa = PBXBuildFile; productRef = 7EAE77AE2D7E5EC200A69FF7 /* KeychainService */; };
+		7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */; };
+		7ED393552D87816D00DC559B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393542D87816D00DC559B /* README.md */; };
+		7ED393562D87816D00DC559B /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393532D87816D00DC559B /* LICENSE.txt */; };
+		7ED393572D87816D00DC559B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393542D87816D00DC559B /* README.md */; };
+		7ED393582D87816D00DC559B /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393532D87816D00DC559B /* LICENSE.txt */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7EAE770E2D7E471000A69FF7 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		7EAE76DE2D7E463800A69FF7 /* CupcakeCorner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CupcakeCorner.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7EAE77142D7E47BD00A69FF7 /* CupcakeCornerForAdmin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CupcakeCornerForAdmin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		7ED393532D87816D00DC559B /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		7ED393542D87816D00DC559B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7E11FABF2D80EC570016BC4B /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCorner" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Model/Order+Update.swift",
+			);
+			target = 7EAE76DD2D7E463800A69FF7 /* CupcakeCorner */;
+		};
+		7EAE772B2D7E493A00A69FF7 /* Exceptions for "Common" folder in "CupcakeCornerForAdmin" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				App/MainEntrypoint.swift,
+				App/MainRootView.swift,
+				App/SplashScreen.swift,
+				Assets.xcassets,
+				Core/Components/ActionButton.swift,
+				Core/Components/CoverImageView.swift,
+				Core/Components/EditAccount.swift,
+				Core/Components/EmptyStateView.swift,
+				Core/Components/Icon.swift,
+				Core/Components/IngredientCell.swift,
+				Core/Components/LogoView.swift,
+				Core/Components/OrderEmptyView.swift,
+				Core/Components/TextFieldFocused.swift,
+				Core/Views/Bag/BagView.swift,
+				"Core/Views/Bag/BagView+ViewModel.swift",
+				Core/Views/Bag/Components/ItemCard.swift,
+				Core/Views/Bag/Components/OrderFilterPickerView.swift,
+				Core/Views/Bag/Service/InitialDataGetter.swift,
+				Core/Views/Bag/Service/WebSocketHandler.swift,
+				Core/Views/Balance/BalanceView.swift,
+				"Core/Views/Balance/BalanceView+ViewModel.swift",
+				"Core/Views/Create Account/CreateAccountView.swift",
+				"Core/Views/Create Account/CreateAccountView+ViewModel.swift",
+				Core/Views/Cupcake/CupcakeView.swift,
+				"Core/Views/Cupcake/CupcakeView+ViewModel.swift",
+				"Core/Views/Login View/LoginView.swift",
+				"Core/Views/Login View/LoginView+ViewModel.swift",
+				Core/Views/Root/Components/TabSection.swift,
+				Core/Views/Root/RootView.swift,
+				"Core/Views/User Account/UserAccountView.swift",
+				"Core/Views/User Account/UserAccountView+ViewModel.swift",
+				"Extensions/CGSize+Extension.swift",
+				"Extensions/Date+Extension.swift",
+				"Extensions/Dictionary+Extension.swift",
+				"Extensions/ExecutionError+Extension.swift",
+				"Extensions/Image+Extension.swift",
+				"Extensions/ModelContext+Extension.swift",
+				"Extensions/TimeInterval+Extension.swift",
+				"Extensions/UIImage+Extension.swift",
+				"Extensions/View+Extension.swift",
+				Models/Balance.swift,
+				"Models/Balance+Get.swift",
+				Models/Cupcake.swift,
+				Models/LoginResponse.swift,
+				Models/Order.swift,
+				Models/PaymentMethod.swift,
+				Models/Role.swift,
+				Models/Status.swift,
+				Models/Token.swift,
+				Models/User/User.swift,
+				"Models/User/User+Create.swift",
+				"Models/User/User+Get.swift",
+				Models/WebSocketMessage.swift,
+				Utilities/AppType.swift,
+				Utilities/EndpointBuilder.swift,
+				Utilities/TokenGetter.swift,
+				Utilities/UserRepository.swift,
+			);
+			target = 7EAE77132D7E47BD00A69FF7 /* CupcakeCornerForAdmin */;
+		};
+		7EAE77502D7E57A800A69FF7 /* Exceptions for "CupcakeCorner" folder in "CupcakeCorner" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 7EAE76DD2D7E463800A69FF7 /* CupcakeCorner */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7EAE76E02D7E463800A69FF7 /* CupcakeCorner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7EAE77502D7E57A800A69FF7 /* Exceptions for "CupcakeCorner" folder in "CupcakeCorner" target */,
+			);
 			path = CupcakeCorner;
+			sourceTree = "<group>";
+		};
+		7EAE77152D7E47BD00A69FF7 /* CupcakeCornerForAdmin */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7E11FABF2D80EC570016BC4B /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCorner" target */,
+			);
+			path = CupcakeCornerForAdmin;
+			sourceTree = "<group>";
+		};
+		7EAE77222D7E489200A69FF7 /* Common */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7EAE772B2D7E493A00A69FF7 /* Exceptions for "Common" folder in "CupcakeCornerForAdmin" target */,
+			);
+			path = Common;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +154,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E9765922D838FBC003DE54B /* NetworkKit in Frameworks */,
+				7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */,
+				7EAE76F42D7E46C800A69FF7 /* KeychainService in Frameworks */,
+				7EAE76F12D7E469200A69FF7 /* ErrorWrapper in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7EAE77112D7E47BD00A69FF7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7E9765942D838FC1003DE54B /* NetworkKit in Frameworks */,
+				7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */,
+				7EAE77AF2D7E5EC200A69FF7 /* KeychainService in Frameworks */,
+				7EAE77AD2D7E5EC200A69FF7 /* ErrorWrapper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,8 +178,13 @@
 		7EAE76D52D7E463800A69FF7 = {
 			isa = PBXGroup;
 			children = (
+				7EAE77222D7E489200A69FF7 /* Common */,
 				7EAE76E02D7E463800A69FF7 /* CupcakeCorner */,
+				7EAE77152D7E47BD00A69FF7 /* CupcakeCornerForAdmin */,
+				7EAE76FD2D7E471000A69FF7 /* Frameworks */,
 				7EAE76DF2D7E463800A69FF7 /* Products */,
+				7ED393532D87816D00DC559B /* LICENSE.txt */,
+				7ED393542D87816D00DC559B /* README.md */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,8 +192,17 @@
 			isa = PBXGroup;
 			children = (
 				7EAE76DE2D7E463800A69FF7 /* CupcakeCorner.app */,
+				7EAE77142D7E47BD00A69FF7 /* CupcakeCornerForAdmin.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		7EAE76FD2D7E471000A69FF7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -52,9 +212,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7EAE76EC2D7E463900A69FF7 /* Build configuration list for PBXNativeTarget "CupcakeCorner" */;
 			buildPhases = (
-				7EAE76DA2D7E463800A69FF7 /* Sources */,
 				7EAE76DB2D7E463800A69FF7 /* Frameworks */,
 				7EAE76DC2D7E463800A69FF7 /* Resources */,
+				7EAE770E2D7E471000A69FF7 /* Embed Foundation Extensions */,
+				7EAE77892D7E5AF400A69FF7 /* Sources */,
 			);
 			buildRules = (
 			);
@@ -62,12 +223,41 @@
 			);
 			fileSystemSynchronizedGroups = (
 				7EAE76E02D7E463800A69FF7 /* CupcakeCorner */,
+				7EAE77222D7E489200A69FF7 /* Common */,
 			);
 			name = CupcakeCorner;
 			packageProductDependencies = (
+				7EAE76F02D7E469200A69FF7 /* ErrorWrapper */,
+				7EAE76F32D7E46C800A69FF7 /* KeychainService */,
+				7E9765912D838FBC003DE54B /* NetworkKit */,
 			);
 			productName = CupcakeCorner;
 			productReference = 7EAE76DE2D7E463800A69FF7 /* CupcakeCorner.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7EAE77132D7E47BD00A69FF7 /* CupcakeCornerForAdmin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7EAE771F2D7E47BF00A69FF7 /* Build configuration list for PBXNativeTarget "CupcakeCornerForAdmin" */;
+			buildPhases = (
+				7EAE77102D7E47BD00A69FF7 /* Sources */,
+				7EAE77112D7E47BD00A69FF7 /* Frameworks */,
+				7EAE77122D7E47BD00A69FF7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7EAE77152D7E47BD00A69FF7 /* CupcakeCornerForAdmin */,
+			);
+			name = CupcakeCornerForAdmin;
+			packageProductDependencies = (
+				7EAE77AC2D7E5EC200A69FF7 /* ErrorWrapper */,
+				7EAE77AE2D7E5EC200A69FF7 /* KeychainService */,
+				7E9765932D838FC1003DE54B /* NetworkKit */,
+			);
+			productName = CupcakeCornerForAdmin;
+			productReference = 7EAE77142D7E47BD00A69FF7 /* CupcakeCornerForAdmin.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -82,6 +272,10 @@
 				TargetAttributes = {
 					7EAE76DD2D7E463800A69FF7 = {
 						CreatedOnToolsVersion = 16.2;
+						LastSwiftMigration = 1620;
+					};
+					7EAE77132D7E47BD00A69FF7 = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -94,12 +288,18 @@
 			);
 			mainGroup = 7EAE76D52D7E463800A69FF7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7EAE76EF2D7E469200A69FF7 /* XCRemoteSwiftPackageReference "ErrorWrapper" */,
+				7EAE76F22D7E46C800A69FF7 /* XCRemoteSwiftPackageReference "KeychainService" */,
+				7E9765902D838F70003DE54B /* XCRemoteSwiftPackageReference "NetworkKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7EAE76DF2D7E463800A69FF7 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				7EAE76DD2D7E463800A69FF7 /* CupcakeCorner */,
+				7EAE77132D7E47BD00A69FF7 /* CupcakeCornerForAdmin */,
 			);
 		};
 /* End PBXProject section */
@@ -109,13 +309,31 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7ED393552D87816D00DC559B /* README.md in Resources */,
+				7ED393562D87816D00DC559B /* LICENSE.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7EAE77122D7E47BD00A69FF7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7ED393572D87816D00DC559B /* README.md in Resources */,
+				7ED393582D87816D00DC559B /* LICENSE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		7EAE76DA2D7E463800A69FF7 /* Sources */ = {
+		7EAE77102D7E47BD00A69FF7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7EAE77892D7E5AF400A69FF7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -249,27 +467,38 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"CupcakeCorner/Preview Content\"";
 				DEVELOPMENT_TEAM = 9798UJJCY4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CupcakeCorner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cupcake Corner";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-DCLIENT";
 				PRODUCT_BUNDLE_IDENTIFIER = com.isaqueDaSilva.CupcakeCorner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -278,27 +507,111 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"CupcakeCorner/Preview Content\"";
 				DEVELOPMENT_TEAM = 9798UJJCY4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CupcakeCorner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cupcake Corner";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-DCLIENT";
 				PRODUCT_BUNDLE_IDENTIFIER = com.isaqueDaSilva.CupcakeCorner;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		7EAE77202D7E47BF00A69FF7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CupcakeCornerForAdmin/Preview Content\"";
+				DEVELOPMENT_TEAM = 9798UJJCY4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cupcake Admin";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-DADMIN";
+				PRODUCT_BUNDLE_IDENTIFIER = com.isaqueDaSilva.CupcakeCornerForAdmin;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		7EAE77212D7E47BF00A69FF7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"CupcakeCornerForAdmin/Preview Content\"";
+				DEVELOPMENT_TEAM = 9798UJJCY4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cupcake Admin";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-DADMIN";
+				PRODUCT_BUNDLE_IDENTIFIER = com.isaqueDaSilva.CupcakeCornerForAdmin;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -323,7 +636,76 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		7EAE771F2D7E47BF00A69FF7 /* Build configuration list for PBXNativeTarget "CupcakeCornerForAdmin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7EAE77202D7E47BF00A69FF7 /* Debug */,
+				7EAE77212D7E47BF00A69FF7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7E9765902D838F70003DE54B /* XCRemoteSwiftPackageReference "NetworkKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/isaqueDaSilva/NetworkKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.3;
+			};
+		};
+		7EAE76EF2D7E469200A69FF7 /* XCRemoteSwiftPackageReference "ErrorWrapper" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/isaqueDaSilva/ErrorWrapper";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.7;
+			};
+		};
+		7EAE76F22D7E46C800A69FF7 /* XCRemoteSwiftPackageReference "KeychainService" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/isaqueDaSilva/KeychainService.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7E9765912D838FBC003DE54B /* NetworkKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7E9765902D838F70003DE54B /* XCRemoteSwiftPackageReference "NetworkKit" */;
+			productName = NetworkKit;
+		};
+		7E9765932D838FC1003DE54B /* NetworkKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7E9765902D838F70003DE54B /* XCRemoteSwiftPackageReference "NetworkKit" */;
+			productName = NetworkKit;
+		};
+		7EAE76F02D7E469200A69FF7 /* ErrorWrapper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7EAE76EF2D7E469200A69FF7 /* XCRemoteSwiftPackageReference "ErrorWrapper" */;
+			productName = ErrorWrapper;
+		};
+		7EAE76F32D7E46C800A69FF7 /* KeychainService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7EAE76F22D7E46C800A69FF7 /* XCRemoteSwiftPackageReference "KeychainService" */;
+			productName = KeychainService;
+		};
+		7EAE77AC2D7E5EC200A69FF7 /* ErrorWrapper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7EAE76EF2D7E469200A69FF7 /* XCRemoteSwiftPackageReference "ErrorWrapper" */;
+			productName = ErrorWrapper;
+		};
+		7EAE77AE2D7E5EC200A69FF7 /* KeychainService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7EAE76F22D7E46C800A69FF7 /* XCRemoteSwiftPackageReference "KeychainService" */;
+			productName = KeychainService;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7EAE76D62D7E463800A69FF7 /* Project object */;
 }
