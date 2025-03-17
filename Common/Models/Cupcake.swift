@@ -8,20 +8,20 @@
 import Foundation
 
 struct Cupcake: Identifiable {
-    let id: UUID
+    let id: UUID?
     let flavor: String
     let coverImage: Data
     let ingredients: [String]
     let price: Double
-    let createAt: Date
+    let createAt: Date?
     
-    fileprivate init(
-        id: UUID,
+    init(
+        id: UUID? = nil,
         flavor: String,
         coverImage: Data,
         ingredients: [String],
         price: Double,
-        createAt: Date
+        createAt: Date? = nil
     ) {
         self.id = id
         self.flavor = flavor
@@ -95,7 +95,7 @@ extension Cupcake {
         
         for _ in 0..<10 {
             let newCupcake = Cupcake()
-            cupcakesDictionary.updateValue(newCupcake, forKey: newCupcake.id)
+            cupcakesDictionary.updateValue(newCupcake, forKey: newCupcake.id!)
         }
         
         return cupcakesDictionary
