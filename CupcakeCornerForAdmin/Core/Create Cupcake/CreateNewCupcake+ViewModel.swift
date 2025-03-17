@@ -78,23 +78,25 @@ extension CreateNewCupcake {
             }
         }
         
-        private func setNewCupcake() throws(ExecutionError) -> Cupcake.Create {
+        private func setNewCupcake() throws(ExecutionError) -> Cupcake {
             guard let coverImageData else {
                 throw .init(title: "Missing Photos", descrition: "")
             }
             
-            let newCupcake = Cupcake.Create(
+            let newCupcake = Cupcake(
+                id: nil,
                 flavor: self.flavor,
                 coverImage: coverImageData,
                 ingredients: self.ingredients,
-                price: self.price
+                price: self.price,
+                createAt: nil
             )
             
             return newCupcake
         }
         
         private func encodeNewCupcake(
-            _ newCupcake: Cupcake.Create
+            _ newCupcake: Cupcake
         ) throws(ExecutionError) -> Data {
             do {
                 return try JSONEncoder().encode(newCupcake)
