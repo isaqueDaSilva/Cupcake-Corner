@@ -53,7 +53,18 @@ extension CupcakeView {
                     var cupcakesDictionary = [UUID: Cupcake]()
                     
                     for cupcake in cupcakes {
-                        cupcakesDictionary.updateValue(cupcake, forKey: cupcake.id)
+                        if let cupcakeID = cupcake.id {
+                            cupcakesDictionary.updateValue(cupcake, forKey: cupcakeID)
+                        }
+                    }
+                    
+                    if cupcakes.count - 1 != cupcakesDictionary.count {
+                        await self.setError(
+                            .init(
+                                title: "Failed to load all cupcakes",
+                                descrition: ""
+                            )
+                        )
                     }
                     
                     await MainActor.run {
