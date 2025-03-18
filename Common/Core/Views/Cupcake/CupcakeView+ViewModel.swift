@@ -39,56 +39,79 @@ extension CupcakeView {
         var newestCupcake: Cupcake?
         #endif
         
-        func fetchCupcakes(session: URLSession = .shared) {
+        func fetch(session: URLSession = .shared) {
             self.isLoading = true
             Task {
                 do {
-                    let (data, response) = try await getData(session: session)
-                    
-                    try checkResponse(response)
-                    
-                    var cupcakes = try decodeCupcakes(by: data)
-                    let newestCupcake = cupcakes.removeFirst()
-                    
-                    var cupcakesDictionary = [UUID: Cupcake]()
-                    
-                    for cupcake in cupcakes {
-                        if let cupcakeID = cupcake.id {
-                            cupcakesDictionary.updateValue(cupcake, forKey: cupcakeID)
+                    try await withThrowingTaskGroup(of: Void.self) { [weak self] group in
+                        guard let self else { return }
+                        
+                        group.addTask { [weak self] in
+                            guard let self else { return }
+                            try await self.fetchCupcakes(session: session)
                         }
-                    }
-                    
-                    if cupcakes.count - 1 != cupcakesDictionary.count {
-                        await self.setError(
-                            .init(
-                                title: "Failed to load all cupcakes",
-                                descrition: ""
-                            )
-                        )
-                    }
-                    
-                    await MainActor.run {
-                        self.cupcakesDictionary = cupcakesDictionary
                         
                         #if CLIENT
-                        self.newestCupcake = newestCupcake
+                        group.addTask {
+                            try await fetchNewestCupcake(session: session)
+                        }
                         #endif
+                        
+                        guard try await group.next() != nil else {
+                            group.cancelAll()
+                            return
+                        }
                     }
                 } catch let error as ExecutionError {
                     await self.setError(error)
                 }
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.isLoading = false
                 }
             }
         }
         
-        private func getData(session: URLSession) async throws(ExecutionError) -> (Data, URLResponse) {
+        private func fetchCupcakes(session: URLSession) async throws(ExecutionError) {
+            #if CLIENT
+            let path = EndpointBuilder.Path.all(false)
+            #elseif ADMIN
+            let path = EndpointBuilder.Path.all(true)
+            #endif
+            
+            let (data, response) = try await getData(for: path, session: session)
+            try checkResponse(response)
+            
+            let cupcakesDictionary = try decode(Cupcake.ListResponse.self, by: data)
+            
+            await MainActor.run {
+                self.cupcakesDictionary = cupcakesDictionary.cupcakes
+            }
+        }
+        
+        #if CLIENT
+        private func fetchNewestCupcake(session: URLSession) async throws(ExecutionError) {
+            let (data, response) = try await getData(for: .newest, session: session)
+            try checkResponse(response)
+            
+            let newestCupcake = try decode(Cupcake.self, by: data)
+            
+            await MainActor.run {
+                self.newestCupcake = newestCupcake
+            }
+        }
+        #endif
+        
+        private func getData(
+            for path: EndpointBuilder.Path,
+            session: URLSession
+        ) async throws(ExecutionError) -> (Data, URLResponse) {
             let endpoint = Endpoint(
                 scheme: EndpointBuilder.httpSchema,
                 host: EndpointBuilder.domainName,
-                path: EndpointBuilder.makePath(endpoint: .cupcake, path: .all),
+                path: EndpointBuilder.makePath(endpoint: .cupcake, path: path),
                 httpMethod: .get
             )
             
@@ -110,12 +133,12 @@ extension CupcakeView {
             }
         }
         
-        private func decodeCupcakes(by data: Data) throws(ExecutionError) -> [Cupcake] {
-            guard let cupcakes = try? JSONDecoder().decode([Cupcake].self, from: data) else {
+        private func decode<T: Decodable>(_ model: T.Type, by data: Data) throws(ExecutionError) -> T {
+            guard let model = try? JSONDecoder().decode(T.self, from: data) else {
                 throw .decodedFailure
             }
             
-            return cupcakes
+            return model
         }
         
         private func setError(_ error: ExecutionError) async {
@@ -127,23 +150,32 @@ extension CupcakeView {
         init(isPreview: Bool = false) {
             if isPreview {
                 #if DEBUG
-                var cupcakes = Cupcake.mocks
+                self.setPreview()
                 #endif
-                
-                #if CLIENT
-                if let newestCupcakeKey = cupcakes.first?.key {
-                    self.newestCupcake = cupcakes.removeValue(forKey: newestCupcakeKey)
-                }
-                self.cupcakesDictionary = cupcakes.filter({ $0.value.id != newestCupcake?.id })
-                #else
-                #if DEBUG
-                self.cupcakesDictionary = cupcakes
-                #endif
-                #endif
-                
             } else {
-                fetchCupcakes()
+                self.fetch()
             }
         }
     }
 }
+
+#if DEBUG
+extension CupcakeView.ViewModel {
+    func setPreview() {
+        #if DEBUG
+        var cupcakes = Cupcake.mocks
+        #endif
+
+        #if CLIENT
+        if let newestCupcakeKey = cupcakes.first?.key {
+            self.newestCupcake = cupcakes.removeValue(forKey: newestCupcakeKey)
+        }
+        self.cupcakesDictionary = cupcakes.filter({ $0.value.id != newestCupcake?.id })
+        #else
+        #if DEBUG
+        self.cupcakesDictionary = cupcakes
+        #endif
+        #endif
+    }
+}
+#endif
