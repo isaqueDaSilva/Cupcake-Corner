@@ -22,7 +22,7 @@ enum EndpointBuilder {
     }
     
     enum Path {
-        case all
+        case all(Bool?)
         case get
         case create
         case update
@@ -30,11 +30,18 @@ enum EndpointBuilder {
         case channel
         case login
         case signOut
+        case newest
         
         var rawValue: String {
             switch self {
-            case .all:
-                return "all"
+            case .all(let boolValue):
+                let path = "all"
+                
+                if let boolValue {
+                    return path + "/\(boolValue.description)"
+                } else {
+                    return path
+                }
             case .get:
                 return "get"
             case .create:
@@ -55,6 +62,8 @@ enum EndpointBuilder {
                 return "login/\(appType)"
             case .signOut:
                 return "logout"
+            case .newest:
+                return "newest"
             }
         }
     }

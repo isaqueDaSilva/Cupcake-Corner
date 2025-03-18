@@ -96,6 +96,7 @@
 				Models/Balance.swift,
 				"Models/Balance+Get.swift",
 				Models/Cupcake.swift,
+				"Models/Cupcake+ListResponse.swift",
 				Models/LoginResponse.swift,
 				Models/Order.swift,
 				Models/PaymentMethod.swift,

@@ -54,12 +54,16 @@ extension OrderView {
         
         func makeOrder(
             with session: URLSession = .shared,
-            cupcakeID: UUID
+            cupcakeID: UUID?
         ) {
             self.isLoading = true
             
             Task {
                 do {
+                    guard let cupcakeID else {
+                        throw ExecutionError.missingData
+                    }
+                    
                     let newOrder = setOrder(cupcakeID: cupcakeID)
                     let newOrderData = try encode(newOrder)
                     let (_, response) = try await makeRequest(with: session, newOrderData: newOrderData)

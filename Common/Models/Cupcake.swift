@@ -13,7 +13,7 @@ struct Cupcake: Identifiable {
     let coverImage: Data
     let ingredients: [String]
     let price: Double
-    let createAt: Date?
+    let createdAt: Date?
     
     init(
         id: UUID? = nil,
@@ -28,7 +28,7 @@ struct Cupcake: Identifiable {
         self.coverImage = coverImage
         self.ingredients = ingredients
         self.price = price
-        self.createAt = createAt
+        self.createdAt = createAt
     }
 }
 
@@ -58,7 +58,7 @@ extension Cupcake: Codable {
         self.coverImage = try container.decode(Data.self, forKey: .coverImage)
         self.ingredients = try container.decode([String].self, forKey: .ingredients)
         self.price = try container.decode(Double.self, forKey: .price)
-        self.createAt = try container.decode(Date.self, forKey: .createAt)
+        self.createdAt = try container.decode(Date.self, forKey: .createAt)
     }
 }
 
@@ -66,7 +66,7 @@ extension Cupcake: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(flavor)
-        hasher.combine(createAt)
+        hasher.combine(createdAt)
     }
 }
 
@@ -87,7 +87,7 @@ extension Cupcake {
         coverImage = imageData
         ingredients = ["Ingredient: \(Int.random(in: 1...10000))"]
         price = .random(in: 1...30)
-        createAt = .randomDate()
+        createdAt = .randomDate()
     }
     
     static let mocks: [UUID: Cupcake] = {

@@ -83,8 +83,8 @@ struct CupcakeDetailView: View {
                 Button("Cancel", role: .cancel) { }
                 
                 Button("Delete", role: .destructive) {
-                    viewModel.deleteCupcake(with: cupcake.id) {
-                        action(.delete(cupcake.id))
+                    viewModel.deleteCupcake(with: cupcake.id) { cupcakeID in
+                        action(.delete(cupcakeID))
                     }
                 }
             } message: {

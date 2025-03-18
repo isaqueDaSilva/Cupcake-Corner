@@ -48,9 +48,14 @@ struct CupcakeView: View {
                 }
                 .sheet(isPresented: $viewModel.isShowingCreateNewCupcake) {
                     CreateNewCupcake { newCupcake in
+                        guard let cupcakeID = newCupcake.id else {
+                            self.viewModel.error = .missingData
+                            return
+                        }
+                        
                         viewModel.cupcakesDictionary.updateValue(
                             newCupcake,
-                            forKey: newCupcake.id
+                            forKey: cupcakeID
                         )
                     }
                 }
@@ -67,8 +72,13 @@ struct CupcakeView: View {
                     CupcakeDetailView(cupcake: cupcake) { action in
                         switch action {
                         case .update(let updatedCupcake):
+                            guard let cupcakeID = updatedCupcake.id else {
+                                self.viewModel.error = .missingData
+                                return
+                            }
+                            
                             viewModel
-                                .cupcakesDictionary[updatedCupcake.id] = updatedCupcake
+                                .cupcakesDictionary[cupcakeID] = updatedCupcake
                         case .delete(let cupcakeID):
                             viewModel.cupcakesDictionary.removeValue(forKey: cupcakeID)
                         }
@@ -78,7 +88,7 @@ struct CupcakeView: View {
                 .environment(userRepository)
             }
             .refreshable {
-                viewModel.fetchCupcakes()
+                viewModel.fetch()
             }
         }
     }

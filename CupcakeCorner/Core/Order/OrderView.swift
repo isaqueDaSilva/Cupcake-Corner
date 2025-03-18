@@ -263,8 +263,8 @@ extension OrderView {
     }
     
     private var dateDescriptionText: AttributedString {
-        let cupcakeCreateAt = cupcake.createAt
-        var dateDescription = AttributedString(cupcakeCreateAt.dateString(isDisplayingTime: false))
+        let cupcakeCreateAt = cupcake.createdAt
+        var dateDescription = AttributedString(cupcakeCreateAt?.dateString(isDisplayingTime: false) ?? "N/A")
         dateDescription.font = .headline
         _ = dateDescription.font?.weight(.medium)
         dateDescription.foregroundColor = .secondary

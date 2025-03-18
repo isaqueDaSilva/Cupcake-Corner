@@ -82,8 +82,12 @@ extension UpdateCupcakeView {
             ) ? self.ingredients : nil
             let updatedPrice = (self.cupcake.price != self.price) ? self.price : nil
             
+            guard let cupcakeID = cupcake.id else {
+                throw .missingData
+            }
+            
             let updatedCupcake = Cupcake.Update(
-                id: cupcake.id,
+                id: cupcakeID,
                 flavor: updatedFlavor,
                 coverImage: updatedCoverImage,
                 ingredients: updatedIngredients,

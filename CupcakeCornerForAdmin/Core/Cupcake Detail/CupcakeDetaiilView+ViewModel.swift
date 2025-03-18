@@ -20,20 +20,22 @@ extension CupcakeDetailView {
         var isShowingUpdateCupcakeView = false
         
         func deleteCupcake(
-            with cupcakeID: UUID,
+            with cupcakeID: UUID?,
             _ session: URLSession = .shared,
-            completation: @escaping () -> Void
+            completation: @escaping (UUID) -> Void
         ) {
             self.isLoading = true
             
             Task {
                 do {
+                    guard let cupcakeID else { throw ExecutionError.missingData }
+                    
                     let (_, response) = try await makeRequest(with: cupcakeID, and: session)
                     
                     try checkResponse(response)
                     
                     await MainActor.run {
-                        completation()
+                        completation(cupcakeID)
                     }
                 } catch let error as ExecutionError {
                     await setError(error)
