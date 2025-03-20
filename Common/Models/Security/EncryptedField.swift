@@ -8,7 +8,5 @@
 import struct Foundation.Data
 
 struct EncryptedField: Codable {
-    let cipher: Data
-    let nonce: Data
-    let tag: Data
+    let combinedEncryptedData: Data
 }
