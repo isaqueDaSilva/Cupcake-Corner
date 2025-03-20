@@ -19,12 +19,14 @@ extension CreateAccountView {
         var error: ExecutionError? = nil
         var isShowingCreateAccountConfirmation = false
         
+        private var serverPublicKey: DHPublicKey? = nil
+        
         func createAccount(session: URLSession = .shared) {
             self.isLoading = true
             
             Task {
                 do {
-                    let credentialsData = try encodeCredentials()
+                    let credentialsData = try await encodeCredentials()
                     let (_, response) = try await performCreation(
                         with: credentialsData,
                         and: session
@@ -35,10 +37,8 @@ extension CreateAccountView {
                     await MainActor.run {
                         self.isShowingCreateAccountConfirmation = true
                     }
-                } catch {
-                    await MainActor.run {
-                        self.error = error as? ExecutionError
-                    }
+                } catch let error as ExecutionError {
+                    await self.setError(error)
                 }
                 
                 await MainActor.run {
@@ -47,8 +47,20 @@ extension CreateAccountView {
             }
         }
         
-        private func encodeCredentials() throws(ExecutionError) -> Data {
+        private func encodeCredentials() async throws(ExecutionError) -> Data {
             do {
+                guard let serverPublicKey else { throw ExecutionError.missingData }
+                
+                let (serverPublicKeyID, publicKey, sharedKey) = try await SecureServerComunication.shared.getPublicAndSharedKey()
+                
+                try newUser.encryptPassword(
+                    with: .init(
+                        id: serverPublicKeyID,
+                        publicKey: publicKey.rawRepresentation
+                    ),
+                    sharedKey: sharedKey
+                )
+                
                 return try JSONEncoder().encode(newUser)
             } catch {
                 throw error as? ExecutionError ?? .internalError
@@ -84,6 +96,26 @@ extension CreateAccountView {
             guard let statusCode, statusCode == 200 else {
                 throw .resposeFailed
             }
+        }
+        
+        private func setError(_ error: ExecutionError) async {
+            await MainActor.run {
+                self.error = error
+            }
+        }
+        
+        private func getServerPublicKey() {
+            Task {
+                do {
+                    try await SecureServerComunication.shared.getKey()
+                } catch let error as ExecutionError{
+                    await setError(error)
+                }
+            }
+        }
+        
+        init() {
+            getServerPublicKey()
         }
     }
 }
