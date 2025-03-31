@@ -16,7 +16,7 @@ struct BalanceView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                rangeDateLabel
+                topLabel
                 
                 balanceChart
                 
@@ -56,12 +56,21 @@ struct BalanceView: View {
 // MARK: - Balance Result Chart -
 extension BalanceView {
     @ViewBuilder
-    private var rangeDateLabel: some View {
-        LabeledContent {
-            Text("\(viewModel.initialDate, format: .dateTime.day().month().year()) -  \(viewModel.finalDate, format: .dateTime.day().month().year())")
-        } label: {
-            Text("Range:")
-                .bold()
+    private var topLabel: some View {
+        VStack {
+            LabeledContent {
+                Text(viewModel.balance?.totalOfPurchase ?? 0, format: .number)
+            } label: {
+                Text("Total of Purchase :")
+                    .bold()
+            }
+            
+            LabeledContent {
+                Text("\(viewModel.initialDate, format: .dateTime.day().month().year()) -  \(viewModel.finalDate, format: .dateTime.day().month().year())")
+            } label: {
+                Text("Date Range:")
+                    .bold()
+            }
         }
         .padding(.bottom, 5)
     }
