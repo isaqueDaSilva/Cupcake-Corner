@@ -22,9 +22,7 @@ struct EditAccount: View {
     private var action: () -> Void
     
     var body: some View {
-        ScrollView {
-            LogoView()
-            
+        VStack {
             Text("User Information:")
                 .headerSessionText(
                     font: .headline,
