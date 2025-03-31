@@ -5,6 +5,7 @@
 //  Created by Isaque da Silva on 3/13/25.
 //
 
+import CryptoKit
 import ErrorWrapper
 import Foundation
 import NetworkHandler
@@ -19,103 +20,84 @@ extension CreateAccountView {
         var error: ExecutionError? = nil
         var isShowingCreateAccountConfirmation = false
         
-        private var serverPublicKey: DHPublicKey? = nil
-        
         func createAccount(session: URLSession = .shared) {
             self.isLoading = true
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
-                    let credentialsData = try await encodeCredentials()
+                    let (serverPublicKeyID, publicKey, sharedKey) = try await SecureServerComunication.getPublicAndSharedKey(
+                        with: session
+                    )
+                    
+                    let credentialsData = try await encodeCredentials(
+                        with: serverPublicKeyID,
+                        publicKey: publicKey,
+                        sharedKey: sharedKey
+                    )
+                    
                     let (_, response) = try await performCreation(
                         with: credentialsData,
                         and: session
                     )
                     
-                    try checkResponse(response)
+                    try Network.checkResponse(response)
                     
-                    await MainActor.run {
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
                         self.isShowingCreateAccountConfirmation = true
                     }
                 } catch let error as ExecutionError {
                     await self.setError(error)
                 }
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.isLoading = false
                 }
             }
         }
         
-        private func encodeCredentials() async throws(ExecutionError) -> Data {
-            do {
-                guard let serverPublicKey else { throw ExecutionError.missingData }
-                
-                let (serverPublicKeyID, publicKey, sharedKey) = try await SecureServerComunication.shared.getPublicAndSharedKey()
-                
-                try newUser.encryptPassword(
-                    with: .init(
-                        id: serverPublicKeyID,
-                        publicKey: publicKey.rawRepresentation
-                    ),
-                    sharedKey: sharedKey
-                )
-                
-                return try JSONEncoder().encode(newUser)
-            } catch {
-                throw error as? ExecutionError ?? .internalError
-            }
+        private func encodeCredentials(
+            with serverPublicKeyID: UUID,
+            publicKey: PublicKey,
+            sharedKey: SymmetricKey
+        ) async throws(ExecutionError) -> Data {
+            try newUser.encryptCredentials(
+                with: .init(
+                    id: serverPublicKeyID,
+                    publicKey: publicKey.rawRepresentation
+                ),
+                sharedKey: sharedKey
+            )
+            
+            return try Network.encodeData(newUser)
         }
         
         private func performCreation(
             with credentialsData: Data,
             and session: URLSession
         ) async throws -> (Data, URLResponse) {
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
+            try await Network.getData(
                 path: EndpointBuilder.makePath(endpoint: .user, path: .create),
                 httpMethod: .post,
-                headers: [EndpointBuilder.Header.contentType.rawValue: EndpointBuilder.HeaderValue.json.rawValue],
-                body: credentialsData
+                headers: [
+                    EndpointBuilder.Header.contentType.rawValue: EndpointBuilder.HeaderValue.json.rawValue
+                ],
+                body: credentialsData,
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .failedToGetData
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode
-            
-            guard let statusCode, statusCode == 200 else {
-                throw .resposeFailed
-            }
         }
         
         private func setError(_ error: ExecutionError) async {
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.error = error
             }
-        }
-        
-        private func getServerPublicKey() {
-            Task {
-                do {
-                    try await SecureServerComunication.shared.getKey()
-                } catch let error as ExecutionError{
-                    await setError(error)
-                }
-            }
-        }
-        
-        init() {
-            getServerPublicKey()
         }
     }
 }
