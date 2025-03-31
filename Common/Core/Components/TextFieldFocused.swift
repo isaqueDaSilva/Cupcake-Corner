@@ -50,7 +50,6 @@ struct TextFieldFocused<FocusedFieldValue: Hashable>: View {
 extension TextFieldFocused {
     enum FieldType {
         case textField(String, Binding<String>)
-        case priceField(String, Binding<Double>)
         case secureField(String, Binding<String>)
         
         @ViewBuilder
@@ -58,8 +57,6 @@ extension TextFieldFocused {
             switch self {
             case .textField(let title, let text):
                 TextField(title, text: text)
-            case .priceField(let title, let price):
-                TextField(title, value: price, format: .currency(code: "USD"))
             case .secureField(let title, let secureText):
                 SecureField(title, text: secureText)
             }
