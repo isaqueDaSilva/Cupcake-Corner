@@ -8,14 +8,20 @@
 import SwiftUI
 
 struct LogoView: View {
+    let size: CGSize
+    
     var body: some View {
         Image(by: .appLogo, with: .highPicture)
             .resizable()
             .scaledToFit()
             .frame(
-                width: CGSize.highPicture.width,
-                height: CGSize.highPicture.height
+                width: size.width,
+                height: size.height
             )
+    }
+    
+    init(size: CGSize = .highPicture) {
+        self.size = size
     }
 }
 
