@@ -18,12 +18,7 @@ struct SplashScreen: View {
     
     var body: some View {
         ZStack {
-            Image(.appLogo)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 250, height: 250)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+            LogoView(size: .midSizePicture)
                 .scaleEffect(scale)
             
             Circle()
@@ -32,7 +27,7 @@ struct SplashScreen: View {
                 .rotationEffect(Angle(degrees: -90))
                 .animation(Animation.easeInOut(duration: 1), value: cicleCount)
                 .opacity(cicleOpacity)
-                .frame(width: 180, height: 180)
+                .frame(width: 200, height: 200)
         }
         .opacity(viewOpacity)
         .onAppear {
