@@ -28,95 +28,90 @@ extension LoginView {
         ) {
             self.isLoading = true
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
-                    let credentials = try await makeCredentials()
+                    let (serverPublicKeyID, publicKey, sharedKey) = try await SecureServerComunication.getPublicAndSharedKey(
+                        with: session
+                    )
                     
-                    let encodedCredentials = try encode(credentials)
+                    let (loginData, clientPublicKey) = try self.makeCredentials(
+                        with: serverPublicKeyID,
+                        publicKey: publicKey,
+                        sharedKey: sharedKey
+                    )
                     
-                    let (data, response) = try await makeLogin(
-                        loginRequestData: encodedCredentials,
+                    let encodedPublicKey = try Network.encodeData(clientPublicKey)
+                    
+                    let (data, response) = try await self.makeLogin(
+                        publicKey: encodedPublicKey,
+                        loginCreadentials: loginData,
                         session: session
                     )
                     
-                    try checkResponse(response)
+                    try self.checkResponse(response)
                     
-                    let loginResponse = try decode(data)
+                    let loginResponse = try Network.decodeResponse(type: LoginResponse.self, by: data)
                     
-                    try storeToken(loginResponse.jwtToken)
+                    try self.storeToken(loginResponse.jwtToken)
                     
-                    try await MainActor.run {
+                    try await MainActor.run { [weak self] in
+                        guard self != nil else { return }
+                        
                         try completation(loginResponse.userProfile)
                     }
                 } catch let error as ExecutionError {
                     await self.setError(error)
                 }
                 
-                await SecureServerComunication.shared.emptyServerPublicKey()
-                
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.isLoading = false
                 }
             }
         }
         
-        private func makeCredentials() async throws(ExecutionError) -> LoginRequest {
-            guard !email.isEmpty, let emailData = self.email.data(using: .utf8),
-                  !password.isEmpty, let passwordData = self.password.data(using: .utf8)
+        private func makeCredentials(
+            with serverPublicKeyID: UUID,
+            publicKey: PublicKey,
+            sharedKey: SymmetricKey
+        ) throws(ExecutionError) -> (String, PublicKeyAgreement) {
+            guard !email.isEmpty,!password.isEmpty,
+                  let passwordData = self.password.data(using: .utf8)
             else {
                 throw .missingData
             }
             
-            let (serverPublicKeyID, publicKey, sharedKey) = try await SecureServerComunication.shared.getPublicAndSharedKey()
+            let encryptedPassword = try Encryptor.encrypt(passwordData, with: sharedKey).base64EncodedString()
             
-            let encryptedPassword = try Encryptor.encrypt(passwordData, with: sharedKey)
+            let loginData = ("\(email):\(encryptedPassword)".data(using: .utf8))?.base64EncodedString()
             
-            let loginRequest = LoginRequest(
-                clientPublicKey: .init(id: serverPublicKeyID, publicKey: publicKey.rawRepresentation),
-                email: self.email,
-                password: encryptedPassword
-            )
+            guard let loginData else { throw .missingData }
             
-            return loginRequest
-        }
-        
-        private func encode(_ loginRequest: LoginRequest) throws(ExecutionError) -> Data {
-            do {
-                return try JSONEncoder().encode(loginRequest)
-            } catch {
-                throw .encodeFailure
-            }
+            let clientPublicKey = PublicKeyAgreement(id: serverPublicKeyID, publicKey: publicKey.rawRepresentation)
+            
+            return (loginData, clientPublicKey)
         }
         
         private func makeLogin(
-            loginRequestData: Data,
+            publicKey: Data,
+            loginCreadentials: String,
             session: URLSession
         ) async throws(ExecutionError) -> (Data, URLResponse) {
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
-                path: EndpointBuilder.makePath(endpoint: .api, path: .login),
+            let loginValue = "\(EndpointBuilder.Header.basic.rawValue) \(loginCreadentials)"
+            
+            return try await Network.getData(
+                path: EndpointBuilder.makePath(endpoint: .auth, path: .login),
                 httpMethod: .post,
-                headers: [EndpointBuilder.Header.contentType.rawValue: EndpointBuilder.HeaderValue.json.rawValue],
-                body: loginRequestData
+                headers: [
+                    EndpointBuilder.Header.contentType.rawValue: EndpointBuilder.HeaderValue.json.rawValue,
+                    EndpointBuilder.Header.authorization.rawValue: loginValue
+                ],
+                body: publicKey,
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .failedToGetData
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func decode(_ loginResponseData: Data) throws(ExecutionError) -> LoginResponse {
-            do {
-                return try JSONDecoder().decode(LoginResponse.self, from: loginResponseData)
-            } catch {
-                throw .decodedFailure
-            }
         }
         
         private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
@@ -140,21 +135,11 @@ extension LoginView {
         }
         
         private func setError(_ error: ExecutionError) async {
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.error = error
             }
         }
-        
-        private func getServerPublicKey() {
-            Task {
-                do {
-                    try await SecureServerComunication.shared.getKey()
-                } catch let error as ExecutionError{
-                    await setError(error)
-                }
-            }
-        }
-        
-        init() { self.getServerPublicKey() }
     }
 }
