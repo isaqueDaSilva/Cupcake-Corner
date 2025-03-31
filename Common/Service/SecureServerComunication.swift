@@ -13,23 +13,11 @@ import NetworkHandler
 typealias PrivateKey = P384.KeyAgreement.PrivateKey
 typealias PublicKey = P384.KeyAgreement.PublicKey
 
-final actor SecureServerComunication {
-    static let shared = SecureServerComunication()
-    
-    private var serverPublicKey: DHPublicKey?
-    
-    func getKey(with session: URLSession = .shared) async throws(ExecutionError) {
-        guard serverPublicKey == nil else { return }
-        
-        try await getServerPublicKey(with: session)
-    }
-    
-    func getPublicAndSharedKey() throws(ExecutionError) -> (String, PublicKey, SymmetricKey) {
+enum SecureServerComunication {
+    static func getPublicAndSharedKey(with session: URLSession) async throws(ExecutionError) -> (UUID, PublicKey, SymmetricKey) {
         let privateKey = PrivateKey()
         
-        guard let serverPublicKey else {
-            throw .missingData
-        }
+        let serverPublicKey = try await getServerPublicKey(with: session)
         
         do {
             let serverPublicKeyRawRespresentation = try PublicKey(rawRepresentation: serverPublicKey.publicKey)
@@ -38,7 +26,7 @@ final actor SecureServerComunication {
             let symmetricSharedKey = sharedKey.x963DerivedSymmetricKey(
                 using: SHA512.self,
                 sharedInfo: Data(),
-                outputByteCount: 64
+                outputByteCount: 32
             )
             
             return (serverPublicKey.id, privateKey.publicKey, symmetricSharedKey)
@@ -47,52 +35,15 @@ final actor SecureServerComunication {
         }
     }
     
-    func emptyServerPublicKey() {
-        self.serverPublicKey = nil
-    }
-    
-    private func getServerPublicKey(with session: URLSession) async throws(ExecutionError) {
-        let (data, response) = try await getData(with: session)
-        try checkResponse(response)
-        let serverPublicKey = try decode(data)
-        
-        self.serverPublicKey = serverPublicKey
-    }
-    
-    private func getData(with session: URLSession) async throws(ExecutionError) -> (Data, URLResponse) {
-        let endpoint = Endpoint(
-            scheme: EndpointBuilder.httpSchema,
-            host: EndpointBuilder.domainName,
-            path: EndpointBuilder.makePath(endpoint: .api, path: .serverPublicKey),
-            httpMethod: .post
+    private static func getServerPublicKey(with session: URLSession) async throws(ExecutionError) -> PublicKeyAgreement {
+        let (data, response) = try await Network.getData(
+            path: EndpointBuilder.makePath(endpoint: .serverPublicKey, path: nil),
+            httpMethod: .get,
+            session: session
         )
+        try Network.checkResponse(response)
+        let serverPublicKey = try Network.decodeResponse(type: PublicKeyAgreement.self, by: data)
         
-        let handler = NetworkHandler<ExecutionError>(
-            endpoint: endpoint,
-            session: session,
-            unkwnonURLRequestError: .internalError,
-            failureToGetDataError: .failedToGetData
-        )
-        
-        return try await handler.getResponse()
+        return serverPublicKey
     }
-    
-    private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-        let statusCode = (response as? HTTPURLResponse)?.statusCode
-        
-        guard let statusCode, statusCode == 200 else {
-            throw .resposeFailed
-        }
-    }
-    
-    private func decode(_ serverPublicKeyData: Data) throws(ExecutionError) -> DHPublicKey {
-        do {
-            return try JSONDecoder().decode(DHPublicKey.self, from: serverPublicKeyData)
-        } catch {
-            throw .decodedFailure
-        }
-    }
-    
-    
-    private init() { }
 }

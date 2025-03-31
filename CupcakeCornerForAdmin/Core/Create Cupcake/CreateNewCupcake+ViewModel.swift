@@ -36,10 +36,7 @@ extension CreateNewCupcake {
                 guard let self else { return }
                 
                 if let imageData {
-                    DispatchQueue.main.async { [weak self] in
-                        guard let self else { return }
-                        self.coverImageData = imageData
-                    }
+                    self.coverImageData = imageData
                 }
             }
         }
@@ -50,20 +47,25 @@ extension CreateNewCupcake {
         ) {
             self.isLoading = true
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
                     let newCupcake = try setNewCupcake()
                     
-                    let newCupcakeData = try encodeNewCupcake(newCupcake)
+                    let newCupcakeData = try Network.encodeData(newCupcake)
                     
                     let (data, response) = try await getData(
                         with: newCupcakeData,
                         session: session
                     )
                     
-                    try checkResponse(response)
+                    try Network.checkResponse(response)
                     
-                    let cupcake = try decodeCupcake(by: data)
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+                    
+                    let cupcake = try Network.decodeResponse(type: Cupcake.self, by: data, with: decoder)
                     
                     await MainActor.run {
                         completationHandler(cupcake)
@@ -72,7 +74,9 @@ extension CreateNewCupcake {
                     await setError(error)
                 }
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.isLoading = false
                 }
             }
@@ -80,7 +84,7 @@ extension CreateNewCupcake {
         
         private func setNewCupcake() throws(ExecutionError) -> Cupcake {
             guard let coverImageData else {
-                throw .init(title: "Missing Photos", descrition: "")
+                throw .init(title: "Missing the cover image", descrition: "")
             }
             
             let newCupcake = Cupcake(
@@ -88,21 +92,10 @@ extension CreateNewCupcake {
                 flavor: self.flavor,
                 coverImage: coverImageData,
                 ingredients: self.ingredients,
-                price: self.price,
-                createAt: nil
+                price: self.price
             )
             
             return newCupcake
-        }
-        
-        private func encodeNewCupcake(
-            _ newCupcake: Cupcake
-        ) throws(ExecutionError) -> Data {
-            do {
-                return try JSONEncoder().encode(newCupcake)
-            } catch {
-                throw .encodeFailure
-            }
         }
         
         private func getData(
@@ -111,46 +104,21 @@ extension CreateNewCupcake {
         ) async throws -> (Data, URLResponse) {
             let token = try TokenGetter.getValue()
             
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
+            return try await Network.getData(
                 path: EndpointBuilder.makePath(endpoint: .cupcake, path: .create),
                 httpMethod: .post,
                 headers: [
                     EndpointBuilder.Header.authorization.rawValue : token,
                     EndpointBuilder.Header.contentType.rawValue : EndpointBuilder.HeaderValue.json.rawValue
                 ],
-                body: newCupcakeData
+                body: newCupcakeData,
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .decodedFailure
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode
-            
-            guard let statusCode, statusCode == 200 else {
-                throw .resposeFailed
-            }
-        }
-        
-        private func decodeCupcake(by data: Data) throws(ExecutionError) -> Cupcake {
-            guard let cupcake = try? JSONDecoder().decode(Cupcake.self, from: data) else {
-                throw .decodedFailure
-            }
-            
-            return cupcake
         }
         
         private func setError(_ error: ExecutionError) async {
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
                 self.error = error
             }
         }

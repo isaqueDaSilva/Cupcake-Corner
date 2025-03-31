@@ -12,7 +12,7 @@ struct CupcakeDetailView: View {
     @Environment(\.dismiss) var dismiss
     @State private var viewModel = ViewModel()
     
-    let cupcake: Cupcake
+    @State private var cupcake: Cupcake
     var action: (Action) -> Void
     
     var body: some View {
@@ -85,6 +85,7 @@ struct CupcakeDetailView: View {
                 Button("Delete", role: .destructive) {
                     viewModel.deleteCupcake(with: cupcake.id) { cupcakeID in
                         action(.delete(cupcakeID))
+                        dismiss()
                     }
                 }
             } message: {
@@ -93,10 +94,16 @@ struct CupcakeDetailView: View {
             .errorAlert(error: $viewModel.error) { }
             .sheet(isPresented: $viewModel.isShowingUpdateCupcakeView) {
                 UpdateCupcakeView(cupcake: self.cupcake) { updatedCupcake in
+                    self.cupcake = updatedCupcake
                     action(.update(updatedCupcake))
                 }
             }
         }
+    }
+    
+    init(cupcake: Cupcake, action: @escaping (Action) -> Void) {
+        self._cupcake = .init(initialValue: cupcake)
+        self.action = action
     }
 }
 

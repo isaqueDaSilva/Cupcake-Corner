@@ -23,19 +23,9 @@ extension ExecutionError {
         descrition: "Seams that the model's quantity, with the same ID is more than 1. It's not allowed. Please contact us to solve this problem."
     )
     
-    static let deleteFail = ExecutionError(
-        title: "Failed to delete.",
-        descrition: "Seams that isn't possible to delete the model from persistence storage. Please try again or contact us to solve the problem."
-    )
-    
     static let noItemSaved = ExecutionError(
         title: "No Item saved",
         descrition: "No item is available to perform the requested action."
-    )
-    
-    static let noModelContext = ExecutionError(
-        title: "Failed to save data",
-        descrition: "Is not possible to save this data because it's no has a context instance to perfor this action."
     )
     
     static let internalError = ExecutionError(
@@ -61,16 +51,6 @@ extension ExecutionError {
     static let encodeFailure = ExecutionError(
         title: "Failed to encode data",
         descrition: "Seams that an error occur in the data's transformation task. Please contact us to solve this problem."
-    )
-    
-    static let upgradeFailure = ExecutionError(
-        title: "Failed to connect in channel",
-        descrition: "Oops... Seems that is not possible to connect in the order's channel. Please try again to connect in channel, if the error persist, contact us to try solve it."
-    )
-    
-    static let sendFailure = ExecutionError(
-        title: "Failed to send Message into WebSocket channel",
-        descrition: ""
     )
     
     static let receiveDataFailed = ExecutionError(

@@ -6,6 +6,7 @@
 //
 
 
+#if DEBUG
 import Foundation
 import SwiftData
 
@@ -15,11 +16,10 @@ extension ModelContext {
         let container = try! ModelContainer(for: User.self, configurations: config)
         let context = ModelContext(container)
         
-        #if DEBUG
         context.insert(User.mock)
         try? context.save()
-        #endif
         
         return context
     }()
 }
+#endif

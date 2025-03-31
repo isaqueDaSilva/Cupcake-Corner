@@ -22,12 +22,15 @@ struct UserAccountView: View {
                 VStack {
                     userInfo
                     
-                    allOrdersButton
+                    balanceNavigationButton
                     
                     Grid {
                         GridRow {
                             signOutButton
+                            
+                            #if CLIENT
                             deleteAccountButton
+                            #endif
                         }
                     }
                 }
@@ -53,16 +56,12 @@ struct UserAccountView: View {
 extension UserAccountView {
     @ViewBuilder
     private var userInfo: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(userRepository.user?.name ?? "No User Saved")
-                    .font(.title3)
-                    .bold()
-                
-                Text(userRepository.user?.email ?? "No User Saved")
-                    .font(.caption)
-            }
+        LabeledContent {
+            Text(userRepository.user?.name ?? "No User Saved")
+        } label: {
+            Text("Name:")
         }
+        .bold()
         .frame(maxWidth: .infinity, alignment: .leading)
         .softBackground()
     }
@@ -70,12 +69,13 @@ extension UserAccountView {
 
 extension UserAccountView {
     @ViewBuilder
-    private var allOrdersButton: some View {
+    private var balanceNavigationButton: some View {
         NavigationLink {
             BalanceView()
         } label: {
             HStack {
                 Text("Balance")
+                    .bold()
                 
                 Icon.chevronRight.systemImage
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -105,6 +105,7 @@ extension UserAccountView {
         .disabled(viewModel.isDisabled)
     }
     
+    #if CLIENT
     @ViewBuilder
     private var deleteAccountButton: some View {
         Button(role: .destructive) {
@@ -121,6 +122,7 @@ extension UserAccountView {
         .softBackground()
         .disabled(viewModel.isDisabled)
     }
+    #endif
 }
 
 import SwiftData

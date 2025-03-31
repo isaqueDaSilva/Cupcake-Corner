@@ -8,42 +8,53 @@
 import Foundation
 
 enum EndpointBuilder {
-    static let webSocketSchema = "ws"
-    static let httpSchema = "http"
-    static let port = 8080
-    static let domainName: String = "127.0.0.1/\(Self.port)"
+    static let webSocketSchema = "wss"
+    static let httpSchema = "https"
+    static let domainName: String = "127.0.0.0:8080"
     
+    
+    static func makePath(endpoint: Endpoint, path: Path?) -> String {
+        let endpoint = "/api/\(endpoint.rawValue)"
+        
+        if let path {
+            return endpoint + "/\(path.rawValue)"
+        } else {
+            return endpoint
+        }
+    }
+}
+
+extension EndpointBuilder {
     enum Endpoint: String {
+        case serverPublicKey = "serverPublicKey"
         case cupcake = "cupcake"
-        case order = "order"
-        case api = ""
         case user = "user"
+        case auth = "auth"
+        case order = "order"
         case balance = "balance"
     }
-    
+}
+
+extension EndpointBuilder {
     enum Path {
-        case all(Bool?)
-        case get
         case create
+        case get(Bool?)
         case update
         case delete(UUID?)
-        case channel
-        case login
-        case signOut
         case newest
+        case login
+        case logout
+        case channel
         
         var rawValue: String {
             switch self {
-            case .all(let boolValue):
-                let path = "all"
-                
-                if let boolValue {
-                    return path + "/\(boolValue.description)"
+            case .get(let isQueringAll):
+                let path = "get"
+                if let isQueringAll {
+                    return path + "/\(isQueringAll.description)"
                 } else {
                     return path
                 }
-            case .get:
-                return "get"
             case .create:
                 return "create"
             case .update:
@@ -59,15 +70,17 @@ enum EndpointBuilder {
             case .channel:
                 return "channel"
             case .login:
-                return "login/\(appType)"
-            case .signOut:
+                return "login"
+            case .logout:
                 return "logout"
             case .newest:
                 return "newest"
             }
         }
     }
-    
+}
+
+extension EndpointBuilder {
     enum Header: String {
         case bearer = "Bearer"
         case basic = "Basic"
@@ -77,15 +90,6 @@ enum EndpointBuilder {
     
     enum HeaderValue: String {
         case json = "application/json"
-    }
-    
-    static func makePath(endpoint: Endpoint, path: Path?) -> String {
-        let endpoint = "/\(endpoint.rawValue)"
-        
-        if let path {
-            return endpoint + "/\(path.rawValue)"
-        } else {
-            return endpoint
-        }
+        case vdnAPIJSON = "application/vnd.api+json"
     }
 }

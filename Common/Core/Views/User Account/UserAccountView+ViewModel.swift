@@ -14,8 +14,11 @@ extension UserAccountView {
     @Observable
     @MainActor
     final class ViewModel {
-        var isLoadingSignOutButton = false
+        #if CLIENT
         var isLoadingDeleteAccountButton = false
+        #endif
+        
+        var isLoadingSignOutButton = false
         var error: ExecutionError? = nil
         
         var deletionType: DeletionType? = nil
@@ -24,7 +27,11 @@ extension UserAccountView {
         var isShowingAlert = false
         
         var isDisabled: Bool {
+            #if CLIENT
             isLoadingSignOutButton || isLoadingDeleteAccountButton
+            #elseif ADMIN
+            isLoadingSignOutButton
+            #endif
         }
         
         func showAlert(for deletionType: DeletionType) {
@@ -33,15 +40,19 @@ extension UserAccountView {
             self.alertTitle = switch deletionType {
             case .signOut:
                 "Sign out"
+                #if CLIENT
             case .deleteAccount:
                 "Delete Account"
+                #endif
             }
             
             self.alertMessage = switch deletionType {
             case .signOut:
                 "Are your sure that you want to make a sign out?"
+                #if CLIENT
             case .deleteAccount:
                 "Are you sure that you want to delete your account?"
+                #endif
             }
             
             self.isShowingAlert = true
@@ -53,27 +64,35 @@ extension UserAccountView {
         ) {
             self.startLoading()
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
                     let token = try TokenGetter.getValue()
                     
-                    let (_, response) = try await performDeletion(
+                    let (_, response) = try await self.performDeletion(
                         with: token,
                         session: session
                     )
                     
-                    try checkResponse(response)
+                    try Network.checkResponse(response)
                     
-                    try await MainActor.run {
+                    try await MainActor.run { [weak self] in
+                        guard self != nil else { return }
+                        
                         try completation()
                     }
                 } catch {
-                    await MainActor.run {
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
                         self.error = error as? ExecutionError
                     }
                 }
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.stopLoading()
                 }
             }
@@ -83,8 +102,10 @@ extension UserAccountView {
             switch self.deletionType {
             case .signOut:
                 self.isLoadingSignOutButton = true
+                #if CLIENT
             case .deleteAccount:
                 self.isLoadingDeleteAccountButton = true
+                #endif
             case .none:
                 break
             }
@@ -94,8 +115,10 @@ extension UserAccountView {
             switch self.deletionType {
             case .signOut:
                 self.isLoadingSignOutButton = false
+                #if CLIENT
             case .deleteAccount:
                 self.isLoadingDeleteAccountButton = false
+                #endif
             case .none:
                 break
             }
@@ -107,38 +130,32 @@ extension UserAccountView {
             with token: String,
             session: URLSession
         ) async throws(ExecutionError) -> (Data, URLResponse) {
+            let endpoint: EndpointBuilder.Endpoint = switch self.deletionType {
+            case.signOut: .auth
+            #if CLIENT
+            case .deleteAccount: .user
+            #endif
+            case .none: .auth
+            }
+            
             let path: EndpointBuilder.Path? = switch self.deletionType {
-                case.signOut: .signOut
+                case.signOut: .logout
+                #if CLIENT
                 case .deleteAccount: .delete(nil)
+                #endif
                 case .none: nil
             }
             
             guard let path else { throw .missingData }
             
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
-                path: EndpointBuilder.makePath(endpoint: .user, path: path),
+            let token = try TokenGetter.getValue()
+            
+            return try await Network.getData(
+                path: EndpointBuilder.makePath(endpoint: endpoint, path: path),
                 httpMethod: .delete,
-                headers: [EndpointBuilder.Header.authorization.rawValue: token]
+                headers: [EndpointBuilder.Header.authorization.rawValue: token],
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .failedToGetData
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode
-            
-            guard let statusCode, statusCode == 200 else {
-                throw .resposeFailed
-            }
         }
     }
 }
@@ -146,6 +163,8 @@ extension UserAccountView {
 extension UserAccountView {
     enum DeletionType {
         case signOut
+        #if CLIENT
         case deleteAccount
+        #endif
     }
 }

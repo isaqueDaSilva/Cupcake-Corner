@@ -9,7 +9,6 @@ import ErrorWrapper
 import SwiftUI
 
 struct OrderView: View {
-    @Environment(UserRepository.self) private var userRepository
     @Environment(\.dismiss) var dismiss
     
     @State private var viewModel: ViewModel

@@ -15,6 +15,10 @@ extension EditCupcake {
         var body: some View {
             VStack {
                 Text("Ingredients:")
+                    .headerSessionText(
+                        font: .headline,
+                        color: .secondary
+                    )
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Divider()

@@ -50,24 +50,7 @@ struct EditCupcake: View {
                         )
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    insertFlavorField
-                    
-                    priceField
-                    
-                    ingredientsField
-                        .overlay {
-                            Button{
-                                addIngredient()
-                            } label: {
-                                Icon.plusCircle.systemImage
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.trailing, 5)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        .onSubmit(of: .text) {
-                            addIngredient()
-                        }
+                    fields
                         .padding(.bottom)
                     
                     if !ingredients.isEmpty {
@@ -143,7 +126,13 @@ extension EditCupcake {
         TextFieldFocused(
             focusedField: $focusedField,
             focusedFieldValue: .price,
-            fieldType: .priceField("Insert the price here...", $price),
+            fieldType: .textField("Insert the price here...", Binding {
+                price.toCurreny
+            } set: { priceString in
+                self.price = NSString(
+                    string: "\(priceString.dropFirst(4))"
+                ).doubleValue
+            }),
             keyboardType: .decimalPad,
             inputAutocapitalization: .sentences
         )
@@ -161,15 +150,41 @@ extension EditCupcake {
     
     @ViewBuilder
     private var ingredientsField: some View {
-        TextFieldFocused(
-            focusedField: $focusedField,
-            focusedFieldValue: .ingredients,
-            fieldType: .textField(
-                "Insert a new Ingredient here...",
-                $ingredientName
-            ),
-            inputAutocapitalization: .sentences
-        )
+        HStack {
+            TextFieldFocused(
+                focusedField: $focusedField,
+                focusedFieldValue: .ingredients,
+                fieldType: .textField(
+                    "Insert a new Ingredient here...",
+                    $ingredientName
+                ),
+                inputAutocapitalization: .sentences
+            )
+            
+            Button{
+                addIngredient()
+            } label: {
+                Icon.plusCircle.systemImage
+            }
+            .buttonStyle(.plain)
+            .padding(.trailing, 5)
+        }
+    }
+}
+
+extension EditCupcake {
+    @ViewBuilder
+    private var fields: some View {
+        VStack(spacing: 10) {
+            insertFlavorField
+            
+            priceField
+            
+            ingredientsField
+                .onSubmit(of: .text) {
+                    addIngredient()
+                }
+        }
     }
 }
 

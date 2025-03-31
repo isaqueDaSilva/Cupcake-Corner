@@ -15,13 +15,16 @@ extension UpdateCupcakeView {
     @Observable
     @MainActor
     final class ViewModel {
-        let cupcake: Cupcake
+        private let cupcake: Cupcake
         
         var flavor: String
         var coverImageData: Data
         var ingredients: [String]
         var price: Double
         var ingredientName = ""
+        
+        var error: ExecutionError? = nil
+        var isLoading = false
         
         var pickerItemSelected: PhotosPickerItem? = nil {
             didSet {
@@ -30,9 +33,6 @@ extension UpdateCupcakeView {
                 }
             }
         }
-        
-        var error: ExecutionError? = nil
-        var isLoading = false
         
         private func getImage(_ pickerItemSelected: PhotosPickerItem) {
             GetPhoto.get(with: pickerItemSelected) { [weak self] imageData in
@@ -53,15 +53,23 @@ extension UpdateCupcakeView {
         ) {
             self.isLoading = true
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
                     let updatedCupcake = try makeUpdate()
-                    let encodedUpdatedCupcake = try encode(updatedCupcake)
+                    let encodedUpdatedCupcake = try Network.encodeData(updatedCupcake)
                     let (data, response) = try await getData(with: encodedUpdatedCupcake, session: session)
-                    try checkResponse(response)
-                    let cupcake = try decodeCupcake(by: data)
+                    try Network.checkResponse(response)
                     
-                    await MainActor.run {
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
+                    
+                    let cupcake = try Network.decodeResponse(type: Cupcake.self, by: data, with: decoder)
+                    
+                    await MainActor.run { [weak self] in 
+                        guard self != nil else { return }
+                        
                         completation(cupcake)
                     }
                 } catch let error as ExecutionError {
@@ -97,58 +105,22 @@ extension UpdateCupcakeView {
             return updatedCupcake
         }
         
-        private func encode(
-            _ updatedCupcake: Cupcake.Update
-        ) throws(ExecutionError) -> Data {
-            do {
-                return try JSONEncoder().encode(updatedCupcake)
-            } catch {
-                throw .encodeFailure
-            }
-        }
-        
         private func getData(
             with updatedCupcakeData: Data,
             session: URLSession
         ) async throws -> (Data, URLResponse) {
             let token = try TokenGetter.getValue()
             
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
+            return try await Network.getData(
                 path: EndpointBuilder.makePath(endpoint: .cupcake, path: .update),
-                httpMethod: .post,
+                httpMethod: .patch,
                 headers: [
                     EndpointBuilder.Header.authorization.rawValue : token,
                     EndpointBuilder.Header.contentType.rawValue : EndpointBuilder.HeaderValue.json.rawValue
                 ],
-                body: updatedCupcakeData
+                body: updatedCupcakeData,
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .decodedFailure
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode
-            
-            guard let statusCode, statusCode == 200 else {
-                throw .resposeFailed
-            }
-        }
-        
-        private func decodeCupcake(by data: Data) throws(ExecutionError) -> Cupcake {
-            guard let cupcake = try? JSONDecoder().decode(Cupcake.self, from: data) else {
-                throw .decodedFailure
-            }
-            
-            return cupcake
         }
         
         private func setError(_ error: ExecutionError) async {

@@ -29,6 +29,7 @@ extension Date {
     }
 }
 
+#if DEBUG
 extension Date {
     static func randomDate() -> Date {
         let year = Calendar.current.component(.year, from: .now)
@@ -40,3 +41,4 @@ extension Date {
         return Calendar.current.date(from: components) ?? .now
     }
 }
+#endif

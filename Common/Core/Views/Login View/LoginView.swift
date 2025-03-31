@@ -17,13 +17,19 @@ struct LoginView: View {
     
     var body: some View {
         NavigationStack {
-            GeometryReader { proxy in
+            ZStack {
+                Text("Welcome Back!")
+                    .font(.largeTitle)
+                    .bold()
+                    .frame(maxHeight: .infinity, alignment: .top)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                
                 VStack {
-                    LogoView()
+                    LogoView(size: .midSizePicture)
                         .padding(.bottom, 20)
                     
                     fields
-                        .padding(.bottom, 5)
                     
                     ActionButton(
                         isLoading: $viewModel.isLoading,
@@ -34,11 +40,9 @@ struct LoginView: View {
                     }
                 }
                 .padding(.horizontal)
-                .position(
-                    x: proxy.frame(in: .local).midX,
-                    y: proxy.frame(in: .local).midY - 50
-                )
                 .navigationTitle("Login")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar(removing: .title)
                 #if CLIENT
                 .toolbar {
                     ToolbarItem(placement: .bottomBar) {
@@ -47,6 +51,7 @@ struct LoginView: View {
                 }
                 #endif
                 .errorAlert(error: $viewModel.error) { }
+                .frame(maxHeight: .infinity)
             }
         }
     }

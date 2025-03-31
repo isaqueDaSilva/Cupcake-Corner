@@ -26,55 +26,48 @@ extension CupcakeDetailView {
         ) {
             self.isLoading = true
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
                     guard let cupcakeID else { throw ExecutionError.missingData }
                     
-                    let (_, response) = try await makeRequest(with: cupcakeID, and: session)
+                    let (_, response) = try await self.makeRequest(with: cupcakeID, and: session)
                     
-                    try checkResponse(response)
+                    try Network.checkResponse(response)
                     
-                    await MainActor.run {
+                    await MainActor.run { [weak self] in
+                        guard self != nil else { return }
+                        
                         completation(cupcakeID)
                     }
                 } catch let error as ExecutionError {
                     await setError(error)
                 }
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.isLoading = false
                 }
             }
         }
         
         func makeRequest(with cupcakeID: UUID, and session: URLSession) async throws(ExecutionError) -> (Data, URLResponse) {
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
+            let token = try TokenGetter.getValue()
+            
+            return try await Network.getData(
                 path: EndpointBuilder.makePath(endpoint: .cupcake, path: .delete(cupcakeID)),
-                httpMethod: .delete
+                httpMethod: .delete,
+                headers: [EndpointBuilder.Header.authorization.rawValue : token],
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .failedToGetData
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode
-            
-            guard let statusCode, statusCode == 200 else {
-                throw .resposeFailed
-            }
         }
         
         private func setError(_ error: ExecutionError) async {
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.error = error
             }
         }

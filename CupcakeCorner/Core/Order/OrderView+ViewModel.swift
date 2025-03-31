@@ -14,11 +14,16 @@ extension OrderView {
     @Observable
     @MainActor
     final class ViewModel {
-        let basePrice: Double
+        private let basePrice: Double
         var quantity = 1
         var extraFrosting = false
         var addSprinkles = false
         var paymentMethod: PaymentMethod = .cash
+        
+        var isLoading = false
+        var isSuccessed = false
+        var error: ExecutionError? = nil
+        var isShowingAboutCupcake = false
         
         var extraFrostingPrice: Double {
             Double(quantity) * 1.5
@@ -42,15 +47,9 @@ extension OrderView {
             }
             
             let finalPrice = cupcakeCost + extraFrostingTax + addSprinklesTax
-            
         
             return finalPrice
         }
-        
-        var isLoading = false
-        var isSuccessed = false
-        var error: ExecutionError?
-        var isShowingAboutCupcake = false
         
         func makeOrder(
             with session: URLSession = .shared,
@@ -58,25 +57,27 @@ extension OrderView {
         ) {
             self.isLoading = true
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
                     guard let cupcakeID else {
                         throw ExecutionError.missingData
                     }
                     
-                    let newOrder = setOrder(cupcakeID: cupcakeID)
-                    let newOrderData = try encode(newOrder)
-                    let (_, response) = try await makeRequest(with: session, newOrderData: newOrderData)
+                    let newOrder = self.setOrder(cupcakeID: cupcakeID)
+                    let newOrderData = try Network.encodeData(newOrder)
+                    let (_, response) = try await self.makeRequest(with: session, newOrderData: newOrderData)
                     
-                    try checkResponse(response)
+                    try Network.checkResponse(response)
                     
-                    isSuccessed = true
-                    
-                    await MainActor.run {
-                        isSuccessed = true
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
+                        self.isSuccessed = true
                     }
                 } catch let error as ExecutionError{
-                    await setError(error)
+                    await self.setError(error)
                 }
                 
                 await MainActor.run {
@@ -96,52 +97,28 @@ extension OrderView {
             )
         }
         
-        private func encode(_ order: Order.Create) throws(ExecutionError) -> Data {
-            do {
-                return try JSONEncoder().encode(order)
-            } catch {
-                throw .encodeFailure
-            }
-        }
-        
         private func makeRequest(
             with session: URLSession,
             newOrderData: Data
         ) async throws(ExecutionError) -> (Data, URLResponse) {
             let token = try TokenGetter.getValue()
             
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
+            return try await Network.getData(
                 path: EndpointBuilder.makePath(endpoint: .order, path: .create),
                 httpMethod: .post,
                 headers: [
                     EndpointBuilder.Header.authorization.rawValue : token,
                     EndpointBuilder.Header.contentType.rawValue : EndpointBuilder.HeaderValue.json.rawValue
                 ],
-                body: newOrderData
+                body: newOrderData,
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .decodedFailure
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode
-            
-            guard let statusCode, statusCode == 200 else {
-                throw .resposeFailed
-            }
         }
         
         private func setError(_ error: ExecutionError) async {
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.error = error
             }
         }
