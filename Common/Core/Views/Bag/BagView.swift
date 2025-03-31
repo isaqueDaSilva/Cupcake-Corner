@@ -63,25 +63,17 @@ struct BagView: View {
                         }
                     }
                 }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    if viewModel.connectionStatus == .disconnected {
-                        Button {
-                            viewModel.reconnect()
-                        } label: {
-                            Icon.arrowClockwise.systemImage
-                        }
-                    }
-                }
             }
-            .onChange(of: scenePhase) { _, newValue in
+            .onChange(of: scenePhase) { oldValue, newValue in
                 if newValue == .background {
-                    Task { await viewModel.disconnect() }
+                    viewModel.disconnect(isWaitingForDisconnect: true)
+                } else if oldValue == .background && !viewModel.isChannelConnected {
+                    viewModel.connect()
                 }
             }
             .onChange(of: userRepository.user) { _, _ in
                 if userRepository.user == nil {
-                    Task { await viewModel.disconnect() }
+                    viewModel.disconnect(isWaitingForDisconnect: false)
                 }
             }
             .errorAlert(error: $viewModel.error) { }
