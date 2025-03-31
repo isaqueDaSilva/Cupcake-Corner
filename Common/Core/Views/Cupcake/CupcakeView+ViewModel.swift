@@ -41,7 +41,9 @@ extension CupcakeView {
         
         func fetch(session: URLSession = .shared) {
             self.isLoading = true
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
                     try await withThrowingTaskGroup(of: Void.self) { [weak self] group in
                         guard let self else { return }
@@ -52,7 +54,8 @@ extension CupcakeView {
                         }
                         
                         #if CLIENT
-                        group.addTask {
+                        group.addTask { [weak self] in
+                            guard let self else { return }
                             try await fetchNewestCupcake(session: session)
                         }
                         #endif
@@ -76,73 +79,45 @@ extension CupcakeView {
         
         private func fetchCupcakes(session: URLSession) async throws(ExecutionError) {
             #if CLIENT
-            let path = EndpointBuilder.Path.all(false)
+            let path = EndpointBuilder.Path.get(false)
             #elseif ADMIN
-            let path = EndpointBuilder.Path.all(true)
+            let path = EndpointBuilder.Path.get(true)
             #endif
             
             let (data, response) = try await getData(for: path, session: session)
-            try checkResponse(response)
+            try Network.checkResponse(response)
             
-            let cupcakesDictionary = try decode(Cupcake.ListResponse.self, by: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
             
-            await MainActor.run {
+            let cupcakesDictionary = try Network.decodeResponse(
+                type: Cupcake.ListResponse.self,
+                by: data,
+                with: decoder
+            )
+            
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.cupcakesDictionary = cupcakesDictionary.cupcakes
             }
         }
-        
-        #if CLIENT
-        private func fetchNewestCupcake(session: URLSession) async throws(ExecutionError) {
-            let (data, response) = try await getData(for: .newest, session: session)
-            try checkResponse(response)
-            
-            let newestCupcake = try decode(Cupcake.self, by: data)
-            
-            await MainActor.run {
-                self.newestCupcake = newestCupcake
-            }
-        }
-        #endif
         
         private func getData(
             for path: EndpointBuilder.Path,
             session: URLSession
         ) async throws(ExecutionError) -> (Data, URLResponse) {
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
+            try await Network.getData(
                 path: EndpointBuilder.makePath(endpoint: .cupcake, path: path),
-                httpMethod: .get
+                httpMethod: .get,
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .failedToGetData
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode
-            
-            guard let statusCode, statusCode == 200 else {
-                throw .resposeFailed
-            }
-        }
-        
-        private func decode<T: Decodable>(_ model: T.Type, by data: Data) throws(ExecutionError) -> T {
-            guard let model = try? JSONDecoder().decode(T.self, from: data) else {
-                throw .decodedFailure
-            }
-            
-            return model
         }
         
         private func setError(_ error: ExecutionError) async {
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.error = error
             }
         }
@@ -158,6 +133,44 @@ extension CupcakeView {
         }
     }
 }
+
+#if ADMIN
+extension CupcakeView.ViewModel {
+    func updateStorage(with action: Action) {
+        switch action {
+        case .create(let cupcake), .update(let cupcake):
+            guard let cupcakeID = cupcake.id else {
+                self.error = .missingData
+                return
+            }
+            
+            cupcakesDictionary[cupcakeID] = cupcake
+        case .delete(let cupcakeID):
+            cupcakesDictionary.removeValue(forKey: cupcakeID)
+        }
+    }
+}
+#endif
+
+#if CLIENT
+extension CupcakeView.ViewModel {
+    private func fetchNewestCupcake(session: URLSession) async throws(ExecutionError) {
+        let (data, response) = try await getData(for: .newest, session: session)
+        try Network.checkResponse(response)
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        let newestCupcake = try Network.decodeResponse(type: Cupcake.self, by: data, with: decoder)
+        
+        await MainActor.run { [weak self] in
+            guard let self else { return }
+            
+            self.newestCupcake = newestCupcake
+        }
+    }
+}
+#endif
 
 #if DEBUG
 extension CupcakeView.ViewModel {
