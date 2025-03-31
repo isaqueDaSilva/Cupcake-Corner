@@ -39,7 +39,7 @@ extension Cupcake: Codable {
         case coverImage
         case ingredients
         case price
-        case createAt
+        case createdAt
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -58,7 +58,7 @@ extension Cupcake: Codable {
         self.coverImage = try container.decode(Data.self, forKey: .coverImage)
         self.ingredients = try container.decode([String].self, forKey: .ingredients)
         self.price = try container.decode(Double.self, forKey: .price)
-        self.createdAt = try container.decode(Date.self, forKey: .createAt)
+        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
     }
 }
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Order: Codable, Identifiable {
+struct Order: Identifiable {
     let id: UUID
     let userName: String
     let paymentMethod: PaymentMethod
@@ -20,6 +20,39 @@ struct Order: Codable, Identifiable {
     let orderTime: Date
     let readyForDeliveryTime: Date?
     let deliveredTime: Date?
+}
+
+extension Order: Codable {
+    enum CodingKeys: CodingKey {
+        case id
+        case userName
+        case paymentMethod
+        case cupcakeName
+        case quantity
+        case extraFrosting
+        case addSprinkles
+        case finalPrice
+        case status
+        case orderTime
+        case readyForDeliveryTime
+        case deliveredTime
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.userName = try container.decode(String.self, forKey: .userName)
+        self.paymentMethod = try container.decode(PaymentMethod.self, forKey: .paymentMethod)
+        self.cupcakeName = try container.decode(String.self, forKey: .cupcakeName)
+        self.quantity = try container.decode(Int.self, forKey: .quantity)
+        self.extraFrosting = try container.decode(Bool.self, forKey: .extraFrosting)
+        self.addSprinkles = try container.decode(Bool.self, forKey: .addSprinkles)
+        self.finalPrice = try container.decode(Double.self, forKey: .finalPrice)
+        self.status = try container.decode(Status.self, forKey: .status)
+        self.orderTime = try container.decode(Date.self, forKey: .orderTime)
+        self.readyForDeliveryTime = try container.decodeIfPresent(Date.self, forKey: .readyForDeliveryTime)
+        self.deliveredTime = try container.decodeIfPresent(Date.self, forKey: .deliveredTime)
+    }
 }
 
 extension Order {

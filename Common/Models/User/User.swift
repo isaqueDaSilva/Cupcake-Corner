@@ -15,14 +15,12 @@ final class User {
     
     var id: UUID
     var name: String
-    var email: String
     
     init(
         with result: Get
     ) {
         self.id = result.id
         self.name = result.name
-        self.email = result.email
     }
 }
 
@@ -32,8 +30,7 @@ extension User {
     static let mock = User(
         with: .init(
             id: .init(),
-            name: "Tim Cook",
-            email: "timcook@apple.com"
+            name: "Tim Cook"
         )
     )
 }

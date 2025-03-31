@@ -7,17 +7,13 @@
 
 import Foundation
 
-struct WebSocketMessage<T: Codable & Sendable>: Codable, Sendable {
-    let data: T
+struct WebSocketMessage: Decodable, Sendable {
+    let data: Receive
 }
 
-#if ADMIN
-enum Send: Codable, Sendable {
-    case update(Order.Update)
-}
-#endif
-
-enum Receive: Codable, Sendable {
+enum Receive: Decodable, Sendable {
     case newOrder(Order)
+    case get(Order.ReadList)
     case update(Order)
+    case delivered(UUID)
 }

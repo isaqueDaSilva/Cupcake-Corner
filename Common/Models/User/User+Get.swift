@@ -11,6 +11,5 @@ extension User {
     struct Get: Codable, Sendable, Equatable {
         let id: UUID
         let name: String
-        let email: String
     }
 }
