@@ -20,12 +20,13 @@ struct CupcakeView: View {
                     switch viewModel.isLoading {
                     case true:
                         ProgressView()
+                            .containerRelativeFrame(.vertical)
                     case false:
                         switch viewModel.isCupcakeListEmpty {
                         case true:
                             EmptyStateView(
                                 title: "No Cupcake Load",
-                                description: emptyStateDescription,
+                                description: "There are no cupcakes to be displayed.",
                                 icon: .magnifyingglass
                             )
                             .containerRelativeFrame(.vertical)
@@ -48,15 +49,7 @@ struct CupcakeView: View {
                 }
                 .sheet(isPresented: $viewModel.isShowingCreateNewCupcake) {
                     CreateNewCupcake { newCupcake in
-                        guard let cupcakeID = newCupcake.id else {
-                            self.viewModel.error = .missingData
-                            return
-                        }
-                        
-                        viewModel.cupcakesDictionary.updateValue(
-                            newCupcake,
-                            forKey: cupcakeID
-                        )
+                        viewModel.updateStorage(with: .create(newCupcake))
                     }
                 }
                 #endif
@@ -70,18 +63,7 @@ struct CupcakeView: View {
                     )
                     #elseif ADMIN
                     CupcakeDetailView(cupcake: cupcake) { action in
-                        switch action {
-                        case .update(let updatedCupcake):
-                            guard let cupcakeID = updatedCupcake.id else {
-                                self.viewModel.error = .missingData
-                                return
-                            }
-                            
-                            viewModel
-                                .cupcakesDictionary[cupcakeID] = updatedCupcake
-                        case .delete(let cupcakeID):
-                            viewModel.cupcakesDictionary.removeValue(forKey: cupcakeID)
-                        }
+                        viewModel.updateStorage(with: action)
                     }
                     #endif
                 }
@@ -141,17 +123,13 @@ extension CupcakeView {
     
     @ViewBuilder
     private func cupcakeCoverImage(_ imageData: Data) -> some View {
-        Image(
-            by: imageData,
-            with: .init(
-                width: 250,
-                height: 250
-            )
-        )
-        .resizable()
-        .scaledToFit()
-        .padding(.bottom)
-        .frame(alignment: .leading)
+        ImageResizer(imageData: imageData, size: .extremePicture) { image in
+            image
+                .resizable()
+                .scaledToFit()
+                .padding(.bottom)
+        }
+        .frame(maxWidth: .infinity)
     }
     
     @ViewBuilder
@@ -222,9 +200,11 @@ extension CupcakeView {
         and coverImageData: Data
     ) -> some View {
         GroupBox {
-            Image(by: coverImageData, with: .midSizePicture)
-                .resizable()
-                .scaledToFit()
+            ImageResizer(imageData: coverImageData, size: .midSizePicture) { image in
+                image
+                    .resizable()
+                    .scaledToFit()
+            }
         } label: {
             Text(flavor)
                 .lineLimit(1)
@@ -249,18 +229,6 @@ extension CupcakeView {
                 .buttonStyle(.plain)
             }
         }
-    }
-}
-
-
-// MARK: - Helper Text -
-extension CupcakeView {
-    private var emptyStateDescription: String {
-        #if CLIENT
-        return "It looks like there are no cupcakes on the menu to display, please refresh the page or come back later to check out more."
-        #elseif ADMIN
-        return "There are no cupcakes to be displayed. This may be because you are not logged in to your account or there are no cupcakes created."
-        #endif
     }
 }
 
