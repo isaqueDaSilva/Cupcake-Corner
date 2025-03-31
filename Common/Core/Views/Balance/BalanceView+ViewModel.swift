@@ -29,16 +29,23 @@ extension BalanceView {
         func getBalance(session: URLSession = .shared) {
             self.isLoading = true
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
+                
                 do {
                     let requestData = try makeRequestData()
                     let (data, response) = try await getData(with: requestData,session: session)
                  
-                    try checkResponse(response)
+                    try Network.checkResponse(response)
                     
-                    let balance = try await decodeBalance(by: data)
+                    let decoder = JSONDecoder()
+                    decoder.dateDecodingStrategy = .iso8601
                     
-                    await MainActor.run {
+                    let balance = try Network.decodeResponse(type: Balance.self, by: data, with: decoder)
+                    
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
                         self.balance = balance
                         self.isLoading = false
                         self.isShowingSetFilter = false
@@ -50,52 +57,33 @@ extension BalanceView {
         }
         
         private func makeRequestData() throws(ExecutionError) -> Data {
-            let request = Balance.Get(from: initialDate, to: finalDate)
+            let balanceRequest = Balance.Get(from: initialDate, to: finalDate)
             
-            do {
-                return try JSONEncoder().encode(request)
-            } catch {
-                throw .encodeFailure
-            }
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            
+            return try Network.encodeData(balanceRequest, encoder: encoder)
         }
         
         private func getData(with requestBody: Data, session: URLSession) async throws(ExecutionError) -> (Data, URLResponse) {
-            let endpoint = Endpoint(
-                scheme: EndpointBuilder.httpSchema,
-                host: EndpointBuilder.domainName,
-                path: EndpointBuilder.makePath(endpoint: .balance, path: nil),
-                httpMethod: .get,
-                body: requestBody
+            let token = try TokenGetter.getValue()
+            
+            return try await Network.getData(
+                path: EndpointBuilder.makePath(endpoint: .balance, path: .get(nil)),
+                httpMethod: .post,
+                headers: [
+                    EndpointBuilder.Header.contentType.rawValue: EndpointBuilder.HeaderValue.json.rawValue,
+                    EndpointBuilder.Header.authorization.rawValue : token
+                ],
+                body: requestBody,
+                session: session
             )
-            
-            let handler = NetworkHandler<ExecutionError>(
-                endpoint: endpoint,
-                session: session,
-                unkwnonURLRequestError: .internalError,
-                failureToGetDataError: .failedToGetData
-            )
-            
-            return try await handler.getResponse()
-        }
-        
-        private func checkResponse(_ response: URLResponse) throws(ExecutionError) {
-            let statusCode = (response as? HTTPURLResponse)?.statusCode
-            
-            guard let statusCode, statusCode == 200 else {
-                throw .resposeFailed
-            }
-        }
-        
-        private func decodeBalance(by data: Data) async throws(ExecutionError) -> Balance {
-            guard let balance = try? JSONDecoder().decode(Balance.self, from: data) else {
-                throw .decodedFailure
-            }
-            
-            return balance
         }
         
         private func setError(_ error: ExecutionError) async {
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.error = error
                 self.isLoading = false
             }
