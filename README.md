@@ -1,78 +1,189 @@
 # Table of Contents
-1. [Overview](#overview)
-2. [Features and Technologies](#features-and-technologies)
-3. [Getting started](#getting-started)
-4. [Usage](#usage)
-5. [Requirements](#requirements)
-6. [Workflow](#workflow)
-7. [Demonstration](#demonstration)
+1. [Description](#description)
+2. [Getting started](#getting-started)
+3. [Technologies](#technologies)
+4. [Arhitecture](#arhitecture)
+5. [Structure](#structure)
+6. [Dependencies](#dependencies)
+7. [API](#api)
 
-# Cupcake Corner
-The easy way to make your cupcake request in any Apple Platforms.
- 
- # Overview
-The Cupcake Corner is a Cross Platform app that enhance the user experience when those are getting out cupcakes in our store and also our employes want to manager the sales in the Admin version.<br>
+# HelloWorld
+An ergonomic application that make easy to manage all flow in a Cupcake store.
 
-When the user opens, for the first time the app, the fist thing that they will see is the Buy View, displaying in a grid style, a list of all cupcakes' flavors avaiable to buy. In client side, is also displayed, at the top of cupcakes' list a highlight of the newest cupcake created in our database.<br>
+# Description
+The Cupcake Corner project is design to solve the commun problems that a cupcake store can be.<br>
+Think about, in a traditional Cupcake store, the clients needs to go there, talks to an attendant, that'll show all availables flavor, calculates the final price, based on customizations, prepare, and when it's read, they need to manually notify each client that your order is ready.<br>
+So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks, for bolth client and admin sides.<br>
+On client side, the user can access a list of flavors variety, choice what they want, customize, create your order, and check each order status update until it's stay read to be delivered.
+On admin side, the user-admin can be create, update or delete cupcakes from the menu, check order flow and update status of an order.<br>
+Finally, for both targets, the app gives a balance of all orders made by a client or in general if the user was a admin, if showing avarges, most sold/purchased cupcake flavor, total invoiced/spent for bolth clients and administrators can get insights from what they do.<br>
 
-Clicking on any cupcake available in the list, the user will be taken to a new screen. In client's side, the screen is the Order View, the place where users can be making their orders request. The page brings together all informations necessary for user, like ingredients used and pricing of the current cupcake, also in this page, has two buttons, that is used for user says if it has frosting and sprinkles. Those buttons, also enhance the user experience in this view, because when the price is increased or decreased, activating or deactivating the request, there is new SwiftUI's `.contentTransition()` modifier being used with `numericText(value:)` for creates cool transitions when the value changes. On admin side, the screen that the admin will be taken is the Cupcake Detail, and in this view it is possible to control all of the chosen cupcake like, edit, checking something or even delete it.<br>
-
-Moving to the second tab, we have the bag view, and this view is responsible for displaying all orders. In client side, the user can only observe the status of your order, which is updated by an Admin on Admin Side. Those updates occur in real-time with no delay, thanks by WebSocket, that enables a bidirectional channel between Client-Side(App) and Server. Because this when the user makes a new order, a request is sent to the server, that process and save on database, the user receives a response when the process is finished with success, and the admin receives on your channel an database's update, informing that a new order made. When its ready to be sent, the admin sending an update for the server can be updating an order saved in database, and finally, with this changes, the user will be get an update informing changes. Same process when the order will be delivered.<br>
-
-Finaly, we have the Account View, and in this View your focus into managing user's account, offering a possibility to update the account, making logout or even delete the account. Also, in this view is possible to visualizy a panel with a panorama of the purchases(Client Side) and ballance of all cupcake's sales(Admin Side) with the avarge of sales or purchases, enabling user to visualizy how is your numbers. The Chart is buit using Swift Chat.<br>
-
-Even there, to access all functionality of the app, is required an user account. The client account is created by user itself, but the admin, only other admin can create a new account. After the account creation, the user needs to authenticate on the system to get a token value that is stored in the System's Keychain, also this tokens is requested to realize all things that depends a communication with the server.
-
-# Features and Technologies
-* List of all cupcakes;<br>
-* Create, update and delete Cupcake, User and Order(Some features, is only avaiabel for user with admin role);<br>
-* Authentication and Authorization with JWT;<br>
-* Real-time order status update;<br>
-* Cache result from API call by SwiftData;<br>
-* Built with SwiftUI
-
- # Getting started
+# Getting started
 1. Make sure you have the Xcode version 16 or above installed on your computer.<br>
-2. Downloads the Cupcake Corner project file from this repositorys. <br>
+2. Downloads the Cupcake Corner project file from this repositorys.<br>
 3. Opens the [Cupcake Corner API](https://github.com/isaqueDaSilva/CupcakeCornerAPI.git) repository and flow your instruction as well.<br>
 4. Open the project files in Xcode.<br>
-6. Review the code and make sure you understand what it does.<br>
-7. Run the CupcakeCorner and CupcakeCornerForAdmin schemes.<br>
+5. Review the code and make sure you understand what it does.
+6. Run the CupcakeCorner and CupcakeCornerForAdmin targets.
+    - Uses the admin credentials to log into admin target.
 
-# Usage
-- In Cupcake Corner For Admin, first log with the default admin account, that you defined on the UserSeed migration for the Database in the API;
-- Create some cupcakes;
-- Opens the Cupcake Corner, and create an user account;
-- Make some cupcake order;
+# Technologies
+- Programming language: Swift;
+- Frameworks: SwiftUI, SwiftData, SwiftCharts, Network, Security, CryptoKit;
+- Web Communication: RESTful API
+- Others: WebSocket
 
-# Requirements
-- Xcode 16+
-- iOS 18+
-- iPadOS 18+
+# Architecture
+* Cupcake Corner is implemented using the <strong>Model-View-ViewModel (MVVM)</strong> architecture pattern.
+    - Model has the base data need to generate each of them.<br>
+    - View is responsible for displaying the requested list of data, given by the server request.<br>
+    - ViewModel is responsable to process any user input behind the scenes, like refresh, post new data and more.<br>
+* The project uses the SwiftData to persist on-device an user profile, that given back from the request.<br>
 
-# Workflow
-* Reporting bugs:<br> 
-If you come across any issues while using the Cupcake Corner, please report them by creating a new issue on the GitHub repository.
-
-* Reporting bugs form: <br> 
+# Structure 
 ```
-App version: 1.0
-iOS version: 18.0.1
-Description: When I click on the "Mark as Ready For Delivery" button, the client and admin are't updated.
-Steps to reproduce: Open "Order" tab, make a long press in some order, click in the "Mark as Ready For Delivery" button and nothing happens.
+├── Common
+|   ├── App
+|   |   ├── MainEntrypoint.swift
+|   |   ├── MainRootView.swift
+|   |   └── SplashScreen.swift
+|   ├── Core
+|   |   ├── Components
+|   |   |   ├── ActionButton.swift
+|   |   |   |── CoverImageView.swift
+|   |   |   ├── EditAccount.swift
+|   |   |   |── EmptyStateView.swift
+|   |   |   ├── Icon.swift
+|   |   |   |── IngredientCell.swift
+|   |   |   ├── LogoView.swift
+|   |   |   |── OrderEmptyView.swift
+|   |   |   └── TextFieldFocused.swift
+|   |   └── Views
+|   |       ├── Bag
+|   |       |   ├── Components
+|   |       |   |   ├── ItemCard.swift
+|   |       |   |   └── OrderFilterPickerView.swift
+|   |       |   ├── BagView.swift
+|   |       |   └── BagView+ViewModel.swift
+|   |       |── Balance
+|   |       |   |── BalanceView.swift
+|   |       |   └── BalanceView+ViewModel.swift
+|   |       ├── Create Account
+|   |       |   |── CreateAccountView.swift
+|   |       |   └── CreateAccountView+ViewModel.swift
+|   |       |── Cupcake
+|   |       |   |── CupcakeView.swift
+|   |       |   └── CupcakeView+ViewModel.swift
+|   |       ├── Login View
+|   |       |   |── LoginView.swift
+|   |       |   └── LoginView+ViewModel.swift
+|   |       |── Root
+|   |       |   |── Components
+|   |       |   |   └── TabSection.swift
+|   |       |   └── RootView.swift
+|   |       └── User Account
+|   |           |── UserAccountView.swift
+|   |           └── UserAccountView+ViewModel.swift
+|   ├── Extensions
+|   |   ├── CGSize+Extension.swift
+|   |   |── Date+Extension.swift
+|   |   ├── Dictionary+Extension.swift
+|   |   |── Double+Extension.swift
+|   |   ├── ExecutionError+Extension.swift
+|   |   |── Image+Extension.swift
+|   |   ├── TimeInterval+Extension.swift
+|   |   |── UIImage+Extension.swift
+|   |   └── View+Extension.swift
+|   ├── Models
+|   |   ├── Balance
+|   |   |   |── Balance.swift
+|   |   |   └── Balance+Get.swift
+|   |   |── Cupcake
+|   |   |   |── Cupcake.swift
+|   |   |   └── Cupcake+ListResponse.swift
+|   |   ├── Order
+|   |   |   |── Order.swift
+|   |   |   └── Order+ReadList.swift
+|   |   |── Security
+|   |   |   |── EncryptedField.swift
+|   |   |   |── LoginResponse.swift
+|   |   |   |── PublicKeyAgreement.swift
+|   |   |   └── Token.swift
+|   |   ├── User
+|   |   |   |── User.swift
+|   |   |   |── User+Create.swift
+|   |   |   └── User+Get.swift
+|   |   |── PaymentMethod.swift
+|   |   ├── Role.swift
+|   |   |── Status.swift
+|   |   └── WebSocketMessage.swift
+|   ├── Service
+|   |   |── Encryptor.swift
+|   |   └── SecureServerCommunication.swift
+|   ├── Utilities
+|   |   |── Network
+|   |   |   |── EndpointBuilder.swift
+|   |   |   └── Network.swift
+|   |   ├── Preview
+|   |   |   └── ModelContext+InMemory.swift
+|   |   |── AppLogger.swift
+|   |   ├── ImageResizer.swift
+|   |   |── TokenGetter.swift
+|   |   └── UserRepository.swift
+|   └── Assets.xcassets
+├── CupcakeCorner
+|   |── App
+|   |   └── CupcakeCornerApp.swift
+|   |── Core
+|   |   |── About Cupcake
+|   |   |   └── AboutCupcakeView.swift
+|   |   |── Components
+|   |   |   |── InformationLabel.swift
+|   |   |   └── SelectionPicker.swift
+|   |   └── Orders
+|   |       |── OrderView.swift
+|   |       └── OrderView+ViewModel.swift
+|   |── Model
+|   |   └── Order+Create.swift
+|   |── Preview Content
+|   |   └── Preview Assets.xcassets
+|   └── Info.plist   
+├── CupcakeCornerForAdmin
+|   |── App
+|   |   └── CupcakeCornerForAdminApp.swift
+|   |── Core
+|   |   |── Components
+|   |   |   |── EditCupcake.swift
+|   |   |   └── IngredientsList.swift
+|   |   |── Create Cupcake
+|   |   |   |── CreateNewCupcakeView.swift
+|   |   |   └── CreateNewCupcakeView+ViewModel.swift
+|   |   |── Cupcake Deatail
+|   |   |   |── CupcakeDetailView.swift
+|   |   |   └── CupcakeDetailView+ViewModel.swift
+|   |   └── Update Cupcake
+|   |       |── UpdateCupcakeView.swift
+|   |       └── UpdateCupcakeView+ViewModel.swift
+|   |── Model
+|   |   |── Action.swift
+|   |   |── Cupcake+Update.swift
+|   |   └── Order+Update.swift
+|   |── Preview Content
+|   |   └── Preview Assets.xcassets
+|   |── Service
+|   |   └── GetPhoto.swift
+|   └── Info.plist   
+├── LICENSE
+└── README.md       
 ```
 
-* Submitting pull requests: <br> 
-If you have a bug fix or a new feature you'd like to add, please submit a pull request. Before submitting a pull request, 
-please make sure that your changes are well-tested and that your code adheres to the Swift style guide.
+# Dependencies
+Swift Package Manager is used as a dependency manager.
+## List of dependencies: 
+* ErrorWrapper -> My library that, used to set error alerts more easy.
+* KeychainService -> My library, used to handle with store, retrive and delete token from the keychian. 
+* NetworkKit -> My library, used to handle with the http call and WebSocket tasks more easy.
 
-* Improving documentation: <br> 
-If you notice any errors or areas of improvement in the documentation, feel free to submit a pull request with your changes.
-
-* Providing feedback:<br> 
-If you have any feedback or suggestions for the Cupcake Corner project, please let us know by creating a new issue.
-
-
-# Demonstration
-[Click here](https://youtu.be/I1W6n__rPZo) to go to my YouTube channel, and see a brief demonstration of how the updated project is working <br>
-[Click here](https://youtu.be/JXeca_3qchQ) to go to my YouTube channel, and see a a brief demonstration of how the original project is working.
+# API 
+* This projects is using a REST API
+* List of API calls is [here](https://github.com/isaqueDaSilva/CupcakeCornerAPI?tab=readme-ov-file#api) 
