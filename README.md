@@ -7,7 +7,7 @@
 6. [Dependencies](#dependencies)
 7. [API](#api)
 
-# HelloWorld
+# Cupcake Corner
 An ergonomic application that make easy to manage all flow in a Cupcake store.
 
 # Description
