@@ -121,7 +121,7 @@
 				Utilities/ImageResizer.swift,
 				Utilities/Network/EndpointBuilder.swift,
 				Utilities/Network/Network.swift,
-				"Utilities/Preview/ModelContext+Extension.swift",
+				"Utilities/Preview/ModelContext+InMemory.swift",
 				Utilities/TokenGetter.swift,
 				Utilities/UserRepository.swift,
 			);
