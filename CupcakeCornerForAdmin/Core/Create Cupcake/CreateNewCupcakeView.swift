@@ -1,5 +1,5 @@
 //
-//  CreateNewCupcake.swift
+//  CreateNewCupcakeView.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 3/10/25.
@@ -8,7 +8,7 @@
 import ErrorWrapper
 import SwiftUI
 
-struct CreateNewCupcake: View {
+struct CreateNewCupcakeView: View {
     var action: (Cupcake) -> Void
     
     @State private var viewModel = ViewModel()
@@ -33,5 +33,5 @@ struct CreateNewCupcake: View {
 }
 
 #Preview {
-    CreateNewCupcake { _ in }
+    CreateNewCupcakeView { _ in }
 }

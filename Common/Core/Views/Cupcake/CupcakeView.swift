@@ -48,7 +48,7 @@ struct CupcakeView: View {
                     #endif
                 }
                 .sheet(isPresented: $viewModel.isShowingCreateNewCupcake) {
-                    CreateNewCupcake { newCupcake in
+                    CreateNewCupcakeView { newCupcake in
                         viewModel.updateStorage(with: .create(newCupcake))
                     }
                 }

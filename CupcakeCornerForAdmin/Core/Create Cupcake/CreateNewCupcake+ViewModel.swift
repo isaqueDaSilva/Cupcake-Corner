@@ -1,5 +1,5 @@
 //
-//  CreateNewCupcake+ViewModel.swift
+//  CreateNewCupcakeView+ViewModel.swift
 //  CupcakeCornerForAdmin
 //
 //  Created by Isaque da Silva on 3/10/25.
@@ -12,7 +12,7 @@ import Observation
 import PhotosUI
 import SwiftUI
 
-extension CreateNewCupcake {
+extension CreateNewCupcakeView {
     @Observable
     @MainActor
     final class ViewModel {
