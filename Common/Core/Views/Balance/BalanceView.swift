@@ -206,7 +206,7 @@ extension BalanceView {
         DatePicker(
             "From:",
             selection: $viewModel.initialDate,
-            in: ...Date(),
+            in: ...viewModel.finalDate.addingTimeInterval(-.oneDay),
             displayedComponents: .date
         )
         .bold()
