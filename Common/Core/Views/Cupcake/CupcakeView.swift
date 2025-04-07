@@ -57,10 +57,7 @@ struct CupcakeView: View {
                 .navigationDestination(for: Cupcake.self) { cupcake in
                     
                     #if CLIENT
-                    OrderView(
-                        cupcake: cupcake,
-                        isCupcakeNew: cupcake == viewModel.newestCupcake
-                    )
+                    OrderView(cupcake: cupcake)
                     #elseif ADMIN
                     CupcakeDetailView(cupcake: cupcake) { action in
                         viewModel.updateStorage(with: action)
@@ -85,113 +82,11 @@ extension CupcakeView {
     @ViewBuilder
     private var cupcakeViewLoad: some View {
         VStack {
-            #if CLIENT
-            newestCupcakeHighlights
-            
-            if !viewModel.cupcakes.isEmpty {
-                Text("Cupcakes")
-                    .headerSessionText()
-                    .frame(
-                        maxWidth: .infinity,
-                        alignment: .leading
-                    )
-            }
-            #endif
-            
             cupcakeScrollList
         }
         .padding()
     }
 }
-
-// MARK: - Highlighted Cupcake -
-#if CLIENT
-extension CupcakeView {
-    @ViewBuilder
-    private var newestCupcakeHighlights: some View {
-        VStack {
-            if let newstCupcake = viewModel.newestCupcake {
-                Text("New")
-                    .headerSessionText()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                cupcakeHighlight(newstCupcake)
-            }
-        }
-        .padding(.bottom)
-    }
-    
-    @ViewBuilder
-    private func cupcakeCoverImage(_ imageData: Data) -> some View {
-        ImageResizer(imageData: imageData, size: .extremePicture) { image in
-            image
-                .resizable()
-                .scaledToFit()
-                .padding(.bottom)
-        }
-        .frame(maxWidth: .infinity)
-    }
-    
-    @ViewBuilder
-    private func priceView(_ price: Double) -> some View {
-        Text(
-            "From \(price, format: .currency(code: "USD"))"
-        )
-        .font(.headline)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    @ViewBuilder
-    private func headerView(flavor: String, ingredients: [String]) -> some View {
-        VStack(alignment: .leading) {
-            Text(flavor)
-            
-            Text("Made with \(ingredients.joined(separator: ", "))")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-    }
-    
-    @ViewBuilder
-    private var buyButtonLabel: some View {
-        Text("Buy")
-            .foregroundStyle(.blue)
-            .padding([.top, .bottom], 2)
-            .padding(.horizontal, 10)
-            .background(
-                Capsule()
-                    .fill(.gray.opacity(0.25))
-            )
-    }
-    
-    @ViewBuilder
-    private func cupcakeHighlight(_ newestCupcake: Cupcake) -> some View {
-        VStack {
-            
-            GroupBox {
-                VStack(alignment: .leading) {
-                    cupcakeCoverImage(newestCupcake.coverImage)
-                    
-                    HStack {
-                        priceView(newestCupcake.price)
-                        
-                        NavigationLink(value: newestCupcake) {
-                            buyButtonLabel
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                
-            } label: {
-                headerView(
-                    flavor: newestCupcake.flavor,
-                    ingredients: newestCupcake.ingredients
-                )
-            }
-        }
-    }
-}
-#endif
 
 extension CupcakeView {
     @ViewBuilder
