@@ -10,7 +10,7 @@ import Foundation
 enum EndpointBuilder {
     static let webSocketSchema = "wss"
     static let httpSchema = "https"
-    static let domainName: String = "127.0.0.0:8080"
+    static let domainName = "127.0.0.0:8080"
     
     
     static func makePath(endpoint: Endpoint, path: Path?) -> String {
@@ -38,7 +38,7 @@ extension EndpointBuilder {
 extension EndpointBuilder {
     enum Path {
         case create
-        case get(Bool?)
+        case get
         case update
         case delete(UUID?)
         case newest
@@ -48,13 +48,8 @@ extension EndpointBuilder {
         
         var rawValue: String {
             switch self {
-            case .get(let isQueringAll):
-                let path = "get"
-                if let isQueringAll {
-                    return path + "/\(isQueringAll.description)"
-                } else {
-                    return path
-                }
+            case .get:
+                return "get"
             case .create:
                 return "create"
             case .update:
