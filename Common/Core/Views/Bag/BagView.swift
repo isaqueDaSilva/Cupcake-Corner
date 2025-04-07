@@ -10,7 +10,7 @@ import SwiftUI
 
 struct BagView: View {
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(UserRepository.self) private var userRepository
+    @Bindable private var userRepository: UserRepository
     @State private var viewModel: ViewModel
     
     var body: some View {
@@ -65,10 +65,12 @@ struct BagView: View {
                 }
             }
             .onChange(of: scenePhase) { oldValue, newValue in
-                if newValue == .background {
-                    viewModel.disconnect(isWaitingForDisconnect: true)
-                } else if oldValue == .background && !viewModel.isChannelConnected {
-                    viewModel.connect()
+                if newValue == .background || newValue == .inactive {
+                    viewModel.disconnect(
+                        isWaitingForDisconnect: true
+                    )
+                } else if newValue == .active {
+                    viewModel.reconnect()
                 }
             }
             .onChange(of: userRepository.user) { _, _ in
@@ -80,8 +82,9 @@ struct BagView: View {
         }
     }
     
-    init(isPreview: Bool = false) {
+    init(userRepository: UserRepository,isPreview: Bool = false) {
         self._viewModel = .init(initialValue: .init(isPreview: isPreview))
+        self._userRepository = .init(userRepository)
     }
 }
 
@@ -146,6 +149,5 @@ extension BagView {
 #endif
 
 #Preview {
-    BagView(isPreview: true)
-        .environment(UserRepository())
+    BagView(userRepository: UserRepository(), isPreview: true)
 }
