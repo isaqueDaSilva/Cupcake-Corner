@@ -43,7 +43,7 @@ extension HomeView {
                 systemImage: TabSection.orders.iconName,
                 value: .orders
             ) {
-                BagView()
+                BagView(userRepository: userRepository)
             }
             
             Tab(
