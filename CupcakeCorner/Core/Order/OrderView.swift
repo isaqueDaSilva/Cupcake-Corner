@@ -14,7 +14,6 @@ struct OrderView: View {
     @State private var viewModel: ViewModel
     
     let cupcake: Cupcake
-    private let isCupcakeNew: Bool
     
     var body: some View {
         ScrollView {
@@ -46,10 +45,9 @@ struct OrderView: View {
         }
     }
     
-    init(cupcake: Cupcake, isCupcakeNew: Bool) {
+    init(cupcake: Cupcake) {
         self.cupcake = cupcake
         self._viewModel = .init(initialValue: .init(with: cupcake.price))
-        self.isCupcakeNew = isCupcakeNew
     }
 }
 
@@ -88,12 +86,6 @@ extension OrderView {
     @ViewBuilder
     private var cupcakeHighlight: some View {
         VStack {
-            if isCupcakeNew {
-                Text("New")
-                    .bold()
-                    .foregroundStyle(.orange)
-            }
-            
             HStack(alignment: .center) {
                 Text(cupcake.flavor)
                     .headerSessionText(font: .title2)
@@ -274,7 +266,7 @@ extension OrderView {
 
 #Preview {
     NavigationStack {
-        OrderView(cupcake: .init(), isCupcakeNew: true)
+        OrderView(cupcake: .init())
             .environment(UserRepository())
     }
 }
