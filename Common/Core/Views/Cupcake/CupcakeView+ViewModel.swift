@@ -17,15 +17,11 @@ extension CupcakeView {
         var cupcakesDictionary: [UUID: Cupcake] = [:]
         
         var cupcakes: [Cupcake] {
-            cupcakesDictionary.toArray
+            cupcakesDictionary.toArray.sorted(by: { ($0.createdAt ?? .now) > ($1.createdAt ?? .now) })
         }
         
         var isCupcakeListEmpty: Bool {
-            #if CLIENT
-            cupcakes.isEmpty && newestCupcake == nil
-            #else
             cupcakes.isEmpty
-            #endif
         }
         
         var isLoading = false
@@ -35,36 +31,13 @@ extension CupcakeView {
         var isShowingCreateNewCupcake = false
         #endif
         
-        #if CLIENT
-        var newestCupcake: Cupcake?
-        #endif
-        
         func fetch(session: URLSession = .shared) {
             self.isLoading = true
             Task { [weak self] in
                 guard let self else { return }
                 
                 do {
-                    try await withThrowingTaskGroup(of: Void.self) { [weak self] group in
-                        guard let self else { return }
-                        
-                        group.addTask { [weak self] in
-                            guard let self else { return }
-                            try await self.fetchCupcakes(session: session)
-                        }
-                        
-                        #if CLIENT
-                        group.addTask { [weak self] in
-                            guard let self else { return }
-                            try await fetchNewestCupcake(session: session)
-                        }
-                        #endif
-                        
-                        guard try await group.next() != nil else {
-                            group.cancelAll()
-                            return
-                        }
-                    }
+                    try await self.fetchCupcakes(session: session)
                 } catch let error as ExecutionError {
                     await self.setError(error)
                 }
@@ -78,11 +51,7 @@ extension CupcakeView {
         }
         
         private func fetchCupcakes(session: URLSession) async throws(ExecutionError) {
-            #if CLIENT
-            let path = EndpointBuilder.Path.get(false)
-            #elseif ADMIN
-            let path = EndpointBuilder.Path.get(true)
-            #endif
+            let path = EndpointBuilder.Path.get
             
             let (data, response) = try await getData(for: path, session: session)
             try Network.checkResponse(response)
@@ -152,42 +121,11 @@ extension CupcakeView.ViewModel {
 }
 #endif
 
-#if CLIENT
-extension CupcakeView.ViewModel {
-    private func fetchNewestCupcake(session: URLSession) async throws(ExecutionError) {
-        let (data, response) = try await getData(for: .newest, session: session)
-        try Network.checkResponse(response)
-        
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        
-        let newestCupcake = try Network.decodeResponse(type: Cupcake.self, by: data, with: decoder)
-        
-        await MainActor.run { [weak self] in
-            guard let self else { return }
-            
-            self.newestCupcake = newestCupcake
-        }
-    }
-}
-#endif
-
 #if DEBUG
 extension CupcakeView.ViewModel {
     func setPreview() {
         #if DEBUG
-        var cupcakes = Cupcake.mocks
-        #endif
-
-        #if CLIENT
-        if let newestCupcakeKey = cupcakes.first?.key {
-            self.newestCupcake = cupcakes.removeValue(forKey: newestCupcakeKey)
-        }
-        self.cupcakesDictionary = cupcakes.filter({ $0.value.id != newestCupcake?.id })
-        #else
-        #if DEBUG
-        self.cupcakesDictionary = cupcakes
-        #endif
+        self.cupcakesDictionary = Cupcake.mocks
         #endif
     }
 }
