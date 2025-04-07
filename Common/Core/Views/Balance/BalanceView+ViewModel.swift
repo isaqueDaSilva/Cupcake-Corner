@@ -69,7 +69,7 @@ extension BalanceView {
             let token = try TokenGetter.getValue()
             
             return try await Network.getData(
-                path: EndpointBuilder.makePath(endpoint: .balance, path: .get(nil)),
+                path: EndpointBuilder.makePath(endpoint: .balance, path: .get),
                 httpMethod: .post,
                 headers: [
                     EndpointBuilder.Header.contentType.rawValue: EndpointBuilder.HeaderValue.json.rawValue,
