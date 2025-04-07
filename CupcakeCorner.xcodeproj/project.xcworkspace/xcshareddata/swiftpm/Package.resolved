@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/isaqueDaSilva/NetworkKit.git",
       "state" : {
-        "revision" : "c834ef48beecdf31980251387539e4bc0f768fbc",
-        "version" : "1.3.9"
+        "revision" : "c495e766b3c9234d4fafc74b4a55d1c1ecca2174",
+        "version" : "1.3.11"
       }
     }
   ],
