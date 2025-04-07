@@ -17,10 +17,8 @@ extension BagView {
     final class ViewModel {
         private let logger = AppLogger(category: "BagView+ViewModel")
         
-        private var ordersDictionary: [Status: [UUID: Order]] = [
-            .ordered : [:],
-            .readyForDelivery : [:]
-        ]
+        private var orderedOrderDictionary: [UUID: Order] = [:]
+        private var readyToDeliveryOrderDictionary: [UUID: Order] = [:]
         
         @ObservationIgnored
         private var wsService: WebSocketClient?
@@ -44,35 +42,32 @@ extension BagView {
         
         var orders: [Order] {
             
-            let orders = ordersDictionary[statusType]?.toArray.sorted(by: {
-                switch statusType {
-                case .ordered:
-                    return $0.orderTime < $1.orderTime
-                case .readyForDelivery:
-                    if let readyForDeliveryTime1 = $0.readyForDeliveryTime,
-                       let readyForDeliveryTime2 = $1.readyForDeliveryTime {
-                        
-                        return readyForDeliveryTime1 < readyForDeliveryTime2
-                    } else {
-                        return false
-                    }
-                case .delivered:
-                    return false
-                }
-            }) ?? []
+            let orders: [Order] = switch statusType {
+            case .ordered:
+                orderedOrderDictionary.toArray
+            case .readyForDelivery:
+                readyToDeliveryOrderDictionary.toArray
+            case .delivered:
+                []
+            }
             
             logger.info("Was found \(orders.count) orders for \(statusType.displayedName) status.")
             
-            return orders
+            return orders.sorted(by: { $0.orderTime < $1.orderTime })
         }
         
         
         #if CLIENT
         var totalOfBag: Double {
-            let finalPrice = ordersDictionary
+            let orderedFinalPrice = orderedOrderDictionary
                 .toArray
-                .reduce([], { $0 + $1.values })
                 .reduce(0, { $0 + $1.finalPrice })
+            
+            let readyForDeliveryFinalPrice = readyToDeliveryOrderDictionary
+                .toArray
+                .reduce(0, { $0 + $1.finalPrice })
+            
+            let finalPrice = orderedFinalPrice + readyForDeliveryFinalPrice
             
             logger.info("The final price for this bag is \(finalPrice.toCurreny).")
             
@@ -94,12 +89,25 @@ extension BagView {
             
             if isPreview {
                 #if DEBUG
-                self.ordersDictionary = Order.mocksDict
+                for orderList in Order.mocksDict {
+                    switch orderList.key {
+                    case .ordered:
+                        self.orderedOrderDictionary = orderList.value
+                    case .readyForDelivery:
+                        self.readyToDeliveryOrderDictionary = orderList.value
+                    case .delivered:
+                        break
+                    }
+                }
                 #endif
                 self.connectionStatus = .connected
             } else {
                 self.connect()
             }
+        }
+        
+        deinit {
+            print("Deinitialized")
         }
     }
 }
@@ -108,10 +116,6 @@ extension BagView {
 extension BagView.ViewModel {
     func connect(with session: URLSession = .shared) {
         self.isLoading = true
-        
-        if waitingForDisconnectFromChannelTask != nil {
-            removeDisconnectionRequest()
-        }
         
         self.setWSService(with: session)
         
@@ -136,6 +140,16 @@ extension BagView.ViewModel {
                 self.isLoading = false
             }
         }
+    }
+    
+    func reconnect() {
+        guard wsService == nil else {
+            removeDisconnectionRequest()
+            return
+        }
+
+        removeDisconnectionRequest()
+        connect()
     }
     
     private func setWSService(with session: URLSession) {
@@ -187,6 +201,8 @@ extension BagView.ViewModel {
     }
     
     private func removeDisconnectionRequest() {
+        guard waitingForDisconnectFromChannelTask != nil else { return }
+        
         self.waitingForDisconnectFromChannelTask?.cancel()
         self.waitingForDisconnectFromChannelTask = nil
         logger.info("Disconnection channel request was removed with success.")
@@ -194,9 +210,13 @@ extension BagView.ViewModel {
     
     private func scheduleChannelDisconnection(_ isWaitingForDisconnect: Bool) async {
         if isWaitingForDisconnect {
+            logger.info("Awaiting for complete the 300s to end the channel.")
             try? await Task.sleep(for: .seconds(300))
         }
         
+        guard waitingForDisconnectFromChannelTask != nil else { return }
+        
+        logger.info("Starting end the channel.")
         await wsService?.disconnect()
         self.wsService = nil
         self.channelObserverTask?.cancel()
@@ -259,21 +279,30 @@ extension BagView.ViewModel {
             
             switch message.data {
             case .newOrder(let newOrder):
-                self.ordersDictionary[.ordered]?[newOrder.id] = newOrder
+                self.orderedOrderDictionary.updateValue(newOrder, forKey: newOrder.id)
                 
                 logger.info("A new order was added with success in the list.")
-            case .get(let orderList):
-                self.ordersDictionary = orderList.list
+            case .get(let listResult):
+                for orderList in listResult.list {
+                    switch orderList.key {
+                    case .ordered:
+                        self.orderedOrderDictionary = orderList.value
+                    case .readyForDelivery:
+                        self.readyToDeliveryOrderDictionary = orderList.value
+                    case .delivered:
+                        break
+                    }
+                }
                 
                 logger.info("The list was setted with success.")
             case .update(let updatedOrder):
-                self.ordersDictionary[.ordered]?[updatedOrder.id] = nil
+                self.orderedOrderDictionary.removeValue(forKey: updatedOrder.id)
                 
-                self.ordersDictionary[.readyForDelivery]?[updatedOrder.id] = updatedOrder
+                self.readyToDeliveryOrderDictionary.updateValue(updatedOrder, forKey: updatedOrder.id)
                 
-                logger.info("An order was wupdated with success.")
+                logger.info("An order was updated with success.")
             case .delivered(let orderID):
-                self.ordersDictionary[.readyForDelivery]?[orderID] = nil
+                self.readyToDeliveryOrderDictionary.removeValue(forKey: orderID)
             }
             
         }
