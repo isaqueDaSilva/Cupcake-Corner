@@ -8,6 +8,7 @@
 import SwiftData
 import SwiftUI
 
+/// A main entry level point to access the internals of the application.
 struct MainEntrypoint: Scene {
     var body: some Scene {
         WindowGroup {
