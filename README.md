@@ -1,3 +1,8 @@
+# Cupcake Corner
+An open source and studie case app, that's make easy to manage all flow inside of a Cupcake store.
+
+<a href="" rel="nofollow"><img src="https://camo.githubusercontent.com/498ead3b529283d08c8db814f646db66ac683bb6b8ced181087fdcde9106c241/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d687474707325334125324625324673776966747061636b616765696e6465782e636f6d2532466170692532467061636b616765732532466d316775656c706625324673776966742d7265616c74696d652d6f70656e616925324662616467652533467479706525334473776966742d76657273696f6e7326636f6c6f723d627269676874677265656e" alt="Swift Version"
+
 # Table of Contents
 1. [Description](#description)
 2. [Getting started](#getting-started)
@@ -7,18 +12,21 @@
 6. [Dependencies](#dependencies)
 7. [API](#api)
 
-# Cupcake Corner
-An ergonomic application that make easy to manage all flow in a Cupcake store.
-
-# Description
+## Description
 The Cupcake Corner project is design to solve the commun problems that a cupcake store can be.<br>
-Think about, in a traditional Cupcake store, the clients needs to go there, talks to an attendant, that'll show all availables flavor, calculates the final price, based on customizations, prepare, and when it's read, they need to manually notify each client that your order is ready.<br>
+Think about, in a traditional Cupcake store:
+- The clients needs to go the store;<br>
+- Talks with a shop assistant;<br>
+- The shop assistant will show all availables flavor, and also customizations available;<br>
+- Calculates the final price, based on the fixed price of the cupcake, customizations and quantities;<br>
+- The shop assistant, also needs to share the order with a confectioner, that'll prepare it;<br>
+- And finally, when it's read, the shop assistant needs to notify the client that your order is ready.<br>
 So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks, for bolth client and admin sides.<br>
 On client side, the user can access a list of flavors variety, choice what they want, customize, create your order, and check each order status update until it's stay read to be delivered.
 On admin side, the user-admin can be create, update or delete cupcakes from the menu, check order flow and update status of an order.<br>
 Finally, for both targets, the app gives a balance of all orders made by a client or in general if the user was a admin, if showing avarges, most sold/purchased cupcake flavor, total invoiced/spent for bolth clients and administrators can get insights from what they do.<br>
 
-# Getting started
+## Getting started
 1. Make sure you have the Xcode version 16 or above installed on your computer.<br>
 2. Downloads the Cupcake Corner project file from this repositorys.<br>
 3. Opens the [Cupcake Corner API](https://github.com/isaqueDaSilva/CupcakeCornerAPI.git) repository and flow your instruction as well.<br>
@@ -27,13 +35,13 @@ Finally, for both targets, the app gives a balance of all orders made by a clien
 6. Run the CupcakeCorner and CupcakeCornerForAdmin targets.
     - Uses the admin credentials to log into admin target.
 
-# Technologies
+## Technologies
 - Programming language: Swift;
 - Frameworks: SwiftUI, SwiftData, SwiftCharts, Network, Security, CryptoKit;
 - Web Communication: RESTful API
 - Others: WebSocket
 
-# Architecture
+## Architecture
 * Cupcake Corner is implemented using the <strong>Model-View-ViewModel (MVVM)</strong> architecture pattern.
     - Model has the base data need to generate each of them.<br>
     - View is responsible for displaying the requested list of data, given by the server request.<br>
@@ -177,13 +185,13 @@ Finally, for both targets, the app gives a balance of all orders made by a clien
 └── README.md       
 ```
 
-# Dependencies
+## Dependencies
 Swift Package Manager is used as a dependency manager.
 ## List of dependencies: 
 * ErrorWrapper -> My library that, used to set error alerts more easy.
 * KeychainService -> My library, used to handle with store, retrive and delete token from the keychian. 
 * NetworkKit -> My library, used to handle with the http call and WebSocket tasks more easy.
 
-# API 
+## API 
 * This projects is using a REST API
 * List of API calls is [here](https://github.com/isaqueDaSilva/CupcakeCornerAPI?tab=readme-ov-file#api) 
