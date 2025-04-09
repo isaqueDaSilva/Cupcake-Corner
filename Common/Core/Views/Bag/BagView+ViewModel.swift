@@ -274,38 +274,58 @@ extension BagView.ViewModel {
             with: decoder
         )
         
+        await self.handlesWithReceivedMessage(message)
+    }
+    
+    private func handlesWithReceivedMessage(_ message: WebSocketMessage) async {
         await MainActor.run { [weak self] in
             guard let self else { return }
             
             switch message.data {
             case .newOrder(let newOrder):
-                self.orderedOrderDictionary.updateValue(newOrder, forKey: newOrder.id)
-                
-                logger.info("A new order was added with success in the list.")
+                self.addNewOrder(newOrder)
             case .get(let listResult):
-                for orderList in listResult.list {
-                    switch orderList.key {
-                    case .ordered:
-                        self.orderedOrderDictionary = orderList.value
-                    case .readyForDelivery:
-                        self.readyToDeliveryOrderDictionary = orderList.value
-                    case .delivered:
-                        break
-                    }
-                }
-                
-                logger.info("The list was setted with success.")
+                self.fillOrderList(listResult)
             case .update(let updatedOrder):
-                self.orderedOrderDictionary.removeValue(forKey: updatedOrder.id)
-                
-                self.readyToDeliveryOrderDictionary.updateValue(updatedOrder, forKey: updatedOrder.id)
-                
-                logger.info("An order was updated with success.")
+                self.updateAnOrder(updatedOrder)
             case .delivered(let orderID):
-                self.readyToDeliveryOrderDictionary.removeValue(forKey: orderID)
+                self.deleteAnOrder(by: orderID)
             }
             
         }
+    }
+    
+    private func addNewOrder(_ newOrder: Order) {
+        self.orderedOrderDictionary.updateValue(newOrder, forKey: newOrder.id)
+        self.logger.info("A new order was added with success in the list.")
+    }
+    
+    private func fillOrderList(_ listResult: Order.ReadList) {
+        for orderList in listResult.list {
+            switch orderList.key {
+            case .ordered:
+                self.orderedOrderDictionary = orderList.value
+            case .readyForDelivery:
+                self.readyToDeliveryOrderDictionary = orderList.value
+            case .delivered:
+                break
+            }
+        }
+        
+        self.logger.info("The list was setted with success.")
+    }
+    
+    private func updateAnOrder(_ updatedOrder: Order) {
+        self.orderedOrderDictionary.removeValue(forKey: updatedOrder.id)
+        
+        self.readyToDeliveryOrderDictionary.updateValue(updatedOrder, forKey: updatedOrder.id)
+        
+        self.logger.info("An order was updated with success.")
+    }
+    
+    private func deleteAnOrder(by orderID: UUID) {
+        self.readyToDeliveryOrderDictionary.removeValue(forKey: orderID)
+        self.logger.info("An order with the id \(orderID) was updated with success.")
     }
 }
 

@@ -21,7 +21,19 @@ struct OrderView: View {
                 cupcakeHighlight
                     .padding(.bottom)
                 
-                containerView
+                choicerView
+                
+                orderTotalLabel
+                    .padding(.bottom, 10)
+                
+                ActionButton(
+                    isLoading: $viewModel.isLoading,
+                    label: "Make Order",
+                    width: .infinity,
+                    isDisabled: viewModel.isLoading
+                ) {
+                    viewModel.makeOrder(cupcakeID: cupcake.id)
+                }
             }
             .padding([.horizontal, .bottom])
             .alert("Order Sent with Success",isPresented: $viewModel.isSuccessed) {
@@ -53,37 +65,6 @@ struct OrderView: View {
 
 extension OrderView {
     @ViewBuilder
-    private var containerView: some View {
-        Group {
-            quantityChoice
-                .padding(.bottom)
-                .disabled(viewModel.isLoading)
-            
-            specialRequestChoices
-                .padding(.bottom)
-                .disabled(viewModel.isLoading)
-
-            paymentMethodPicker
-                .padding(.bottom)
-                .disabled(viewModel.isLoading)
-            
-            orderTotalLabel
-                .padding(.bottom, 10)
-            
-            ActionButton(
-                isLoading: $viewModel.isLoading,
-                label: "Make Order",
-                width: .infinity,
-                isDisabled: viewModel.isLoading
-            ) {
-                viewModel.makeOrder(cupcakeID: cupcake.id)
-            }
-        }
-    }
-}
-
-extension OrderView {
-    @ViewBuilder
     private var cupcakeHighlight: some View {
         VStack {
             HStack(alignment: .center) {
@@ -106,6 +87,25 @@ extension OrderView {
                 .padding()
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+extension OrderView {
+    @ViewBuilder
+    private var choicerView: some View {
+        Group {
+            quantityChoice
+                .padding(.bottom)
+                .disabled(viewModel.isLoading)
+            
+            specialRequestChoices
+                .padding(.bottom)
+                .disabled(viewModel.isLoading)
+
+            paymentMethodPicker
+                .padding(.bottom)
+                .disabled(viewModel.isLoading)
+        }
     }
 }
 
