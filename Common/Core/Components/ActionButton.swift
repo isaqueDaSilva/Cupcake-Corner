@@ -7,15 +7,24 @@
 
 import SwiftUI
 
+/// Sets a default action button to use throughout the app
 struct ActionButton: View {
+    /// Indicates if this button is loading.
     @Binding var isLoading: Bool
     
+    /// A textual representation of what this button makes.
     let label: String
     
+    /// Indicates how much width this button has.
     let width: CGFloat?
+    
+    /// Indicates how much heigh this button has.
     let height: CGFloat?
     
+    /// Indicates if this button is current disable.
     let isDisabled: Bool
+    
+    /// Stores the action that this botton will be execcute.
     var action: () -> Void
     
     var body: some View {
