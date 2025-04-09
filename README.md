@@ -21,10 +21,11 @@ Think about, in a traditional Cupcake store:
 - Calculates the final price, based on the fixed price of the cupcake, customizations and quantities;<br>
 - The shop assistant, also needs to share the order with a confectioner, that'll prepare it;<br>
 - And finally, when it's read, the shop assistant needs to notify the client that your order is ready.<br>
-So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks, for bolth client and admin sides.<br>
+
+<p>So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks, for bolth client and admin sides.<br>
 On client side, the user can access a list of flavors variety, choice what they want, customize, create your order, and check each order status update until it's stay read to be delivered.
 On admin side, the user-admin can be create, update or delete cupcakes from the menu, check order flow and update status of an order.<br>
-Finally, for both targets, the app gives a balance of all orders made by a client or in general if the user was a admin, if showing avarges, most sold/purchased cupcake flavor, total invoiced/spent for bolth clients and administrators can get insights from what they do.<br>
+Finally, for both targets, the app gives a balance of all orders made by a client or in general if the user was a admin, if showing avarges, most sold/purchased cupcake flavor, total invoiced/spent for bolth clients and administrators can get insights from what they do.<br></p>
 
 ## Getting started
 1. Make sure you have the Xcode version 16 or above installed on your computer.<br>
