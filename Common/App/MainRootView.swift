@@ -9,6 +9,7 @@ import SwiftData
 import ErrorWrapper
 import SwiftUI
 
+/// A main root that guides the app's flows from the ``SplashScreen`` to the ``HomeView``.
 struct MainRootView: View {
     @Environment(\.modelContext) private var modelContext
     
