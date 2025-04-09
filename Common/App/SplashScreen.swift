@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Shows an animation when the app is open.
 struct SplashScreen: View {
     @Binding var isSplashViewShowing: Bool
     
@@ -35,6 +36,7 @@ struct SplashScreen: View {
         }
     }
     
+    /// Responsible to execute a loop that increments a circle until it's complete the full 360° round, when this view is removed from the screen.
     private func executeAnimation() {
         Task { @MainActor in
             while timerCount > 0 {
