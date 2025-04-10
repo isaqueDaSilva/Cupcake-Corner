@@ -189,9 +189,9 @@ Finally, for both targets, the app gives a balance of all orders made by a clien
 ## Dependencies
 Swift Package Manager is used as a dependency manager.
 ## List of dependencies: 
-* ErrorWrapper -> My library that, used to set error alerts more easy.
-* KeychainService -> My library, used to handle with store, retrive and delete token from the keychian. 
-* NetworkKit -> My library, used to handle with the http call and WebSocket tasks more easy.
+* [ErrorWrapper](https://github.com/isaqueDaSilva/ErrorWrapper.git) -> My library that, used to set error alerts more easy.
+* [KeychainService](https://github.com/isaqueDaSilva/KeychainService.git) -> My library, used to handle with store, retrive and delete token from the keychian. 
+* [NetworkKit](https://github.com/isaqueDaSilva/NetworkKit.git) -> My library, used to handle with the http call and WebSocket tasks more easy.
 
 ## API 
 * This projects is using a REST API
