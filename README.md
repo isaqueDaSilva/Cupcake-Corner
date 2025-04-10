@@ -27,10 +27,10 @@ Think about, in a traditional Cupcake store:
 ### Client side
 In this target, is aimed at cupcake orders themselves. 
 So because this, here the app offers:
-    - A simple and easy to understand list of flavors that are available to order;
-    - An easy away to choice a flavor to order, customize, based on your needs and taste, and also make an order;
-    - Flowing the status change of an order, in real-time, based on updated that an admin can be;
-    - And finally, see the balance of your orders within a date range.
+- A simple and easy to understand list of flavors that are available to order;
+- An easy away to choice a flavor to order, customize, based on your needs and taste, and also make an order;
+- Flowing the status change of an order, in real-time, based on updated that an admin can be;
+- And finally, see the balance of your orders within a date range.
     
 ### Admin target
 In this target, the app, is aimed to manage the store and the portfolio itself.
