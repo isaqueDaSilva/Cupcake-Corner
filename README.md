@@ -22,7 +22,7 @@ Think about, in a traditional Cupcake store:
 - The shop assistant, also needs to share the order with a confectioner, that'll prepare it;<br>
 - And finally, when it's read, the shop assistant needs to notify the client that your order is ready.<br>
 
-<p>So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks, for bolth client and admin sides.<br><p>
+<p>So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks. The app also split into two targets, one for bolth client and other admin side, each solves the problems that each type of users can face.<br><p>
 
 ### Client side
 In this target, is aimed at cupcake orders themselves. 
