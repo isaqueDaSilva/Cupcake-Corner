@@ -43,7 +43,7 @@ So because this, here the user can:
     
 <p>Finaly, this app comminicates with a custom backend system, whitch provides the core functionality, like the database, WebSockte system, to enable the biderectional and real-time to comunicate with a server and also with the client, and also a authentication system, that enables users to register in the system, and access the protect resources, like make an order, and also restrict some functionalities, like create or delete an cupcake flavor from an unauthorized user.</p>
 
-<p>To see this application in action see the [demontration video](https://youtu.be/HCnSd-yPiJk)</p>
+To see this application in action see the [demontration video](https://youtu.be/HCnSd-yPiJk)
 
 ## Getting started
 1. Make sure you have the Xcode version 16 or above installed on your computer.<br>
