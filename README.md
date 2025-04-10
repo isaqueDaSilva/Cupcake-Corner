@@ -22,10 +22,28 @@ Think about, in a traditional Cupcake store:
 - The shop assistant, also needs to share the order with a confectioner, that'll prepare it;<br>
 - And finally, when it's read, the shop assistant needs to notify the client that your order is ready.<br>
 
-<p>So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks, for bolth client and admin sides.<br>
-On client side, the user can access a list of flavors variety, choice what they want, customize, create your order, and check each order status update until it's stay read to be delivered.
-On admin side, the user-admin can be create, update or delete cupcakes from the menu, check order flow and update status of an order.<br>
-Finally, for both targets, the app gives a balance of all orders made by a client or in general if the user was a admin, if showing avarges, most sold/purchased cupcake flavor, total invoiced/spent for bolth clients and administrators can get insights from what they do.<br></p>
+<p>So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks, for bolth client and admin sides.<br><p>
+
+### Client side
+In this target, is aimed at cupcake orders themselves. 
+So because this, here the app offers:
+    - A simple and easy to understand list of flavors that are available to order;
+    - An easy away to choice a flavor to order, customize, based on your needs and taste, and also make an order;
+    - Flowing the status change of an order, in real-time, based on updated that an admin can be;
+    - And finally, see the balance of your orders within a date range.
+    
+### Admin target
+In this target, the app, is aimed to manage the store and the portfolio itself.
+So because this, here the user can:
+    - Enter in the app and see what flavors are available into the store's portfolio;
+    - Offers a simple and intuitive UI to easy create, update or delete flavors, based on store's needed;
+    - An easy away to look and flow the client's orders that arrives;
+    - Update the order status;
+    - And finally, see the balance of the cupcake sells, to look what are the most selled flavor, total of sells, invoicing and more, within a date range.
+    
+<p>Finaly, this app comminicates with a custom backend system, whitch provides the core functionality, like the database, WebSockte system, to enable the biderectional and real-time to comunicate with a server and also with the client, and also a authentication system, that enables users to register in the system, and access the protect resources, like make an order, and also restrict some functionalities, like create or delete an cupcake flavor from an unauthorized user.</p>
+
+<p>To see this application in action see the [demontration video](https://youtu.be/HCnSd-yPiJk)</p>
 
 ## Getting started
 1. Make sure you have the Xcode version 16 or above installed on your computer.<br>
@@ -47,6 +65,7 @@ Finally, for both targets, the app gives a balance of all orders made by a clien
     - Model has the base data need to generate each of them.<br>
     - View is responsible for displaying the requested list of data, given by the server request.<br>
     - ViewModel is responsable to process any user input behind the scenes, like refresh, post new data and more.<br>
+    - The app, also has some extra layers, like extensions, services and utilities, that helps to the app keeps organized and easy to maintaining.
 * The project uses the SwiftData to persist on-device an user profile, that given back from the request.<br>
 
 # Structure 
