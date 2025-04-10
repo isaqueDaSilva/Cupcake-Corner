@@ -35,11 +35,11 @@ So because this, here the app offers:
 ### Admin target
 In this target, the app, is aimed to manage the store and the portfolio itself.
 So because this, here the user can:
-    - Enter in the app and see what flavors are available into the store's portfolio;
-    - Offers a simple and intuitive UI to easy create, update or delete flavors, based on store's needed;
-    - An easy away to look and flow the client's orders that arrives;
-    - Update the order status;
-    - And finally, see the balance of the cupcake sells, to look what are the most selled flavor, total of sells, invoicing and more, within a date range.
+- Enter in the app and see what flavors are available into the store's portfolio;
+- Offers a simple and intuitive UI to easy create, update or delete flavors, based on store's needed;
+- An easy away to look and flow the client's orders that arrives;
+- Update the order status;
+- And finally, see the balance of the cupcake sells, to look what are the most selled flavor, total of sells, invoicing and more, within a date range.
     
 <p>Finaly, this app comminicates with a custom backend system, whitch provides the core functionality, like the database, WebSockte system, to enable the biderectional and real-time to comunicate with a server and also with the client, and also a authentication system, that enables users to register in the system, and access the protect resources, like make an order, and also restrict some functionalities, like create or delete an cupcake flavor from an unauthorized user.</p>
 
