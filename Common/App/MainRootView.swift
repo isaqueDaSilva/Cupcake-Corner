@@ -19,14 +19,18 @@ struct MainRootView: View {
     @State private var error: ExecutionError? = nil
     
     var body: some View {
-        Group {
-            switch isSplashViewPresented {
-            case true:
-                SplashScreen(isSplashViewShowing: $isSplashViewPresented)
-            case false:
-                HomeView()
-                    .environment(userRepository)
-            }
+        ZStack {
+            HomeView()
+                .environment(userRepository)
+                .opacity(isSplashViewPresented ? 0 : 1)
+                .disabled(isSplashViewPresented)
+                .overlay {
+                    if isSplashViewPresented {
+                        SplashScreen(
+                            isSplashViewShowing: $isSplashViewPresented
+                        )
+                    }
+                }
         }
         .onAppear {
             do {
