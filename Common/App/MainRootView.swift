@@ -20,6 +20,7 @@ struct MainRootView: View {
     
     var body: some View {
         ZStack {
+            // TODO: Add a transition effect between Splash Screen and the HomeView.
             HomeView()
                 .environment(userRepository)
                 .opacity(isSplashViewPresented ? 0 : 1)
