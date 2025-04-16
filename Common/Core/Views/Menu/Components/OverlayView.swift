@@ -1,3 +1,12 @@
+//
+//  OverlayView.swift
+//  CupcakeCorner
+//
+//  Created by Isaque da Silva on 4/16/25.
+//
+
+import SwiftUI
+
 extension MenuView {
     struct OverlayView: View {
         let isLoading: Bool
