@@ -1,5 +1,5 @@
 //
-//  CupcakeView.swift
+//  MenuView.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 3/9/25.
@@ -8,7 +8,7 @@
 import ErrorWrapper
 import SwiftUI
 
-struct CupcakeView: View {
+struct MenuView: View {
     @Environment(UserRepository.self) private var userRepository
     @State private var viewModel: ViewModel
     private let colums: [GridItem] = [.init(.adaptive(minimum: 150))]
@@ -78,7 +78,7 @@ struct CupcakeView: View {
 }
 
 // MARK: - Main View -
-extension CupcakeView {
+extension MenuView {
     @ViewBuilder
     private var cupcakeViewLoad: some View {
         VStack {
@@ -88,7 +88,7 @@ extension CupcakeView {
     }
 }
 
-extension CupcakeView {
+extension MenuView {
     @ViewBuilder
     private func CupcakeCard(
         with flavor: String,
@@ -107,7 +107,7 @@ extension CupcakeView {
     }
 }
 
-extension CupcakeView {
+extension MenuView {
     @ViewBuilder
     private var cupcakeScrollList: some View {
         LazyVGrid(columns: colums) {
@@ -128,6 +128,6 @@ extension CupcakeView {
 }
 
 #Preview {
-    CupcakeView(isPreview: true)
+    MenuView(isPreview: true)
         .environment(UserRepository())
 }
