@@ -10,7 +10,7 @@ import Foundation
 import NetworkHandler
 import Observation
 
-extension CupcakeView {
+extension MenuView {
     @Observable
     @MainActor
     final class ViewModel {
@@ -104,7 +104,7 @@ extension CupcakeView {
 }
 
 #if ADMIN
-extension CupcakeView.ViewModel {
+extension MenuView.ViewModel {
     func updateStorage(with action: Action) {
         switch action {
         case .create(let cupcake), .update(let cupcake):
@@ -122,7 +122,7 @@ extension CupcakeView.ViewModel {
 #endif
 
 #if DEBUG
-extension CupcakeView.ViewModel {
+extension MenuView.ViewModel {
     func setPreview() {
         #if DEBUG
         self.cupcakesDictionary = Cupcake.mocks
