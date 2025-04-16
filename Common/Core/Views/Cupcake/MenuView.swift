@@ -35,7 +35,7 @@ struct MenuView: View {
                         }
                     }
                 }
-                .navigationTitle("Cupcakes")
+                .navigationTitle("Menu")
                 #if ADMIN
                 .toolbar {
                     Button {
