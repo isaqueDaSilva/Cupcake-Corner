@@ -230,3 +230,13 @@ Swift Package Manager is used as a dependency manager.
 ## API 
 * This projects is using a REST API
 * List of API calls is [here](https://github.com/isaqueDaSilva/CupcakeCornerAPI?tab=readme-ov-file#api) 
+
+## Todo
+- [x] Building efficients and user-friendly UI;<br>
+- [x] Connect the app with the Backend Service;<br>
+- [x] Implement the Authentication System with a user-friendly UI;<br>
+- [x] Adding a chart to show a balance a choose range of data;<br>
+- [x] Implement the WebSocket connection;<br>
+- [x] Implemet an user-friendly UI to handle with the real-time update;<br>
+- [ ] Improving the app architecture(MMVM + Clean Code);<br>
+- [ ] Add test coverge to the app;<br>
