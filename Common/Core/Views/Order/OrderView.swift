@@ -1,5 +1,5 @@
 //
-//  BagView.swift
+//  OrderView.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 3/11/25.
@@ -8,7 +8,7 @@
 import ErrorWrapper
 import SwiftUI
 
-struct BagView: View {
+struct OrderView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Bindable private var userRepository: UserRepository
     @State private var viewModel: ViewModel
@@ -17,33 +17,28 @@ struct BagView: View {
         NavigationStack {
             VStack {
                 OrderFilterPickerView(
-                    filter: $viewModel.statusType,
-                    filerList: Status.allCases
+                    filter: $viewModel.statusType
                 )
                 .labelsHidden()
                 .disabled(viewModel.isLoading)
                 
                 ScrollView {
-                    switch viewModel.isLoading {
-                    case true:
-                        ProgressView()
-                            .containerRelativeFrame(.vertical)
-                    case false:
-                        switch viewModel.orders.isEmpty {
-                        case true:
-                            OrderEmptyView()
-                                .containerRelativeFrame(.vertical)
-                        case false:
-                            orderListPopulated
+                    orderListPopulated
+                        .overlay {
+                            switch viewModel.isLoading {
+                            case true:
+                                ProgressView()
+                            case false:
+                                if viewModel.orders.isEmpty {
+                                    OrderEmptyView()
+                                }
+                            }
                         }
-                    }
+                        .opacity(viewModel.isLoading ? 0 : 1)
                 }
             }
-            #if CLIENT
-            .navigationTitle("Bag")
-            #elseif ADMIN
-            .navigationTitle("Client Orders")
-            #endif
+            .navigationTitle("Order")
+            .disabled(viewModel.isLoading)
             .toolbar {
                 #if CLIENT
                 ToolbarItem(placement: .bottomBar) {
@@ -88,34 +83,27 @@ struct BagView: View {
     }
 }
 
-extension BagView {
+extension OrderView {
     @ViewBuilder
     private var orderListPopulated: some View {
         LazyVStack(spacing: 10) {
-            orderList
-        }
-    }
-}
-
-extension BagView {
-    @ViewBuilder
-    private var orderList: some View {
-        ForEach(viewModel.orders, id: \.id) { order in
-            ItemCard(
-                name: order.title,
-                description: order.description,
-                price: order.finalPrice
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            #if ADMIN
-            .contextMenu {
-                changeOrderStatusButton(
-                    with: order.id,
-                    and: order.status
+            ForEach(viewModel.orders, id: \.id) { order in
+                ItemCard(
+                    name: order.title,
+                    description: order.description,
+                    price: order.finalPrice
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                #if ADMIN
+                .contextMenu {
+                    changeOrderStatusButton(
+                        with: order.id,
+                        and: order.status
+                    )
+                }
+                #endif
+                .padding(.horizontal)
             }
-            #endif
-            .padding(.horizontal)
         }
     }
 }
@@ -149,5 +137,5 @@ extension BagView {
 #endif
 
 #Preview {
-    BagView(userRepository: UserRepository(), isPreview: true)
+    OrderView(userRepository: UserRepository(), isPreview: true)
 }

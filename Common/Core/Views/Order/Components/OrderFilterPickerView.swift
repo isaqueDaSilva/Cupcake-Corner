@@ -10,11 +10,10 @@ import SwiftUI
 
 struct OrderFilterPickerView: View {
     @Binding var filter: Status
-    var filerList: [Status]
     
     var body: some View {
         Picker("Orders", selection: $filter) {
-            ForEach(filerList, id: \.id) { status in
+            ForEach(Status.allCases, id: \.id) { status in
                 Text(status.displayedName)
             }
         }
@@ -25,5 +24,5 @@ struct OrderFilterPickerView: View {
 }
 
 #Preview {
-    OrderFilterPickerView(filter: .constant(.ordered), filerList: Status.allStatusCase)
+    OrderFilterPickerView(filter: .constant(.ordered))
 }

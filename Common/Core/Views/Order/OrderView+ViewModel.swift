@@ -1,5 +1,5 @@
 //
-//  BagView+ViewModel.swift
+//  OrderView+ViewModel.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 3/11/25.
@@ -10,8 +10,8 @@ import Foundation
 import NetworkHandler
 import WebSocket
 
-// MARK: - Main View Model -
-extension BagView {
+// MARK: COMMON
+extension OrderView {
     @Observable
     @MainActor
     final class ViewModel {
@@ -56,25 +56,6 @@ extension BagView {
             return orders.sorted(by: { $0.orderTime < $1.orderTime })
         }
         
-        
-        #if CLIENT
-        var totalOfBag: Double {
-            let orderedFinalPrice = orderedOrderDictionary
-                .toArray
-                .reduce(0, { $0 + $1.finalPrice })
-            
-            let readyForDeliveryFinalPrice = readyToDeliveryOrderDictionary
-                .toArray
-                .reduce(0, { $0 + $1.finalPrice })
-            
-            let finalPrice = orderedFinalPrice + readyForDeliveryFinalPrice
-            
-            logger.info("The final price for this bag is \(finalPrice.toCurreny).")
-            
-            return finalPrice
-        }
-        #endif
-        
         var statusType: Status = .ordered
         var connectionStatus: WebSocketClient.ConnectionState = .disconnected {
             didSet {
@@ -113,7 +94,7 @@ extension BagView {
 }
 
 // MARK: - Connect in channel -
-extension BagView.ViewModel {
+extension OrderView.ViewModel {
     func connect(with session: URLSession = .shared) {
         self.isLoading = true
         
@@ -191,7 +172,7 @@ extension BagView.ViewModel {
 }
 
 // MARK: - Disconnect from channel -
-extension BagView.ViewModel {
+extension OrderView.ViewModel {
     func disconnect(isWaitingForDisconnect: Bool) {
         self.waitingForDisconnectFromChannelTask = Task { [weak self] in
             guard let self else { return }
@@ -230,7 +211,7 @@ extension BagView.ViewModel {
 }
 
 // MARK: - Channel Messages Observation -
-extension BagView.ViewModel {
+extension OrderView.ViewModel {
     private func observerChangesInChannel() {
         channelObserverTask?.cancel()
         
@@ -330,7 +311,7 @@ extension BagView.ViewModel {
 }
 
 // MARK: - Channel connection observation -
-extension BagView.ViewModel {
+extension OrderView.ViewModel {
     private func observerConnectionState() {
         connectionStatusTask?.cancel()
         
@@ -351,7 +332,7 @@ extension BagView.ViewModel {
 }
 
 // MARK: - Set Error -
-extension BagView.ViewModel {
+extension OrderView.ViewModel {
     private func setError(_ error: ExecutionError) async {
         await MainActor.run { [weak self] in
             guard let self else { return }
@@ -366,7 +347,7 @@ extension BagView.ViewModel {
     }
 }
 
-// MARK: - Update Order -
+// MARK: ADMIN
 #if ADMIN
 extension BagView.ViewModel {
     func updateOrder(for orderID: UUID, with currentStatus: Status, session: URLSession = .shared) {
@@ -432,6 +413,28 @@ extension BagView.ViewModel {
         }
         
         return .init(id: orderID, status: newStatus)
+    }
+}
+#endif
+
+// MARK: CLIENT
+#if CLIENT
+// MARK: - Properties -
+extension OrderView.ViewModel {
+    var totalOfBag: Double {
+        let orderedFinalPrice = orderedOrderDictionary
+            .toArray
+            .reduce(0, { $0 + $1.finalPrice })
+        
+        let readyForDeliveryFinalPrice = readyToDeliveryOrderDictionary
+            .toArray
+            .reduce(0, { $0 + $1.finalPrice })
+        
+        let finalPrice = orderedFinalPrice + readyForDeliveryFinalPrice
+        
+        logger.info("The final price for this bag is \(finalPrice.toCurreny).")
+        
+        return finalPrice
     }
 }
 #endif

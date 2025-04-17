@@ -82,33 +82,35 @@ To see this application in action see the [demontration video](https://youtu.be/
 |   |   |   ├── EditAccount.swift
 |   |   |   |── EmptyStateView.swift
 |   |   |   ├── Icon.swift
+|   |   |   ├── ImageResizer.swift
 |   |   |   |── IngredientCell.swift
 |   |   |   ├── LogoView.swift
 |   |   |   |── OrderEmptyView.swift
 |   |   |   └── TextFieldFocused.swift
 |   |   └── Views
-|   |       ├── Bag
-|   |       |   ├── Components
-|   |       |   |   ├── ItemCard.swift
-|   |       |   |   └── OrderFilterPickerView.swift
-|   |       |   ├── BagView.swift
-|   |       |   └── BagView+ViewModel.swift
 |   |       |── Balance
 |   |       |   |── BalanceView.swift
 |   |       |   └── BalanceView+ViewModel.swift
-|   |       ├── Create Account
-|   |       |   |── CreateAccountView.swift
-|   |       |   └── CreateAccountView+ViewModel.swift
-|   |       |── Cupcake
-|   |       |   |── CupcakeView.swift
-|   |       |   └── CupcakeView+ViewModel.swift
+|   |       |── Home
+|   |       |   |── Components
+|   |       |   |   └── HomeTabView.swift
+|   |       |   └── HomeView.swift
 |   |       ├── Login View
 |   |       |   |── LoginView.swift
 |   |       |   └── LoginView+ViewModel.swift
-|   |       |── Root
-|   |       |   |── Components
-|   |       |   |   └── TabSection.swift
-|   |       |   └── RootView.swift
+|   |       |── Menu
+|   |       |   ├── Components
+|   |       |   |   ├── MenuView+CupcakeCard.swift
+|   |       |   |   ├── MenuView+MenuList.swift
+|   |       |   |   └── OverlayView.swift
+|   |       |   |── MenuView.swift
+|   |       |   └── MenuView+ViewModel.swift
+|   |       ├── Order
+|   |       |   ├── Components
+|   |       |   |   ├── ItemCard.swift
+|   |       |   |   └── OrderFilterPickerView.swift
+|   |       |   ├── OrderView.swift
+|   |       |   └── OrderView+ViewModel.swift
 |   |       └── User Account
 |   |           |── UserAccountView.swift
 |   |           └── UserAccountView+ViewModel.swift
@@ -144,33 +146,41 @@ To see this application in action see the [demontration video](https://youtu.be/
 |   |   |── PaymentMethod.swift
 |   |   ├── Role.swift
 |   |   |── Status.swift
+|   |   |── TabSection.swift
 |   |   └── WebSocketMessage.swift
 |   ├── Service
+|   |   |── AppLogger.swift
 |   |   |── Encryptor.swift
-|   |   └── SecureServerCommunication.swift
+|   |   |── SecureServerCommunication.swift
+|   |   └── TokenGetter.swift
 |   ├── Utilities
 |   |   |── Network
 |   |   |   |── EndpointBuilder.swift
 |   |   |   └── Network.swift
 |   |   ├── Preview
 |   |   |   └── ModelContext+InMemory.swift
-|   |   |── AppLogger.swift
-|   |   ├── ImageResizer.swift
-|   |   |── TokenGetter.swift
-|   |   └── UserRepository.swift
+|   |   └── Repositories
+|   |       |── CupcakeRepository.swift
+|   |       └── UserRepository.swift
 |   └── Assets.xcassets
 ├── CupcakeCorner
 |   |── App
 |   |   └── CupcakeCornerApp.swift
 |   |── Core
-|   |   |── About Cupcake
-|   |   |   └── AboutCupcakeView.swift
 |   |   |── Components
 |   |   |   |── InformationLabel.swift
 |   |   |   └── SelectionPicker.swift
-|   |   └── Orders
-|   |       |── OrderView.swift
-|   |       └── OrderView+ViewModel.swift
+|   |   └── View
+|   |       |── About Cupcake
+|   |       |   └── AboutCupcakeView.swift
+|   |       ├── Create Account
+|   |       |   |── CreateAccountView.swift
+|   |       |   └── CreateAccountView+ViewModel.swift
+|   |       ├── Menu
+|   |       |   └── ClientMenuView.swift
+|   |       └── Orders
+|   |           |── OrderView.swift
+|   |           └── OrderView+ViewModel.swift
 |   |── Model
 |   |   └── Order+Create.swift
 |   |── Preview Content
@@ -183,15 +193,20 @@ To see this application in action see the [demontration video](https://youtu.be/
 |   |   |── Components
 |   |   |   |── EditCupcake.swift
 |   |   |   └── IngredientsList.swift
-|   |   |── Create Cupcake
-|   |   |   |── CreateNewCupcakeView.swift
-|   |   |   └── CreateNewCupcakeView+ViewModel.swift
-|   |   |── Cupcake Deatail
-|   |   |   |── CupcakeDetailView.swift
-|   |   |   └── CupcakeDetailView+ViewModel.swift
-|   |   └── Update Cupcake
-|   |       |── UpdateCupcakeView.swift
-|   |       └── UpdateCupcakeView+ViewModel.swift
+|   |   └── View
+|   |       |── Create Cupcake
+|   |       |   |── CreateNewCupcakeView.swift
+|   |       |   └── CreateNewCupcakeView+ViewModel.swift
+|   |       |── Cupcake Deatail
+|   |       |   |── CupcakeDetailView.swift
+|   |       |   └── CupcakeDetailView+ViewModel.swift
+|   |       ├── Menu
+|   |       |   └── AdminMenuView.swift
+|   |       └── Update Cupcake
+|   |           |── UpdateCupcakeView.swift
+|   |           └── UpdateCupcakeView+ViewModel.swift
+|   |── Extensions
+|   |   └── CupcakeRepository+Extension.swift
 |   |── Model
 |   |   |── Action.swift
 |   |   |── Cupcake+Update.swift

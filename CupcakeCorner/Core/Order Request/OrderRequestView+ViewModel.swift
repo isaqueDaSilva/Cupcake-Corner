@@ -1,5 +1,5 @@
 //
-//  OrderView+ViewModel.swift
+//  OrderRequestView+ViewModel.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 3/10/25.
@@ -10,7 +10,7 @@ import Foundation
 import NetworkHandler
 import Observation
 
-extension OrderView {
+extension OrderRequestView {
     @Observable
     @MainActor
     final class ViewModel {

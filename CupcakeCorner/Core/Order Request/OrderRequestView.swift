@@ -1,5 +1,5 @@
 //
-//  OrderView.swift
+//  OrderRequestView.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 3/10/25.
@@ -8,7 +8,7 @@
 import ErrorWrapper
 import SwiftUI
 
-struct OrderView: View {
+struct OrderRequestView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var viewModel: ViewModel
@@ -63,7 +63,7 @@ struct OrderView: View {
     }
 }
 
-extension OrderView {
+extension OrderRequestView {
     @ViewBuilder
     private var cupcakeHighlight: some View {
         VStack {
@@ -90,7 +90,7 @@ extension OrderView {
     }
 }
 
-extension OrderView {
+extension OrderRequestView {
     @ViewBuilder
     private var choicerView: some View {
         Group {
@@ -109,7 +109,7 @@ extension OrderView {
     }
 }
 
-extension OrderView {
+extension OrderRequestView {
     @ViewBuilder
     private var orderTotalLabel: some View {
         LabeledContent {
@@ -124,7 +124,7 @@ extension OrderView {
     }
 }
 
-extension OrderView {
+extension OrderRequestView {
     @ViewBuilder
     private var quantityChoice: some View {
         VStack(alignment: .leading) {
@@ -146,7 +146,7 @@ extension OrderView {
     }
 }
 
-extension OrderView {
+extension OrderRequestView {
     @ViewBuilder
     private var paymentMethodPicker: some View {
         VStack(alignment: .leading) {
@@ -175,7 +175,7 @@ extension OrderView {
     }
 }
 
-extension OrderView {
+extension OrderRequestView {
     @ViewBuilder
     private var specialRequestChoices: some View {
         VStack(alignment: .leading) {
@@ -206,7 +206,7 @@ extension OrderView {
     }
 }
 
-extension OrderView {
+extension OrderRequestView {
     @ViewBuilder
     private func SpecialRequest(
         isActive: Binding<Bool>,
@@ -226,7 +226,7 @@ extension OrderView {
     }
 }
 
-extension OrderView {
+extension OrderRequestView {
     private var madeWithText: AttributedString {
         var message = AttributedString("Made with: ")
         message.font = .headline
@@ -266,7 +266,7 @@ extension OrderView {
 
 #Preview {
     NavigationStack {
-        OrderView(cupcake: .init())
+        OrderRequestView(cupcake: .init())
             .environment(UserRepository())
     }
 }
