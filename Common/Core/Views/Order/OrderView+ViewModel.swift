@@ -349,7 +349,7 @@ extension OrderView.ViewModel {
 
 // MARK: ADMIN
 #if ADMIN
-extension BagView.ViewModel {
+extension OrderView.ViewModel {
     func updateOrder(for orderID: UUID, with currentStatus: Status, session: URLSession = .shared) {
         Task { [weak self] in
             guard let self else { return }
