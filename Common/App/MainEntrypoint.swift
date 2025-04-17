@@ -13,7 +13,6 @@ struct MainEntrypoint: Scene {
     var body: some Scene {
         WindowGroup {
             MainRootView()
-            
         }
         .modelContainer(for: User.self)
     }
