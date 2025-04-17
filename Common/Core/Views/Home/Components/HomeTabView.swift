@@ -11,17 +11,17 @@ extension HomeView {
     struct HomeTabView: View {
         @Environment(UserRepository.self) private var userRepository
         
-        @State private var tabSelected: TabSection = .cupcakes
+        @State private var tabSelected: TabSection = .menu
         
         var body: some View {
             TabView(selection: $tabSelected) {
                 
                 Tab(
-                    TabSection.cupcakes.title,
-                    systemImage: TabSection.cupcakes.iconName,
-                    value: .cupcakes
+                    TabSection.menu.title,
+                    systemImage: TabSection.menu.iconName,
+                    value: .menu
                 ) {
-                    MenuView()
+                    menuView
                 }
                 
                 Tab(
@@ -29,7 +29,7 @@ extension HomeView {
                     systemImage: TabSection.orders.iconName,
                     value: .orders
                 ) {
-                    BagView(userRepository: userRepository)
+                    OrderView(userRepository: userRepository)
                 }
                 
                 Tab(
@@ -45,6 +45,17 @@ extension HomeView {
     }
 }
 
+
+extension HomeView.HomeTabView {
+    @ViewBuilder
+    private var menuView: some View {
+        #if CLIENT
+        ClientMenuView()
+        #elseif ADMIN
+        AdminMenuView()
+        #endif
+    }
+}
 import SwiftData
 #Preview {
     let inMemoryModelContext = ModelContext.inMemoryModelContext
