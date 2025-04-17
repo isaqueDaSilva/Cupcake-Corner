@@ -11,6 +11,7 @@ An open source and studie case app, that's make easy to manage all flow inside o
 5. [Structure](#structure)
 6. [Dependencies](#dependencies)
 7. [API](#api)
+8. [TODO](#todo)
 
 ## Description
 The Cupcake Corner project is design to solve the commun problems that a cupcake store can be.<br>
