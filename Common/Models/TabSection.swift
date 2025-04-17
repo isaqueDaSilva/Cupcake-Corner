@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 enum TabSection: Hashable, CaseIterable {
     case menu
     case orders
