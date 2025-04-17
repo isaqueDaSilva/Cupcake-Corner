@@ -31,6 +31,7 @@ enum Icon: String {
     case infoCircle = "info.circle"
     case exclamationmarkTriangleFill = "exclamationmark.triangle.fill"
     case lineDiagonal = "line.diagonal"
+    case menucard = "menucard"
     
     var systemImage: Image {
         Image(systemName: self.rawValue)
