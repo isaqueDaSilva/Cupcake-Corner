@@ -8,23 +8,39 @@
 import SwiftUI
 
 struct AdminMenuView: View {
+    @State private var cupcakeRepository: CupcakeRepository
+    @State private var isShowingCreateNewCupcake = false
+    
     var body: some View {
-        MenuView()
-            .toolbar {
-                Button {
-                    viewModel.isShowingCreateNewCupcake = true
-                } label: {
-                    Icon.plusCircle.systemImage
+        NavigationStack {
+            MenuView(cupcakeRepository: cupcakeRepository)
+                .navigationDestination(for: Cupcake.self) { cupcake in
+                    CupcakeDetailView(cupcake: cupcake) { action in
+                        try cupcakeRepository.updateStorage(with: action)
+                    }
                 }
-            }
-            .sheet(isPresented: $viewModel.isShowingCreateNewCupcake) {
-                CreateNewCupcakeView { newCupcake in
-                    viewModel.updateStorage(with: .create(newCupcake))
+                .toolbar {
+                    Button {
+                        isShowingCreateNewCupcake = true
+                    } label: {
+                        Icon.plusCircle.systemImage
+                    }
                 }
-            }
+                .sheet(isPresented: $isShowingCreateNewCupcake) {
+                    CreateNewCupcakeView { newCupcake in
+                        try cupcakeRepository.updateStorage(
+                            with: .create(newCupcake)
+                        )
+                    }
+                }
+        }
+    }
+    
+    init(isPreview: Bool = false) {
+        self._cupcakeRepository = .init(initialValue: .init(isPreview: isPreview))
     }
 }
 
 #Preview {
-    AdminMenu()
+    AdminMenuView(isPreview: true)
 }
