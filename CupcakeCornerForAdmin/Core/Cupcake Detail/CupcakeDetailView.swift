@@ -13,7 +13,7 @@ struct CupcakeDetailView: View {
     @State private var viewModel = ViewModel()
     
     @State private var cupcake: Cupcake
-    var action: (Action) -> Void
+    var action: (Action) throws -> Void
     
     var body: some View {
         ScrollView {
@@ -84,7 +84,7 @@ struct CupcakeDetailView: View {
                 
                 Button("Delete", role: .destructive) {
                     viewModel.deleteCupcake(with: cupcake.id) { cupcakeID in
-                        action(.delete(cupcakeID))
+                        try action(.delete(cupcakeID))
                         dismiss()
                     }
                 }
@@ -95,13 +95,13 @@ struct CupcakeDetailView: View {
             .sheet(isPresented: $viewModel.isShowingUpdateCupcakeView) {
                 UpdateCupcakeView(cupcake: self.cupcake) { updatedCupcake in
                     self.cupcake = updatedCupcake
-                    action(.update(updatedCupcake))
+                    try action(.update(updatedCupcake))
                 }
             }
         }
     }
     
-    init(cupcake: Cupcake, action: @escaping (Action) -> Void) {
+    init(cupcake: Cupcake, action: @escaping (Action) throws -> Void) {
         self._cupcake = .init(initialValue: cupcake)
         self.action = action
     }

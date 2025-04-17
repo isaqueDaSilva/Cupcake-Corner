@@ -42,7 +42,7 @@ extension CreateNewCupcakeView {
         }
         
         func create(
-            with completationHandler: @escaping (Cupcake) -> Void,
+            with completationHandler: @escaping (Cupcake) throws -> Void,
             session: URLSession = .shared
         ) {
             self.isLoading = true
@@ -67,8 +67,14 @@ extension CreateNewCupcakeView {
                     
                     let cupcake = try Network.decodeResponse(type: Cupcake.self, by: data, with: decoder)
                     
-                    await MainActor.run {
-                        completationHandler(cupcake)
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
+                        do {
+                            try completationHandler(cupcake)
+                        } catch {
+                            self.error = error as? ExecutionError
+                        }
                     }
                 } catch let error as ExecutionError {
                     await setError(error)

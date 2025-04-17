@@ -48,7 +48,7 @@ extension UpdateCupcakeView {
         }
         
         func update(
-            with completation: @escaping (Cupcake) -> Void,
+            with completation: @escaping (Cupcake) throws -> Void,
             session: URLSession = .shared
         ) {
             self.isLoading = true
@@ -68,9 +68,13 @@ extension UpdateCupcakeView {
                     let cupcake = try Network.decodeResponse(type: Cupcake.self, by: data, with: decoder)
                     
                     await MainActor.run { [weak self] in 
-                        guard self != nil else { return }
+                        guard let self else { return }
                         
-                        completation(cupcake)
+                        do {
+                            try completation(cupcake)
+                        } catch {
+                            self.error = error as? ExecutionError
+                        }
                     }
                 } catch let error as ExecutionError {
                     await setError(error)

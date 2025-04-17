@@ -9,7 +9,7 @@ import ErrorWrapper
 import SwiftUI
 
 struct CreateNewCupcakeView: View {
-    var action: (Cupcake) -> Void
+    var action: (Cupcake) throws -> Void
     
     @State private var viewModel = ViewModel()
     
@@ -24,7 +24,7 @@ struct CreateNewCupcakeView: View {
             coverImageData: viewModel.coverImageData
         ) { dismiss in
             viewModel.create { newCupcake in
-                action(newCupcake)
+                try action(newCupcake)
                 dismiss()
             }
         }

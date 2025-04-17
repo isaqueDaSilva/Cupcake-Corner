@@ -12,7 +12,7 @@ import SwiftUI
 struct UpdateCupcakeView: View {
     @State private var viewModel: ViewModel
     
-    var action: (Cupcake) -> Void
+    var action: (Cupcake) throws -> Void
     
     var body: some View {
         EditCupcake(
@@ -25,14 +25,14 @@ struct UpdateCupcakeView: View {
             coverImageData: viewModel.coverImageData
         ) { dismiss in
             viewModel.update { updatedCupcake in
-                action(updatedCupcake)
+                try action(updatedCupcake)
                 dismiss()
             }
         }
         .errorAlert(error: $viewModel.error) { }
     }
     
-    init(cupcake: Cupcake, action: @escaping (Cupcake) -> Void) {
+    init(cupcake: Cupcake, action: @escaping (Cupcake) throws -> Void) {
         self._viewModel = .init(initialValue: .init(cupcake: cupcake))
         self.action = action
     }

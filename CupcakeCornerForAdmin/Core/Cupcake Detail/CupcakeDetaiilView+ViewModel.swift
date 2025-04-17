@@ -22,7 +22,7 @@ extension CupcakeDetailView {
         func deleteCupcake(
             with cupcakeID: UUID?,
             _ session: URLSession = .shared,
-            completation: @escaping (UUID) -> Void
+            completation: @escaping (UUID) throws -> Void
         ) {
             self.isLoading = true
             
@@ -37,9 +37,13 @@ extension CupcakeDetailView {
                     try Network.checkResponse(response)
                     
                     await MainActor.run { [weak self] in
-                        guard self != nil else { return }
+                        guard let self else { return }
                         
-                        completation(cupcakeID)
+                        do {
+                            try completation(cupcakeID)
+                        } catch {
+                            self.error = error as? ExecutionError
+                        }
                     }
                 } catch let error as ExecutionError {
                     await setError(error)
