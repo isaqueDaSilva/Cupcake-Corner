@@ -14,43 +14,32 @@ extension MenuView {
     @Observable
     @MainActor
     final class ViewModel {
-        var cupcakesDictionary: [UUID: Cupcake] = [:]
-        
-        var cupcakes: [Cupcake] {
-            cupcakesDictionary.toArray.sorted(by: { ($0.createdAt ?? .now) > ($1.createdAt ?? .now) })
-        }
-        
-        var isCupcakeListEmpty: Bool {
-            cupcakes.isEmpty
-        }
-        
         var isLoading = false
         var error: ExecutionError?
         
-        #if ADMIN
-        var isShowingCreateNewCupcake = false
-        #endif
-        
-        func fetch(session: URLSession = .shared) {
+        func fetch(session: URLSession = .shared, completation: @escaping (Cupcake.ListResponse) -> Void) {
             self.isLoading = true
             Task { [weak self] in
                 guard let self else { return }
                 
                 do {
-                    try await self.fetchCupcakes(session: session)
+                    let cupcakeList = try await self.fetchCupcakes(session: session)
+                    
+                    await MainActor.run {
+                        completation(cupcakeList)
+                    }
                 } catch let error as ExecutionError {
                     await self.setError(error)
                 }
                 
                 await MainActor.run { [weak self] in
                     guard let self else { return }
-                    
                     self.isLoading = false
                 }
             }
         }
         
-        private func fetchCupcakes(session: URLSession) async throws(ExecutionError) {
+        private func fetchCupcakes(session: URLSession) async throws(ExecutionError) -> Cupcake.ListResponse {
             let path = EndpointBuilder.Path.get
             
             let (data, response) = try await getData(for: path, session: session)
@@ -59,17 +48,13 @@ extension MenuView {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
             
-            let cupcakesDictionary = try Network.decodeResponse(
+            let cupcakeList = try Network.decodeResponse(
                 type: Cupcake.ListResponse.self,
                 by: data,
                 with: decoder
             )
             
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                
-                self.cupcakesDictionary = cupcakesDictionary.cupcakes
-            }
+            return cupcakeList
         }
         
         private func getData(
@@ -90,43 +75,5 @@ extension MenuView {
                 self.error = error
             }
         }
-        
-        init(isPreview: Bool = false) {
-            if isPreview {
-                #if DEBUG
-                self.setPreview()
-                #endif
-            } else {
-                self.fetch()
-            }
-        }
     }
 }
-
-#if ADMIN
-extension MenuView.ViewModel {
-    func updateStorage(with action: Action) {
-        switch action {
-        case .create(let cupcake), .update(let cupcake):
-            guard let cupcakeID = cupcake.id else {
-                self.error = .missingData
-                return
-            }
-            
-            cupcakesDictionary[cupcakeID] = cupcake
-        case .delete(let cupcakeID):
-            cupcakesDictionary.removeValue(forKey: cupcakeID)
-        }
-    }
-}
-#endif
-
-#if DEBUG
-extension MenuView.ViewModel {
-    func setPreview() {
-        #if DEBUG
-        self.cupcakesDictionary = Cupcake.mocks
-        #endif
-    }
-}
-#endif
