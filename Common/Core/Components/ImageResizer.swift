@@ -18,6 +18,9 @@ struct ImageResizer<Content: View>: View {
         Group {
             if let downscaledImage {
                 content(downscaledImage)
+                    .clipShape(
+                        RoundedRectangle(cornerRadius: 10)
+                    )
             } else {
                 ProgressView()
             }
@@ -45,9 +48,11 @@ extension ImageResizer {
 
 
 #Preview {
-    let imageData = UIImage(systemName: Icon.plusCircle.rawValue)?.pngData()
+    let imageData = UIImage(resource: .appLogo).pngData()
     
     ImageResizer(imageData: imageData!, size: .midSizePicture) { image in
         image
+            .resizable()
+            .scaledToFit()
     }
 }
