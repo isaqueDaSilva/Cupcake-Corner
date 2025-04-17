@@ -109,7 +109,7 @@ extension OrderView {
 }
 
 #if ADMIN
-extension BagView {
+extension OrderView {
     @ViewBuilder
     private func changeOrderStatusButton(
         with orderID: UUID,
