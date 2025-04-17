@@ -7,15 +7,23 @@
 
 import SwiftUI
 
-struct ClientMenu: View {
+struct ClientMenuView: View {
+    @State private var cupcakeRepository: CupcakeRepository
+    
     var body: some View {
-        MenuView()
-            .navigationDestination(for: Cupcake.self) { cupcake in
-                OrderView(cupcake: cupcake)
-            }
+        NavigationStack {
+            MenuView(cupcakeRepository: cupcakeRepository)
+                .navigationDestination(for: Cupcake.self) { cupcake in
+                    OrderView(cupcake: cupcake)
+                }
+        }
+    }
+    
+    init(isPreview: Bool = false) {
+        self._cupcakeRepository = .init(initialValue: .init(isPreview: isPreview))
     }
 }
 
 #Preview {
-    ClientMenu()
+    ClientMenuView(isPreview: true)
 }
