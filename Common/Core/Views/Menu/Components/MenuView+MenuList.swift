@@ -5,6 +5,7 @@
 //  Created by Isaque da Silva on 4/16/25.
 //
 
+import SwiftUI
 
 extension MenuView {
     struct MenuList: View {
@@ -25,6 +26,7 @@ extension MenuView {
                         .buttonStyle(.plain)
                     }
                 }
+                .padding(.horizontal)
             }
         }
     }
