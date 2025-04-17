@@ -9,7 +9,6 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(UserRepository.self) private var userRepository
-    @State private var tabSelected: TabSection = .cupcakes
     
     var body: some View {
         Group {
