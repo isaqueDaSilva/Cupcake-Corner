@@ -241,3 +241,4 @@ Swift Package Manager is used as a dependency manager.
 - [x] Implemet an user-friendly UI to handle with the real-time update;<br>
 - [ ] Improving the app architecture(MMVM + Clean Code);<br>
 - [ ] Add test coverge to the app;<br>
+- [ ] Add macOS support
