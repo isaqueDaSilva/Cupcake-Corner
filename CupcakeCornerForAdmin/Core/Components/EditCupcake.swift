@@ -56,6 +56,8 @@ struct EditCupcake: View {
                     if !ingredients.isEmpty {
                         IngredientsList(ingredients: $ingredients)
                     }
+                    
+                    
                 }
                 .padding()
             }

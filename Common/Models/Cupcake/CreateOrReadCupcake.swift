@@ -7,6 +7,18 @@
 
 import Foundation
 
+typealias CreateCupcake = CreateOrReadCupcake
+typealias ReadCupcake = CreateOrReadCupcake
+
+struct CreateOrReadCupcake {
+    let id: UUID?
+    let flavor: String
+    let imageName: String?
+    let ingredients: [String]
+    let price: Double
+    let createdAt: Date?
+}
+
 struct Cupcake: Identifiable {
     let id: UUID?
     let flavor: String
