@@ -14,17 +14,15 @@ struct EditCupcake: View {
     @Binding var price: Double
     @Binding var ingredients: [String]
     @Binding var isLoading: Bool
+    let navigationTitle: String
+    let coverImageData: Data?
+    var action: (@escaping () -> Void) -> Void
     
     @Environment(\.dismiss) private var dismiss
     
     @FocusState private var focusedField: FocusedField?
     
     @State private var ingredientName = ""
-    
-    let navigationTitle: String
-    let coverImageData: Data?
-    
-    var action: (@escaping () -> Void) -> Void
     
     var body: some View {
         NavigationStack {
@@ -56,8 +54,6 @@ struct EditCupcake: View {
                     if !ingredients.isEmpty {
                         IngredientsList(ingredients: $ingredients)
                     }
-                    
-                    
                 }
                 .padding()
             }
@@ -65,15 +61,9 @@ struct EditCupcake: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        HStack {
-                            Icon.chevronLeft.systemImage
-                            Text("Back")
-                        }
+                    BackButton {
+                        self.dismiss()
                     }
-
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
