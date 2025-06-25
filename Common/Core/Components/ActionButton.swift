@@ -13,43 +13,35 @@ struct ActionButton: View {
     @Binding var isLoading: Bool
     
     /// A textual representation of what this button makes.
-    let label: String
+    private let label: String
     
     /// Indicates how much width this button has.
-    let width: CGFloat?
+    private let width: CGFloat?
     
     /// Indicates how much heigh this button has.
-    let height: CGFloat?
-    
-    /// Indicates if this button is current disable.
-    let isDisabled: Bool
+    private let height: CGFloat?
     
     /// Stores the action that this botton will be execcute.
-    var action: () -> Void
+    private var action: () -> Void
     
     var body: some View {
-        Button {
-            action()
-        } label: {
-            Group {
-                switch isLoading {
-                case true:
-                    VStack {
-                        ProgressView()
-                    }
-                    .frame(height: height, alignment: .center)
-                case false:
-                    VStack {
-                        Text(label)
-                            .bold()
-                    }
+        Group {
+            if #available(iOS 26.0, *) {
+                Button(role: .confirm) {
+                    self.action()
+                } label: {
+                    self.buttonLabel
                 }
+            } else {
+                Button {
+                    self.action()
+                } label: {
+                    self.buttonLabel
+                }
+                .buttonStyle(.borderedProminent)
             }
-            .frame(maxWidth: width)
-            .frame(height: height, alignment: .center)
         }
-        .disabled(isDisabled)
-        .buttonStyle(.borderedProminent)
+        .disabled(self.isLoading)
     }
     
     init(
@@ -57,7 +49,6 @@ struct ActionButton: View {
         label: String,
         width: CGFloat? = nil,
         height: CGFloat? = nil,
-        isDisabled: Bool = false,
         action: @escaping () -> Void
     ) {
         _isLoading = isLoading
@@ -65,16 +56,58 @@ struct ActionButton: View {
         self.action = action
         self.width = width
         self.height = height
-        self.isDisabled = isDisabled
+    }
+}
+
+extension ActionButton {
+    private var buttonLabel: some View {
+        HStack {
+            switch isLoading {
+            case true:
+                ProgressView()
+            case false:
+                Text(label)
+                    .bold()
+            }
+        }
+        .frame(maxWidth: width)
+        .frame(height: height, alignment: .center)
     }
 }
 
 #Preview {
-    VStack {
-        ActionButton(isLoading: .constant(false), label: "Action") { }
-            .padding()
-        
-        ActionButton(isLoading: .constant(true), label: "Action", width: .infinity, isDisabled: true) { }
-            .padding()
+    NavigationStack {
+        VStack {
+            ActionButton(
+                isLoading: .constant(true),
+                label: "Action",
+                width: .infinity
+            ) { }
+                .padding()
+        }
+        .toolbar {
+            ActionButton(
+                isLoading: .constant(false),
+                label: "Action"
+            ) { }.padding()
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        VStack {
+            ActionButton(
+                isLoading: .constant(false),
+                label: "Action"
+            ) { }.padding()
+        }
+        .toolbar {
+            ActionButton(
+                isLoading: .constant(true),
+                label: "Action",
+            ) { }
+                .padding()
+        }
     }
 }
