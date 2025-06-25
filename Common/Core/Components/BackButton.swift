@@ -8,11 +8,34 @@
 import SwiftUI
 
 struct BackButton: View {
+    var action: () -> Void
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        if #available(iOS 26.0, *) {
+            Button(role: .close) {
+                self.action()
+            } label: {
+                self.buttonLabel
+            }
+        } else {
+            Button {
+                self.action()
+            } label: {
+                self.buttonLabel
+            }
+        }
+    }
+}
+
+extension BackButton {
+    private var buttonLabel: some View {
+        HStack {
+            Icon.chevronLeft.systemImage
+            Text("Back")
+        }
     }
 }
 
 #Preview {
-    BackButton()
+    BackButton { }
 }
