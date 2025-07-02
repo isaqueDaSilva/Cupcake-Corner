@@ -81,7 +81,7 @@ extension MenuListVC {
         )
         
         self.tableView.register(
-            ProgressViewTableViewCell.self,
+            ProgressTableViewCell.self,
             forCellReuseIdentifier: self.progressCellIdentifier
         )
         
@@ -101,11 +101,11 @@ extension MenuListVC {
         return cell
     }
     
-    private func setProgressViewCell(for indexPath: IndexPath) -> ProgressViewTableViewCell {
+    private func setProgressViewCell(for indexPath: IndexPath) -> ProgressTableViewCell {
         let cell = self.tableView.dequeueReusableCell(
             withIdentifier: self.progressCellIdentifier,
             for: indexPath
-        ) as! ProgressViewTableViewCell
+        ) as! ProgressTableViewCell
         
         cell.startAnimating()
         
