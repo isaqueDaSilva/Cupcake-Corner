@@ -1,5 +1,5 @@
 //
-//  MenuViewListVC.swift
+//  MenuListVC.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 6/28/25.
@@ -7,14 +7,20 @@
 
 import UIKit
 
-final class MenuViewListVC: UITableViewController, UITableViewDataSourcePrefetching {
+final class MenuListVC: UITableViewController, UITableViewDataSourcePrefetching {
+    private let refresh = UIRefreshControl()
+    
     private let cellIdentifier = "CardTableViewCell"
     private let progressCellIdentifier = "ProgressViewTableViewCell"
     private let viewModel: MenuViewModel
+    private var isRefreshing = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.backgroundColor = .systemBackground
         self.tableView.delegate = self
+        self.tableView.refreshControl = self.refresh
+        self.configureRefreshControl()
         self.fetchCupcakes()
         self.configureTableView()
     }
@@ -34,9 +40,10 @@ final class MenuViewListVC: UITableViewController, UITableViewDataSourcePrefetch
     }
     
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        guard viewModel.viewState == .default else { return }
+        print(indexPaths.count, indexPaths.last?.row)
+        guard self.viewModel.viewState == .default && !self.isRefreshing else { return }
         
-        if (viewModel.cupcakes.last != nil) && (indexPaths.last != nil) {
+        if viewModel.cupcakes.count == indexPaths.last?.row {
             print("Start Fetching...")
             self.fetchCupcakes()
         }
@@ -66,7 +73,7 @@ final class MenuViewListVC: UITableViewController, UITableViewDataSourcePrefetch
 }
 
 // MARK: - Cell Configuration -
-extension MenuViewListVC {
+extension MenuListVC {
     private func configureTableView() {
         self.tableView.register(
             CardTableViewCell.self,
@@ -106,20 +113,44 @@ extension MenuViewListVC {
     }
 }
 
+// MARK: Refresh Control
+extension MenuListVC {
+    private func configureRefreshControl() {
+        self.tableView.refreshControl?.addTarget(
+            self,
+            action: #selector(self.refreshList),
+            for: .valueChanged
+        )
+    }
+}
+
 // MARK: - Actions -
-extension MenuViewListVC {
+extension MenuListVC {
+    @objc private func  refreshList() {
+        self.isRefreshing = true
+        self.tableView.refreshControl?.beginRefreshing()
+        self.viewModel.removeCupcakes()
+        self.tableView.reloadData()
+        self.fetchCupcakes()
+    }
+    
     private func fetchCupcakes() {
         Task { [weak self] in
             guard let self else { return }
-            await self.viewModel.fechMocks()
-            
+            await self.viewModel.fechMocks(isRefreshing: self.isRefreshing)
+            print("finished")
             await MainActor.run {
                 self.tableView.reloadData()
+                
+                if self.isRefreshing {
+                    self.tableView.refreshControl?.endRefreshing()
+                    self.isRefreshing = false
+                }
             }
         }
     }
 }
 
 #Preview {
-    MenuViewListVC(viewModel: .init(isPreview: false))
+    MenuListVC(viewModel: .init(isPreview: false))
 }
