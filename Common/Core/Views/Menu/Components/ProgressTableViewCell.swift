@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProgressTableViewCell: UITableViewCell {
+final class ProgressTableViewCell: UITableViewCell {
     private let progressView = UIActivityIndicatorView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
