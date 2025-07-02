@@ -10,7 +10,7 @@ import Foundation
 typealias CreateCupcake = CreateOrReadCupcake
 typealias ReadCupcake = CreateOrReadCupcake
 
-struct CreateOrReadCupcake: Identifiable, Hashable {
+struct CreateOrReadCupcake: Identifiable, Hashable, Equatable {
     let id: UUID?
     var flavor: String
     var imageName: String?
