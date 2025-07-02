@@ -1,5 +1,5 @@
 //
-//  IndicatorTableViewCell.swift
+//  ProgressTableViewCell.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 7/1/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProgressViewTableViewCell: UITableViewCell {
+class ProgressTableViewCell: UITableViewCell {
     private let progressView = UIActivityIndicatorView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -27,7 +27,7 @@ class ProgressViewTableViewCell: UITableViewCell {
     }
 }
 
-extension ProgressViewTableViewCell {
+extension ProgressTableViewCell {
     private func configure() {
         self.progressView.translatesAutoresizingMaskIntoConstraints = false
         self.progressView.style = .medium
@@ -44,16 +44,16 @@ extension ProgressViewTableViewCell {
                 equalTo: self.trailingAnchor
             ),
             self.progressView.topAnchor.constraint(
-                equalTo: self.topAnchor
+                equalTo: self.topAnchor, constant: 5
             ),
             self.progressView.bottomAnchor.constraint(
-                equalTo: self.bottomAnchor
+                equalTo: self.bottomAnchor, constant: -5
             )
         ])
     }
 }
 
-extension ProgressViewTableViewCell {
+extension ProgressTableViewCell {
     func startAnimating() {
         self.progressView.startAnimating()
     }
@@ -64,7 +64,7 @@ extension ProgressViewTableViewCell {
 }
 
 #Preview {
-    let progressViewCell = ProgressViewTableViewCell()
+    let progressViewCell = ProgressTableViewCell()
     progressViewCell.stopAnimating()
     return progressViewCell
 }
