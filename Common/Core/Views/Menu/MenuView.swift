@@ -9,42 +9,26 @@ import ErrorWrapper
 import SwiftUI
 
 struct MenuView: View {
-    @Bindable var cupcakeRepository: CupcakeRepository
-    @State private var viewModel = ViewModel()
+    @Binding var viewModel: MenuViewModel
     
     var body: some View {
-        MenuList(cupcakeList: cupcakeRepository.cupcakes)
-            .onAppear {
-                if cupcakeRepository.isCupcakeListEmpty {
-                    viewModel.fetch { cupcakeList in
-                        cupcakeRepository.fillStorage(
-                            with: cupcakeList.cupcakes
-                        )
-                    }
-                }
-            }
-            .opacity(viewModel.isLoading ? 0 : 1)
+        MenuListViewRepresentable(viewModel: $viewModel)
+            .ignoresSafeArea()
+            .navigationTitle("Menu")
             .overlay {
                 OverlayView(
                     isLoading: viewModel.isLoading,
-                    isCupcakeListEmpty: cupcakeRepository.isCupcakeListEmpty
+                    isCupcakeListEmpty: viewModel.cupcakes.isEmpty
                 )
             }
-            .navigationTitle("Menu")
             .errorAlert(error: $viewModel.error) { }
-            .refreshable {
-                viewModel.fetch { cupcakeList in
-                    self.cupcakeRepository.fillStorage(
-                        with: cupcakeList.cupcakes
-                    )
-                }
-            }
             .disabled(viewModel.isLoading)
     }
 }
 
 #Preview {
-    MenuView(cupcakeRepository: .init(isPreview: true))
-        .environment(UserRepository())
+    NavigationStack {
+        MenuView(viewModel: .constant(.init(isPreview: true)))
+    }
 }
 
