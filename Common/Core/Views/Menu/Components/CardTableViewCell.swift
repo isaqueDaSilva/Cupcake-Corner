@@ -15,13 +15,6 @@ final class CardTableViewCell: UITableViewCell {
     
     private let vStack = UIStackView()
     private let hStack = UIStackView()
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
-        
-    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -100,7 +93,7 @@ extension CardTableViewCell {
         self.hStack.axis = .horizontal
         self.hStack.spacing = 10
         self.hStack.alignment = .center
-        self.hStack.backgroundColor = .systemGroupedBackground
+        self.hStack.backgroundColor = .systemGray3
         self.hStack.layer.cornerRadius = 10
         
         self.hStack.addArrangedSubview(self.progressView)
