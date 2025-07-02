@@ -8,9 +8,9 @@
 import Foundation
 
 typealias CreateCupcake = CreateOrReadCupcake
-typealias ReadCupcake = Cupcake
+typealias ReadCupcake = CreateOrReadCupcake
 
-struct CreateOrReadCupcake: Identifiable {
+struct CreateOrReadCupcake: Identifiable, Hashable {
     let id: UUID?
     var flavor: String
     var imageName: String?
@@ -19,7 +19,7 @@ struct CreateOrReadCupcake: Identifiable {
     let createdAt: Date?
     
     #if ADMIN
-    init(flavor: String = "", ingredients: [String] = [], price: Double = 0.0) {
+    init(flavor: String, ingredients: [String], price: Double) {
         self.id = nil
         self.flavor = flavor
         self.imageName = nil
@@ -75,7 +75,7 @@ extension CreateCupcake {
     func createCupcake(
         with token: String,
         and session: URLSession
-    ) async throws -> (Data, Response) {
+    ) async throws -> DataAndResponse {
         try self.checkIfIsValid()
         
         let cupcakeData = try EncoderAndDecoder.encodeData(self)
@@ -142,107 +142,25 @@ extension CreateOrReadCupcake {
 }
 #endif
 
-struct Cupcake: Identifiable {
-    let id: UUID?
-    let flavor: String
-    let coverImage: Data
-    var imageName: String?
-    let ingredients: [String]
-    let price: Double
-    let createdAt: Date?
-    
-    init(
-        id: UUID? = nil,
-        flavor: String,
-        coverImage: Data,
-        ingredients: [String],
-        price: Double,
-        createAt: Date? = nil
-    ) {
-        self.id = id
-        self.flavor = flavor
-        self.coverImage = coverImage
-        self.ingredients = ingredients
-        self.price = price
-        self.createdAt = createAt
-        imageName = nil
-    }
-}
-
-extension Cupcake: Codable {
-    enum CodingKeys: CodingKey {
-        case id
-        case flavor
-        case coverImage
-        case ingredients
-        case price
-        case createdAt
-    }
-    
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(self.id, forKey: .id)
-        try container.encodeIfPresent(self.flavor, forKey: .flavor)
-        try container.encodeIfPresent(self.coverImage, forKey: .coverImage)
-        try container.encodeIfPresent(self.ingredients, forKey: .ingredients)
-        try container.encodeIfPresent(self.price, forKey: .price)
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(UUID.self, forKey: .id)
-        self.flavor = try container.decode(String.self, forKey: .flavor)
-        self.coverImage = try container.decode(Data.self, forKey: .coverImage)
-        self.ingredients = try container.decode([String].self, forKey: .ingredients)
-        self.price = try container.decode(Double.self, forKey: .price)
-        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
-        imageName = nil
-    }
-}
-
-extension Cupcake: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(flavor)
-        hasher.combine(createdAt)
+extension ReadCupcake {
+    static func fetch(with token: String, currentPage: Int, and session: URLSession) async throws -> DataAndResponse {
+        let request = _Network(
+            method: .patch,
+            scheme: .https,
+            path: " /cupcake/get?page=\(currentPage)",
+            fields: [
+                .authorization : token,
+                .contentType : _Network.HeaderValue.json.rawValue
+            ],
+            requestType: .get
+        )
+        
+        return try await request.getResponse(with: session)
     }
 }
 
 #if DEBUG
-// MARK: - Sample -
-import SwiftUI
-extension Cupcake {
-    
-    init() {
-        var imageData: Data {
-            let image = UIImage(systemName: Icon.pencil.rawValue)
-            
-            return image?.pngData() ?? .init()
-        }
-        
-        id = .init()
-        flavor = "Flavor \(Int.random(in: 1...100))"
-        coverImage = imageData
-        ingredients = ["Ingredient: \(Int.random(in: 1...10000))"]
-        price = .random(in: 1...30)
-        createdAt = .randomDate()
-        imageName = nil
-    }
-    
-    static let mocks: [UUID: Cupcake] = {
-        var cupcakesDictionary = [UUID: Cupcake]()
-        
-        for _ in 0..<10 {
-            let newCupcake = Cupcake()
-            cupcakesDictionary.updateValue(newCupcake, forKey: newCupcake.id!)
-        }
-        
-        return cupcakesDictionary
-    }()
-}
-
 extension CreateOrReadCupcake {
-    
     init() {
         id = .init()
         flavor = "Flavor \(Int.random(in: 1...100))"
@@ -252,12 +170,12 @@ extension CreateOrReadCupcake {
         imageName = "Image Name \(Int.random(in: 1...100))"
     }
     
-    static let mocks: [UUID: CreateOrReadCupcake] = {
-        var cupcakesDictionary = [UUID: CreateOrReadCupcake]()
+    static let mocks: [CreateOrReadCupcake] = {
+        var cupcakesDictionary = [CreateOrReadCupcake]()
         
         for _ in 0..<10 {
             let newCupcake = CreateOrReadCupcake()
-            cupcakesDictionary.updateValue(newCupcake, forKey: newCupcake.id!)
+            cupcakesDictionary.append(newCupcake)
         }
         
         return cupcakesDictionary
