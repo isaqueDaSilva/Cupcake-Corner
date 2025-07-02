@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct MenuListViewRepresentable: UIViewControllerRepresentable {
-    typealias UIViewControllerType = MenuViewListVC
+    typealias UIViewControllerType = MenuListVC
     
     @Binding var viewModel: MenuViewModel
     
-    func makeUIViewController(context: Context) -> MenuViewListVC {
+    func makeUIViewController(context: Context) -> MenuListVC {
         .init(viewModel: viewModel)
     }
     
-    func updateUIViewController(_ uiViewController: MenuViewListVC, context: Context) {
+    func updateUIViewController(_ uiViewController: MenuListVC, context: Context) {
         
     }
 }
