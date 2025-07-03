@@ -30,6 +30,12 @@ struct CreateOrReadCupcake: Identifiable, Hashable, Equatable {
     #endif
 }
 
+extension ReadCupcake {
+    var description: String {
+        "Made with " + self.ingredients.joined(separator: ", ") + "."
+    }
+}
+
 extension CreateOrReadCupcake: Codable {
     enum Key: String, CodingKey {
         case id
