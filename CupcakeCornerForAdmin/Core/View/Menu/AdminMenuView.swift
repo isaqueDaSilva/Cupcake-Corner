@@ -9,39 +9,60 @@ import SwiftUI
 
 struct AdminMenuView: View {
     @State private var isShowingCreateNewCupcake = false
-    @State private var viewModel = MenuViewModel()
-    @State private var path = [ReadCupcake]()
+    @Namespace private var plusButtonNamespace
+    private let plusButtonID = "PLUS_BUTTON_TRANSITION"
     
     var body: some View {
         NavigationStack {
-            MenuView(cupcakeRepository: cupcakeRepository)
-                .navigationDestination(for: Cupcake.self) { cupcake in
-                    CupcakeDetailView(cupcake: cupcake) { action in
-                        try cupcakeRepository.updateStorage(with: action)
+            MenuView()
+                .navigationDestination(for: ReadCupcake.self) { cupcake in
+                    CupcakeDetailView(cupcake: cupcake) {
+                        
                     }
                 }
-                .toolbar {
-                    Button {
-                        isShowingCreateNewCupcake = true
-                    } label: {
-                        Icon.plusCircle.systemImage
+                .overlay(alignment: .bottomTrailing) {
+                    Group {
+                        if #available(iOS 26, *) {
+                            plusButton
+                                .glassEffect()
+                        } else {
+                            plusButton
+                        }
                     }
+                    .padding(.trailing)
                 }
                 .sheet(isPresented: $isShowingCreateNewCupcake) {
-                    CreateNewCupcakeView { newCupcake in
-                        try cupcakeRepository.updateStorage(
-                            with: .create(newCupcake)
+                    // TODO: When this page dismiss fetch the cupcakes again.
+                    CreateNewCupcakeView()
+                        .navigationTransition(
+                            .zoom(
+                                sourceID: self.plusButtonID,
+                                in: self.plusButtonNamespace
+                            )
                         )
-                    }
                 }
         }
     }
-    
-    init(isPreview: Bool = false) {
-        self._cupcakeRepository = .init(initialValue: .init(isPreview: isPreview))
+}
+
+extension AdminMenuView {
+    private var plusButton: some View {
+        Button {
+            self.isShowingCreateNewCupcake = true
+        } label: {
+            Icon.plus.systemImage
+                .resizable(resizingMode: .stretch)
+                .scaledToFit()
+                .padding(5)
+        }
+        .frame(maxWidth: 44, maxHeight: 44)
+        .matchedTransitionSource(
+            id: self.plusButtonID,
+            in: self.plusButtonNamespace
+        )
     }
 }
 
 #Preview {
-    AdminMenuView(isPreview: true)
+    AdminMenuView()
 }
