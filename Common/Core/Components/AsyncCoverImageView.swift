@@ -46,35 +46,30 @@ struct AsyncCoverImageView: View {
 
 extension AsyncCoverImageView {
     private func dowloadImage() {
-        guard let imageData else { return }
+        guard let imageName else { return }
         
         self.isLoading = true
         
         Task.detached(priority: .background) {
             do {
-//                let token = try TokenGetter.getValue()
-//                
-//                let request = _Network(
-//                    method: .get,
-//                    scheme: .https,
-//                    path: "/cupcake/image/\(self.imageName)",
-//                    fields: [
-//                        .authorization : token,
-//                        .contentType : _Network.HeaderValue.json.rawValue
-//                    ],
-//                    requestType: .get
-//                )
-//                
-//                let (data, response) = try await request.getResponse(with: .shared)
-//                
-//                guard response.status == .ok else {
-//                    throw AppError.badResponse
-//                }
+                let token = try TokenGetter.getValue()
+
+                let (data, response) = try await CupcakeImage.getImage(
+                    with: imageName,
+                    token: token,
+                    session: .shared
+                )
+
+                guard response.status == .ok else {
+                    throw AppError.badResponse
+                }
                 
                 try await Task.sleep(for: .seconds(4))
                 
+                let cupcakeImagedata = try JSONDecoder().decode(CupcakeImage.self, from: data)
+                
                 await MainActor.run {
-                    self.imageData = UIImage(resource: .appLogo).pngData()
+                    self.imageData = cupcakeImagedata.imageData
                 }
             } catch {
                 self.logger.error(
