@@ -9,26 +9,67 @@ import ErrorWrapper
 import SwiftUI
 
 struct MenuView: View {
-    @Binding var viewModel: MenuViewModel
+    @State private var viewModel = ViewModel()
     
     var body: some View {
-        MenuListViewRepresentable(viewModel: $viewModel)
-            .ignoresSafeArea()
-            .navigationTitle("Menu")
-            .overlay {
-                OverlayView(
-                    isLoading: viewModel.isLoading,
-                    isCupcakeListEmpty: viewModel.cupcakes.isEmpty
-                )
+        ScrollView {
+            menuList
+                .task {
+                    await viewModel.fechMocks(isRefreshing: false)
+                }
+                .navigationTitle("Menu")
+                .overlay {
+                    OverlayView(
+                        isLoading: viewModel.isLoading,
+                        isCupcakeListEmpty: viewModel.cupcakes.isEmpty
+                    )
+                    .frame(maxHeight: .infinity)
+                }
+                .padding(.horizontal)
+                .errorAlert(error: $viewModel.error) { }
+                .disabled(viewModel.isLoading)
+        }
+    }
+}
+
+extension MenuView {
+    private var menuList: some View {
+        VStack {
+            ForEach(self.viewModel.cupcakes, id: \.id) { cupcake in
+                NavigationLink(value: cupcake) {
+                    ItemCard(
+                        imageName: cupcake.imageName,
+                        name: cupcake.flavor,
+                        description: cupcake.description,
+                        price: cupcake.price
+                    )
+                }
+                .buttonStyle(.plain)
+                .onScrollVisibilityChange(threshold: 0.8) { isVisible in
+                    guard viewModel.viewState !=
+                        .loadedAll && !viewModel.isLoading
+                    else {
+                        return
+                    }
+                    
+                    let eightyPorcentIndex = Int((Double((viewModel.cupcakes.count - 1)) * 0.8).rounded(.up))
+                    
+                    if isVisible,
+                       viewModel.cupcakes.indices.contains(eightyPorcentIndex),
+                       cupcake.id == viewModel.cupcakes[eightyPorcentIndex].id {
+                        Task {
+                            await viewModel.fechMocks(isRefreshing: true)
+                        }
+                    }
+                }
             }
-            .errorAlert(error: $viewModel.error) { }
-            .disabled(viewModel.isLoading)
+        }
     }
 }
 
 #Preview {
     NavigationStack {
-        MenuView(viewModel: .constant(.init(isPreview: true)))
+        MenuView()
     }
 }
 
