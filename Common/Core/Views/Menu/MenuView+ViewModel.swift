@@ -1,5 +1,5 @@
 //
-//  MenuViewModel.swift
+//  MenuView+ViewModel.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 3/9/25.
@@ -15,7 +15,7 @@ enum ViewState {
 extension MenuView {
     @Observable
     @MainActor
-    final class MenuViewModel {
+    final class ViewModel {
         var cupcakes: [ReadCupcake] = []
         private var pageMetadata = PageMetadata()
         var viewState: ViewState = .default
@@ -48,8 +48,10 @@ extension MenuView {
                 try await Task.sleep(for: .seconds(4))
                 
                 print("Filling...")
+                let cupcakes = self.cupcakes + ReadCupcake.mocks
+                
                 await MainActor.run {
-                    self.cupcakes += ReadCupcake.mocks
+                    self.cupcakes = cupcakes
                     print(self.cupcakes.count)
                 }
             } catch {
