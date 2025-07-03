@@ -1,3 +1,12 @@
+//
+//  AsyncCoverImageView.swift
+//  CupcakeCorner
+//
+//  Created by Isaque da Silva on 7/3/25.
+//
+
+import SwiftUI
+
 struct AsyncCoverImageView: View {
     private let imageName: String?
     private let logger = AppLogger(category: "AsyncCoverImageView")
