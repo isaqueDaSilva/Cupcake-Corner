@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct AdminMenuView: View {
-    @State private var cupcakeRepository: CupcakeRepository
     @State private var isShowingCreateNewCupcake = false
+    @State private var viewModel = MenuViewModel()
+    @State private var path = [ReadCupcake]()
     
     var body: some View {
         NavigationStack {
