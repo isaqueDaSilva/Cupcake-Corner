@@ -135,8 +135,7 @@ extension CreateOrReadCupcake {
             scheme: .https,
             path: "/cupcake/delete/\(id.uuidString)",
             fields: [
-                .authorization : token,
-                .contentType : _Network.HeaderValue.json.rawValue
+                .authorization : token
             ],
             requestType: .get
         )
