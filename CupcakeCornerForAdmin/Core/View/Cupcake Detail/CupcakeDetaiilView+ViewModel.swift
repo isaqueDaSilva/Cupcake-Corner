@@ -5,9 +5,7 @@
 //  Created by Isaque da Silva on 3/11/25.
 //
 
-import ErrorWrapper
 import Foundation
-import NetworkHandler
 import Observation
 
 extension CupcakeDetailView {
@@ -16,13 +14,13 @@ extension CupcakeDetailView {
     final class ViewModel {
         var isLoading = false
         var isShowingDeleteAlert = false
-        var error: ExecutionError?
+        var error: AppError?
         var isShowingUpdateCupcakeView = false
         
         func deleteCupcake(
-            with cupcakeID: UUID?,
+            cupcake: ReadCupcake,
             _ session: URLSession = .shared,
-            completation: @escaping (UUID) throws -> Void
+            completation: @escaping () -> Void
         ) {
             self.isLoading = true
             
@@ -30,23 +28,16 @@ extension CupcakeDetailView {
                 guard let self else { return }
                 
                 do {
-                    guard let cupcakeID else { throw ExecutionError.missingData }
+                    let token = try TokenGetter.getValue()
+                    let response = try await cupcake.delete(with: token, and: session)
                     
-                    let (_, response) = try await self.makeRequest(with: cupcakeID, and: session)
+                    try self.checkResponse(response)
                     
-                    try Network.checkResponse(response)
-                    
-                    await MainActor.run { [weak self] in
-                        guard let self else { return }
-                        
-                        do {
-                            try completation(cupcakeID)
-                        } catch {
-                            self.error = error as? ExecutionError
-                        }
+                    await MainActor.run {
+                        completation()
                     }
-                } catch let error as ExecutionError {
-                    await setError(error)
+                } catch let error as AppError {
+                    await self.setError(error)
                 }
                 
                 await MainActor.run { [weak self] in
@@ -57,18 +48,13 @@ extension CupcakeDetailView {
             }
         }
         
-        func makeRequest(with cupcakeID: UUID, and session: URLSession) async throws(ExecutionError) -> (Data, URLResponse) {
-            let token = try TokenGetter.getValue()
-            
-            return try await Network.getData(
-                path: EndpointBuilder.makePath(endpoint: .cupcake, path: .delete(cupcakeID)),
-                httpMethod: .delete,
-                headers: [EndpointBuilder.Header.authorization.rawValue : token],
-                session: session
-            )
+        private func checkResponse(_ response: Response) throws(AppError) {
+            guard response.status == .ok else {
+                throw .badResponse
+            }
         }
         
-        private func setError(_ error: ExecutionError) async {
+        private func setError(_ error: AppError) async {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 

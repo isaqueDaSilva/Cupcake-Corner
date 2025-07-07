@@ -106,7 +106,7 @@ extension CreateOrReadCupcake {
         keysAndValues json: [Key.RawValue: Any],
         token: String,
         and session: URLSession
-    ) async throws -> Response {
+    ) async throws -> (Data, Response) {
         guard let id else { throw AppError.missingData }
         
         let updatedCupcakeData = try JSONSerialization.data(withJSONObject: json)
@@ -122,9 +122,7 @@ extension CreateOrReadCupcake {
             requestType: .upload(updatedCupcakeData)
         )
         
-        let (_, response) = try await request.getResponse(with: session)
-        
-        return response
+        return try await request.getResponse(with: session)
     }
     
     func delete(with token: String, and session: URLSession) async throws -> Response {

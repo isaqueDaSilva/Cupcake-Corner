@@ -11,17 +11,21 @@ import SwiftUI
 struct CupcakeDetailView: View {
     @Environment(\.dismiss) var dismiss
     @State private var viewModel = ViewModel()
+    @State private var isUpdated: Action? = nil
+    @Namespace private var plusButtonNamespace
+    private let plusButtonID = "PLUS_BUTTON_TRANSITION"
     
-    @State private var cupcake: Cupcake
-    var action: (Action) throws -> Void
+    @State private var cupcake: ReadCupcake
+    var action: (Action) -> Void
     
     var body: some View {
         ScrollView {
             VStack {
-                CoverImageView(
-                    imageData: cupcake.coverImage,
-                    size: .midHighPicture
+                AsyncCoverImageView(
+                    imageName: cupcake.imageName,
+                    size: .midSizePicture
                 )
+                .padding(.bottom, 10)
                 
                 Text("Cupcake Information:")
                     .headerSessionText(
@@ -61,20 +65,41 @@ struct CupcakeDetailView: View {
             .padding()
             .navigationTitle("Details")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
             .toolbar {
-                Button(role: .destructive) {
-                    viewModel.isShowingDeleteAlert = true
-                } label: {
-                    Icon.trash.systemImage
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack {
+                        Button(role: .destructive) {
+                            viewModel.isShowingDeleteAlert = true
+                        } label: {
+                            Icon.trash.systemImage
+                        }
+                        .disabled(viewModel.isLoading)
+                        
+                        Button {
+                            viewModel.isShowingUpdateCupcakeView = true
+                        } label: {
+                            Icon.pencil.systemImage
+                        }
+                        .disabled(viewModel.isLoading)
+                        .matchedTransitionSource(
+                            id: self.plusButtonID,
+                            in: self.plusButtonNamespace
+                        )
+                    }
                 }
-                .disabled(viewModel.isLoading)
                 
-                Button {
-                    viewModel.isShowingUpdateCupcakeView = true
-                } label: {
-                    Icon.pencil.systemImage
+                ToolbarItem(placement: .cancellationAction) {
+                    BackButton {
+                        if let isUpdated {
+                            self.action(isUpdated)
+                        } else {
+                            self.action(.noAction)
+                        }
+                        
+                        dismiss()
+                    }
                 }
-                .disabled(viewModel.isLoading)
             }
             .alert(
                 "Delete Cupcake",
@@ -83,9 +108,8 @@ struct CupcakeDetailView: View {
                 Button("Cancel", role: .cancel) { }
                 
                 Button("Delete", role: .destructive) {
-                    viewModel.deleteCupcake(with: cupcake.id) { cupcakeID in
-                        try action(.delete(cupcakeID))
-                        dismiss()
+                    viewModel.deleteCupcake(cupcake: self.cupcake) {
+                        self.action(.delete)
                     }
                 }
             } message: {
@@ -94,14 +118,22 @@ struct CupcakeDetailView: View {
             .errorAlert(error: $viewModel.error) { }
             .sheet(isPresented: $viewModel.isShowingUpdateCupcakeView) {
                 UpdateCupcakeView(cupcake: self.cupcake) { updatedCupcake in
-                    self.cupcake = updatedCupcake
-                    try action(.update(updatedCupcake))
+                    if let updatedCupcake {
+                        self.cupcake = updatedCupcake
+                        self.isUpdated = .update(updatedCupcake)
+                    }
                 }
+                .navigationTransition(
+                    .zoom(
+                        sourceID: self.plusButtonID,
+                        in: self.plusButtonNamespace
+                    )
+                )
             }
         }
     }
     
-    init(cupcake: Cupcake, action: @escaping (Action) throws -> Void) {
+    init(cupcake: ReadCupcake, action: @escaping (Action) -> Void) {
         self._cupcake = .init(initialValue: cupcake)
         self.action = action
     }

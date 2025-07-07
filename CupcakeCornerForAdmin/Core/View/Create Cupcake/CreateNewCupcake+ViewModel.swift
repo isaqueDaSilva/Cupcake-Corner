@@ -14,12 +14,13 @@ extension CreateNewCupcakeView {
     final class ViewModel {
         private let logger = AppLogger(category: "CreateNewCupcake+ViewModel")
         
-        var newCupcake = CreateCupcake()
+        var newCupcake = CreateOrReadCupcake(flavor: "", ingredients: [], price: 0.0)
         var error: AppError? = nil
         var isLoading = false
         
         func create(
             uploadPicture: @escaping (UUID, String, URLSession) async throws -> Void,
+            action: @escaping (ReadCupcake) -> Void,
             session: URLSession = .shared
         ) {
             self.isLoading = true
@@ -41,6 +42,10 @@ extension CreateNewCupcakeView {
                     }
                     
                     try await uploadPicture(id, token, session)
+                    
+                    await MainActor.run {
+                        action(cupcake)
+                    }
                 } catch let error as AppError {
                     await self.setError(error)
                 }

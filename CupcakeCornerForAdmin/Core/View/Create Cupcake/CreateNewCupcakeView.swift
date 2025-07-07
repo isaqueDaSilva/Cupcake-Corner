@@ -11,16 +11,18 @@ import SwiftUI
 struct CreateNewCupcakeView: View {
     @State private var viewModel = ViewModel()
     @State private var imageHandler = ImageHandler()
+    var action: (ReadCupcake) -> Void
     
     var body: some View {
         EditCupcake(
             pickerItemSelected: $imageHandler.pickerItemSelected,
+            cupcakeImage: $imageHandler.cupcakeImage,
+            insertCupcakeImageState: $imageHandler.insertState,
             flavorName: $viewModel.newCupcake.flavor,
             price: $viewModel.newCupcake.price,
             ingredients: $viewModel.newCupcake.ingredients,
             isLoading: $viewModel.isLoading,
-            navigationTitle: "Create",
-            coverImageData: imageHandler.cupcakeImage?.imageData
+            navigationTitle: "Create"
         ) { dismiss in
             viewModel.create { cupcakeID, token, session in
                 try await imageHandler.sendImage(
@@ -28,6 +30,9 @@ struct CreateNewCupcakeView: View {
                     token: token,
                     and: session
                 )
+            } action: { newCupcake in
+                self.action(newCupcake)
+                dismiss()
             }
 
         }
@@ -36,5 +41,5 @@ struct CreateNewCupcakeView: View {
 }
 
 #Preview {
-    CreateNewCupcakeView()
+    CreateNewCupcakeView { _ in }
 }
