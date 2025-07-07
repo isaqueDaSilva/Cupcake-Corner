@@ -5,51 +5,28 @@
 //  Created by Isaque da Silva on 3/11/25.
 //
 
-import ErrorWrapper
 import Foundation
-import NetworkHandler
-import SwiftUI
-import PhotosUI
+import Observation
 
 extension UpdateCupcakeView {
     @Observable
     @MainActor
     final class ViewModel {
-        private let cupcake: Cupcake
+        private let logger = AppLogger(category: "UpdateCupcakeView+ViewModel")
         
+        var cupcake: ReadCupcake
         var flavor: String
-        var coverImageData: Data
         var ingredients: [String]
         var price: Double
         var ingredientName = ""
         
-        var error: ExecutionError? = nil
+        var error: AppError? = nil
         var isLoading = false
         
-        var pickerItemSelected: PhotosPickerItem? = nil {
-            didSet {
-                if let pickerItemSelected {
-                    getImage(pickerItemSelected)
-                }
-            }
-        }
-        
-        private func getImage(_ pickerItemSelected: PhotosPickerItem) {
-            GetPhoto.get(with: pickerItemSelected) { [weak self] imageData in
-                guard let self else { return }
-                
-                if let imageData {
-                    DispatchQueue.main.async { [weak self] in
-                        guard let self else { return }
-                        self.coverImageData = imageData
-                    }
-                }
-            }
-        }
-        
         func update(
-            with completation: @escaping (Cupcake) throws -> Void,
-            session: URLSession = .shared
+            session: URLSession = .shared,
+            uploadPicture: @escaping (UUID, String, URLSession) async throws -> Void,
+            action: @escaping (ReadCupcake?) -> Void
         ) {
             self.isLoading = true
             
@@ -57,27 +34,25 @@ extension UpdateCupcakeView {
                 guard let self else { return }
                 
                 do {
-                    let updatedCupcake = try makeUpdate()
-                    let encodedUpdatedCupcake = try Network.encodeData(updatedCupcake)
-                    let (data, response) = try await getData(with: encodedUpdatedCupcake, session: session)
-                    try Network.checkResponse(response)
+                    let token = try TokenGetter.getValue()
                     
-                    let decoder = JSONDecoder()
-                    decoder.dateDecodingStrategy = .iso8601
+                    guard let id = cupcake.id else { throw AppError.missingData }
                     
-                    let cupcake = try Network.decodeResponse(type: Cupcake.self, by: data, with: decoder)
+                    let updatedCupcakeJSON = self.makeUpdate(for: self.cupcake)
                     
-                    await MainActor.run { [weak self] in 
-                        guard let self else { return }
-                        
-                        do {
-                            try completation(cupcake)
-                        } catch {
-                            self.error = error as? ExecutionError
-                        }
+                    let updatedCupcake = try await self.updateCupcake(
+                        updatedCupcakeJSON: updatedCupcakeJSON,
+                        token: token,
+                        session: session
+                    )
+                    
+                    try await uploadPicture(id, token, session)
+                    
+                    await MainActor.run {
+                        action(updatedCupcake)
                     }
-                } catch let error as ExecutionError {
-                    await setError(error)
+                } catch let error as AppError {
+                    await self.setError(error)
                 }
                 
                 await MainActor.run {
@@ -86,59 +61,63 @@ extension UpdateCupcakeView {
             }
         }
         
-        private func makeUpdate() throws(ExecutionError) -> Cupcake.Update {
-            let updatedFlavor = (self.cupcake.flavor != self.flavor) ? self.flavor : nil
-            let updatedCoverImage = (self.cupcake.coverImage != self.coverImageData) ? self.coverImageData : nil
-            let updatedIngredients = (
-                !self.cupcake.ingredients.isEmpty && cupcake.ingredients != self.ingredients
-            ) ? self.ingredients : nil
-            let updatedPrice = (self.cupcake.price != self.price) ? self.price : nil
+        private func makeUpdate(for cupcake: CreateOrReadCupcake) -> [CreateOrReadCupcake.Key.RawValue: Any] {
+            var keysAndValues: [CreateOrReadCupcake.Key.RawValue: Any] = [:]
             
-            guard let cupcakeID = cupcake.id else {
-                throw .missingData
+            if cupcake.flavor != self.flavor {
+                keysAndValues[CreateOrReadCupcake.Key.flavor.rawValue] = self.flavor
             }
             
-            let updatedCupcake = Cupcake.Update(
-                id: cupcakeID,
-                flavor: updatedFlavor,
-                coverImage: updatedCoverImage,
-                ingredients: updatedIngredients,
-                price: updatedPrice
+            if !cupcake.ingredients.isEmpty && cupcake.ingredients != self.ingredients {
+                keysAndValues[CreateOrReadCupcake.Key.ingredients.rawValue] = self.ingredients
+            }
+            
+            if cupcake.price > 0.1 && cupcake.price != self.price {
+                keysAndValues[CreateOrReadCupcake.Key.price.rawValue] = self.price
+            }
+            
+            return keysAndValues
+        }
+        
+        private func updateCupcake(
+            updatedCupcakeJSON: [CreateOrReadCupcake.Key.RawValue : Any],
+            token: String,
+            session: URLSession
+        ) async throws -> ReadCupcake? {
+            guard !updatedCupcakeJSON.isEmpty else { return nil }
+            
+            let (data, response) = try await self.cupcake.update(
+                keysAndValues: updatedCupcakeJSON,
+                token: token,
+                and: session
             )
+            
+            try checkResponse(response)
+            
+            let updatedCupcake = try EncoderAndDecoder.decodeResponse(type: ReadCupcake.self, by: data)
             
             return updatedCupcake
         }
         
-        private func getData(
-            with updatedCupcakeData: Data,
-            session: URLSession
-        ) async throws -> (Data, URLResponse) {
-            let token = try TokenGetter.getValue()
-            
-            return try await Network.getData(
-                path: EndpointBuilder.makePath(endpoint: .cupcake, path: .update),
-                httpMethod: .patch,
-                headers: [
-                    EndpointBuilder.Header.authorization.rawValue : token,
-                    EndpointBuilder.Header.contentType.rawValue : EndpointBuilder.HeaderValue.json.rawValue
-                ],
-                body: updatedCupcakeData,
-                session: session
-            )
+        private func checkResponse(_ response: Response) throws(AppError) {
+            guard response.status == .ok else {
+                throw .badResponse
+            }
         }
         
-        private func setError(_ error: ExecutionError) async {
-            await MainActor.run {
+        private func setError(_ error: AppError) async {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.error = error
             }
         }
         
         init(
-            cupcake: Cupcake
+            cupcake: ReadCupcake
         ) {
             self.cupcake = cupcake
             self.flavor = cupcake.flavor
-            self.coverImageData = cupcake.coverImage
             self.ingredients = cupcake.ingredients
             self.price = cupcake.price
         }
