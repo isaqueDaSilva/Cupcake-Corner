@@ -45,14 +45,15 @@ struct AdminMenuView: View {
                     )
                 }
                 .sheet(isPresented: $isShowingCreateNewCupcake) {
-                    // TODO: When this page dismiss fetch the cupcakes again.
-                    CreateNewCupcakeView()
-                        .navigationTransition(
-                            .zoom(
-                                sourceID: self.plusButtonID,
-                                in: self.plusButtonNamespace
-                            )
+                    CreateNewCupcakeView { newCupcake in
+                        self.viewModel.cupcakes.append(newCupcake)
+                    }
+                    .navigationTransition(
+                        .zoom(
+                            sourceID: self.plusButtonID,
+                            in: self.plusButtonNamespace
                         )
+                    )
                 }
         }
     }
