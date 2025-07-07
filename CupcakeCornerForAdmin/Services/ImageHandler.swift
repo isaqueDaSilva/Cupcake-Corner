@@ -13,6 +13,7 @@ import PhotosUI
 final class ImageHandler {
     private let logger = AppLogger(category: "ImageHandler")
     
+    var initialCupcakeImage: CupcakeImage? = nil
     var cupcakeImage: CupcakeImage? = nil
     var insertState: ViewState = .default
     var pickerItemSelected: PhotosPickerItem? = nil {
@@ -35,6 +36,7 @@ final class ImageHandler {
                 if let data {
                     DispatchQueue.main.async { [weak self] in
                         guard let self else { return }
+                        let cupcakeImage = CupcakeImage(imageData: data)
                         self.cupcakeImage = .init(imageData: data)
                         self.insertState = .default
                     }
@@ -51,7 +53,7 @@ final class ImageHandler {
     }
     
     func sendImage(with cupcakeID: UUID, token: String, and session: URLSession) async throws(AppError) {
-        guard let cupcakeImage else {
+        guard let cupcakeImage, self.cupcakeImage != self.initialCupcakeImage else {
             throw AppError(
                 title: "No image",
                 descrition: "You need a image to follow with this action."
@@ -72,6 +74,30 @@ final class ImageHandler {
                 "Failed to set image for cupcake \(cupcakeID.uuidString) with error: \(error.localizedDescription)"
             )
             throw .init(title: "Failed to set image for this cupcake.", descrition: "")
+        }
+    }
+    
+    func loadImage(with name: String) {
+        self.insertState = .loading
+        
+        Task {
+            let imageData = await ImageCache.shared.imageData(withKey: name)
+            
+            guard let imageData else {
+                return await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
+                    self.insertState = .default
+                }
+            }
+            
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                let cupcakeImage = CupcakeImage(imageData: imageData)
+                self.initialCupcakeImage = cupcakeImage
+                self.cupcakeImage = cupcakeImage
+                self.insertState = .default
+            }
         }
     }
 }
