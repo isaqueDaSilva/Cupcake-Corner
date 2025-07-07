@@ -11,6 +11,12 @@ struct CupcakeImage: Codable, Sendable {
     var imageData: Data
 }
 
+extension CupcakeImage: Equatable {
+    static func == (lhs: CupcakeImage, rhs: CupcakeImage) -> Bool {
+        lhs.imageData == rhs.imageData
+    }
+}
+
 extension CupcakeImage {
     func sendImage(
         with cupcakeID: String,
