@@ -8,7 +8,8 @@
 import Foundation
 
 enum Action {
-    case create(Cupcake)
-    case update(Cupcake)
-    case delete(UUID)
+    case noAction
+    case create(ReadCupcake)
+    case update(ReadCupcake)
+    case delete
 }
