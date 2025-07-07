@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7E73177C2E06637A00B55C16 /* HTTPTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 7E73177B2E06637A00B55C16 /* HTTPTypes */; };
+		7E73177E2E06637A00B55C16 /* HTTPTypesFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 7E73177D2E06637A00B55C16 /* HTTPTypesFoundation */; };
+		7E7317802E06638400B55C16 /* HTTPTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 7E73177F2E06638400B55C16 /* HTTPTypes */; };
+		7E7317822E06638400B55C16 /* HTTPTypesFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 7E7317812E06638400B55C16 /* HTTPTypesFoundation */; };
 		7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */; };
 		7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */; };
 		7ED393552D87816D00DC559B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393542D87816D00DC559B /* README.md */; };
@@ -50,7 +54,7 @@
 			);
 			target = 7EAE76DD2D7E463800A69FF7 /* CupcakeCorner */;
 		};
-		7E1FB5252D95332800E15750 /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCornerForAdmin" target */ = {
+		7E4ACC7F2E198477006D5D0E /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCornerForAdmin" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -64,28 +68,27 @@
 				App/MainRootView.swift,
 				App/SplashScreen.swift,
 				Assets.xcassets,
-				Core/Components/ActionButton.swift,
-				Core/Components/CoverImageView.swift,
-				Core/Components/EditAccount.swift,
-				Core/Components/EmptyStateView.swift,
-				Core/Components/Icon.swift,
-				Core/Components/ImageResizer.swift,
-				Core/Components/IngredientCell.swift,
-				Core/Components/LogoView.swift,
-				Core/Components/OrderEmptyView.swift,
-				Core/Components/TextFieldFocused.swift,
+				Components/ActionButton.swift,
+				Components/AsyncCoverImage/AsyncCoverImageView.swift,
+				"Components/AsyncCoverImage/AsyncCoverImageView+ViewModel.swift",
+				Components/BackButton.swift,
+				Components/CoverImageView.swift,
+				Components/EditAccount.swift,
+				Components/EmptyStateView.swift,
+				Components/IngredientCell.swift,
+				Components/ItemCard.swift,
+				Components/LogoView.swift,
+				Components/Menu/MenuView.swift,
+				"Components/Menu/MenuView+OverlayView.swift",
+				Components/Menu/MenuViewModel.swift,
+				Components/OrderEmptyView.swift,
+				Components/TextFieldFocused.swift,
 				Core/Views/Balance/BalanceView.swift,
 				"Core/Views/Balance/BalanceView+ViewModel.swift",
 				Core/Views/Home/Components/HomeTabView.swift,
 				Core/Views/Home/HomeView.swift,
 				"Core/Views/Login View/LoginView.swift",
 				"Core/Views/Login View/LoginView+ViewModel.swift",
-				"Core/Views/Menu/Components/MenuView+CupcakeCard.swift",
-				"Core/Views/Menu/Components/MenuView+MenuList.swift",
-				Core/Views/Menu/Components/OverlayView.swift,
-				Core/Views/Menu/MenuView.swift,
-				"Core/Views/Menu/MenuView+ViewModel.swift",
-				Core/Views/Order/Components/ItemCard.swift,
 				Core/Views/Order/Components/OrderFilterPickerView.swift,
 				Core/Views/Order/OrderView.swift,
 				"Core/Views/Order/OrderView+ViewModel.swift",
@@ -102,10 +105,13 @@
 				"Extensions/View+Extension.swift",
 				Models/Balance/Balance.swift,
 				"Models/Balance/Balance+Get.swift",
-				Models/Cupcake/Cupcake.swift,
-				"Models/Cupcake/Cupcake+ListResponse.swift",
+				Models/Cupcake/CreateOrReadCupcake.swift,
+				Models/Cupcake/CupcakeImage.swift,
+				Models/Icon.swift,
+				Models/NavigationInfo.swift,
 				Models/Order/Order.swift,
 				"Models/Order/Order+ReadList.swift",
+				Models/Page.swift,
 				Models/PaymentMethod.swift,
 				Models/Role.swift,
 				Models/Security/EncryptedField.swift,
@@ -117,34 +123,26 @@
 				Models/User/User.swift,
 				"Models/User/User+Create.swift",
 				"Models/User/User+Get.swift",
+				Models/ViewState.swift,
 				Models/WebSocketMessage.swift,
 				Service/AppLogger.swift,
+				Service/EncoderAndDecoder.swift,
 				Service/Encryptor.swift,
+				Service/ImageCache.swift,
 				Service/SecureServerComunication.swift,
 				Service/TokenGetter.swift,
 				Utilities/Network/EndpointBuilder.swift,
 				Utilities/Network/Network.swift,
 				"Utilities/Preview/ModelContext+InMemory.swift",
-				Utilities/Repositories/CupcakeRepository.swift,
 				Utilities/Repositories/UserRepository.swift,
 			);
 			target = 7EAE77132D7E47BD00A69FF7 /* CupcakeCornerForAdmin */;
-		};
-		7EAE77502D7E57A800A69FF7 /* Exceptions for "CupcakeCorner" folder in "CupcakeCorner" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 7EAE76DD2D7E463800A69FF7 /* CupcakeCorner */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7EAE76E02D7E463800A69FF7 /* CupcakeCorner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7EAE77502D7E57A800A69FF7 /* Exceptions for "CupcakeCorner" folder in "CupcakeCorner" target */,
-			);
 			path = CupcakeCorner;
 			sourceTree = "<group>";
 		};
@@ -152,7 +150,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				7E11FABF2D80EC570016BC4B /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCorner" target */,
-				7E1FB5252D95332800E15750 /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCornerForAdmin" target */,
+				7E4ACC7F2E198477006D5D0E /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCornerForAdmin" target */,
 			);
 			path = CupcakeCornerForAdmin;
 			sourceTree = "<group>";
@@ -173,6 +171,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7EDD44E22D992FA200DC6592 /* NetworkKit in Frameworks */,
+				7E73177E2E06637A00B55C16 /* HTTPTypesFoundation in Frameworks */,
+				7E73177C2E06637A00B55C16 /* HTTPTypes in Frameworks */,
 				7EDD44E42D992FA200DC6592 /* KeychainService in Frameworks */,
 				7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */,
 				7EDD44E62D992FA200DC6592 /* ErrorWrapper in Frameworks */,
@@ -184,6 +184,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				7EDD44E82D992FA800DC6592 /* NetworkKit in Frameworks */,
+				7E7317822E06638400B55C16 /* HTTPTypesFoundation in Frameworks */,
+				7E7317802E06638400B55C16 /* HTTPTypes in Frameworks */,
 				7EDD44EA2D992FA800DC6592 /* KeychainService in Frameworks */,
 				7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */,
 				7EDD44EC2D992FA800DC6592 /* ErrorWrapper in Frameworks */,
@@ -248,6 +250,8 @@
 				7EDD44E12D992FA200DC6592 /* NetworkKit */,
 				7EDD44E32D992FA200DC6592 /* KeychainService */,
 				7EDD44E52D992FA200DC6592 /* ErrorWrapper */,
+				7E73177B2E06637A00B55C16 /* HTTPTypes */,
+				7E73177D2E06637A00B55C16 /* HTTPTypesFoundation */,
 			);
 			productName = CupcakeCorner;
 			productReference = 7EAE76DE2D7E463800A69FF7 /* CupcakeCorner.app */;
@@ -273,6 +277,8 @@
 				7EDD44E72D992FA800DC6592 /* NetworkKit */,
 				7EDD44E92D992FA800DC6592 /* KeychainService */,
 				7EDD44EB2D992FA800DC6592 /* ErrorWrapper */,
+				7E73177F2E06638400B55C16 /* HTTPTypes */,
+				7E7317812E06638400B55C16 /* HTTPTypesFoundation */,
 			);
 			productName = CupcakeCornerForAdmin;
 			productReference = 7EAE77142D7E47BD00A69FF7 /* CupcakeCornerForAdmin.app */;
@@ -286,7 +292,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1630;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					7EAE76DD2D7E463800A69FF7 = {
 						CreatedOnToolsVersion = 16.2;
@@ -310,6 +316,7 @@
 				7EDD44DE2D992F3300DC6592 /* XCRemoteSwiftPackageReference "NetworkKit" */,
 				7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */,
 				7EDD44E02D992F6700DC6592 /* XCRemoteSwiftPackageReference "ErrorWrapper" */,
+				7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7EAE76DF2D7E463800A69FF7 /* Products */;
@@ -420,6 +427,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -477,6 +485,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -674,6 +683,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-http-types.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
 		7EDD44DE2D992F3300DC6592 /* XCRemoteSwiftPackageReference "NetworkKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/isaqueDaSilva/NetworkKit.git";
@@ -701,6 +718,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7E73177B2E06637A00B55C16 /* HTTPTypes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */;
+			productName = HTTPTypes;
+		};
+		7E73177D2E06637A00B55C16 /* HTTPTypesFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */;
+			productName = HTTPTypesFoundation;
+		};
+		7E73177F2E06638400B55C16 /* HTTPTypes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */;
+			productName = HTTPTypes;
+		};
+		7E7317812E06638400B55C16 /* HTTPTypesFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */;
+			productName = HTTPTypesFoundation;
+		};
 		7EDD44E12D992FA200DC6592 /* NetworkKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7EDD44DE2D992F3300DC6592 /* XCRemoteSwiftPackageReference "NetworkKit" */;
