@@ -9,7 +9,7 @@ import ErrorWrapper
 import SwiftUI
 
 struct MenuView: View {
-    @State private var viewModel = ViewModel()
+    @Binding var viewModel: MenuViewModel
     
     var body: some View {
         ZStack {
@@ -37,13 +37,18 @@ extension MenuView {
     private var menuList: some View {
         ScrollView {
             VStack {
-                ForEach(self.viewModel.cupcakes, id: \.id) { cupcake in
-                    NavigationLink(value: cupcake) {
+                ForEach(self.viewModel.cupcakeListIndexRange, id: \.self) { index in
+                    NavigationLink(
+                        value: NavigationInfo(
+                            index: index,
+                            cupcake: viewModel.cupcakes[index]
+                        )
+                    ) {
                         ItemCard(
-                            imageName: cupcake.imageName,
-                            name: cupcake.flavor,
-                            description: cupcake.description,
-                            price: cupcake.price
+                            imageName: viewModel.cupcakes[index].imageName,
+                            name: viewModel.cupcakes[index].flavor,
+                            description: viewModel.cupcakes[index].description,
+                            price: viewModel.cupcakes[index].price
                         )
                     }
                     .buttonStyle(.plain)
@@ -58,7 +63,8 @@ extension MenuView {
                         
                         if isVisible,
                            viewModel.cupcakes.indices.contains(eightyPorcentIndex),
-                           cupcake.id == viewModel.cupcakes[eightyPorcentIndex].id {
+                           viewModel.cupcakes[index].id ==
+                            viewModel.cupcakes[eightyPorcentIndex].id {
                             viewModel.fetchMorePages()
                         }
                     }
@@ -77,7 +83,7 @@ extension MenuView {
 
 #Preview {
     NavigationStack {
-        MenuView()
+        MenuView(viewModel: .constant(.init()))
     }
 }
 
