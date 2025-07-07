@@ -9,7 +9,6 @@ import Foundation
 
 enum Action {
     case noAction
-    case create(ReadCupcake)
     case update(ReadCupcake)
     case delete
 }
