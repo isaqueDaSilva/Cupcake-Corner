@@ -10,12 +10,13 @@ import PhotosUI
 
 struct EditCupcake: View {
     @Binding var pickerItemSelected: PhotosPickerItem?
+    @Binding var cupcakeImage: CupcakeImage?
+    @Binding var insertCupcakeImageState: ViewState
     @Binding var flavorName: String
     @Binding var price: Double
     @Binding var ingredients: [String]
     @Binding var isLoading: Bool
     let navigationTitle: String
-    let coverImageData: Data?
     var action: (@escaping () -> Void) -> Void
     
     @Environment(\.dismiss) private var dismiss
@@ -29,7 +30,8 @@ struct EditCupcake: View {
             ScrollView {
                 VStack {
                     CoverImageView(
-                        imageData: coverImageData,
+                        cupcakeImage: $cupcakeImage,
+                        insertCupcakeState: $insertCupcakeImageState,
                         size: .midHighPicture
                     )
                     
@@ -183,11 +185,12 @@ extension EditCupcake {
 #Preview {
     EditCupcake(
         pickerItemSelected: .constant(nil),
+        cupcakeImage: .constant(nil),
+        insertCupcakeImageState: .constant(.default),
         flavorName: .constant(""),
         price: .constant(0),
         ingredients: .constant(["One", "Two"]),
         isLoading: .constant(false),
-        navigationTitle: "Create",
-        coverImageData: nil
+        navigationTitle: "Create"
     ) { _ in }
 }
