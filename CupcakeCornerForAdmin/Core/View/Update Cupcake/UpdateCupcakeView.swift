@@ -11,29 +11,41 @@ import SwiftUI
 
 struct UpdateCupcakeView: View {
     @State private var viewModel: ViewModel
+    @State private var imageHandler = ImageHandler()
     
-    var action: (Cupcake) throws -> Void
+    var action: (ReadCupcake?) -> Void
     
     var body: some View {
         EditCupcake(
-            pickerItemSelected: $viewModel.pickerItemSelected,
+            pickerItemSelected: $imageHandler.pickerItemSelected,
+            cupcakeImage: $imageHandler.cupcakeImage,
+            insertCupcakeImageState: $imageHandler.insertState,
             flavorName: $viewModel.flavor,
             price: $viewModel.price,
             ingredients: $viewModel.ingredients,
             isLoading: $viewModel.isLoading,
-            navigationTitle: "Update",
-            coverImageData: viewModel.coverImageData
+            navigationTitle: "Update"
         ) { dismiss in
-            viewModel.update { updatedCupcake in
-                try action(updatedCupcake)
+            viewModel.update { cupcakeID, token, session in
+                try await imageHandler.sendImage(
+                    with: cupcakeID,
+                    token: token,
+                    and: session
+                )
+            } action: { updatedCupcake in
+                self.action(updatedCupcake)
                 dismiss()
             }
+
+
         }
         .errorAlert(error: $viewModel.error) { }
     }
     
-    init(cupcake: Cupcake, action: @escaping (Cupcake) throws -> Void) {
-        self._viewModel = .init(initialValue: .init(cupcake: cupcake))
+    init(cupcake: ReadCupcake, action: @escaping (ReadCupcake?) -> Void) {
+        self._viewModel = .init(
+            initialValue: .init(cupcake: cupcake)
+        )
         self.action = action
     }
 }
