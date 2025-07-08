@@ -25,7 +25,7 @@ extension UpdateCupcakeView {
         
         func update(
             session: URLSession = .shared,
-            uploadPicture: @escaping (UUID, String, URLSession) async throws -> Void,
+            uploadPicture: @escaping (_ cupcakeID: UUID, _ imageName: String, _ token: String) async throws -> Void,
             action: @escaping (ReadCupcake?) -> Void
         ) {
             self.isLoading = true
@@ -46,8 +46,12 @@ extension UpdateCupcakeView {
                         session: session
                     )
                     
-                    try await uploadPicture(id, token, session)
-                    
+                    if let updatedCupcake,
+                       let id = updatedCupcake.id,
+                       let imageName = updatedCupcake.imageName
+                    {
+                        try await uploadPicture(id, imageName, token)
+                    }
                     await MainActor.run {
                         action(updatedCupcake)
                     }
