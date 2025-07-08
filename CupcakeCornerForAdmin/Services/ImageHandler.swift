@@ -36,7 +36,6 @@ final class ImageHandler {
                 if let data {
                     DispatchQueue.main.async { [weak self] in
                         guard let self else { return }
-                        let cupcakeImage = CupcakeImage(imageData: data)
                         self.cupcakeImage = .init(imageData: data)
                         self.insertState = .default
                     }
@@ -52,7 +51,11 @@ final class ImageHandler {
         }
     }
     
-    func sendImage(with cupcakeID: UUID, token: String, and session: URLSession) async throws(AppError) {
+    func sendImage(
+        with cupcakeID: UUID,
+        token: String,
+        and session: URLSession
+    ) async throws(AppError) {
         guard let cupcakeImage, self.cupcakeImage != self.initialCupcakeImage else {
             throw AppError(
                 title: "No image",
@@ -75,6 +78,16 @@ final class ImageHandler {
             )
             throw .init(title: "Failed to set image for this cupcake.", descrition: "")
         }
+    }
+    
+    func updateImage(
+        with cupcakeID: UUID,
+        imageName: String,
+        token: String,
+        and session: URLSession = .shared
+    ) async throws {
+        try await self.sendImage(with: cupcakeID, token: token, and: session)
+        await ImageCache.shared.removeImageData(withKey: imageName)
     }
     
     func loadImage(with name: String) {
