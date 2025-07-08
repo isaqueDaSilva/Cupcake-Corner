@@ -26,12 +26,8 @@ struct UpdateCupcakeView: View {
             isLoading: $viewModel.isLoading,
             navigationTitle: "Update"
         ) { dismiss in
-            viewModel.update { cupcakeID, token, session in
-                try await imageHandler.sendImage(
-                    with: cupcakeID,
-                    token: token,
-                    and: session
-                )
+            viewModel.update { cupcakeID, imageName, token in
+                try await imageHandler.updateImage(with: cupcakeID, imageName: imageName, token: token)
             } action: { updatedCupcake in
                 self.action(updatedCupcake)
                 dismiss()
