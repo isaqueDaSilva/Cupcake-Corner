@@ -1,244 +1,85 @@
 # Cupcake Corner
-An open source and studie case app, that's make easy to manage all flow inside of a Cupcake store.
+A study-case app of selling cupcakes, whose goal was to combine all my knowledge in Swift and SwiftUI into an app that simulated real production environments, focusing on asynchronous programming, RESTful API integration, store sensitive data, load large set of data efficiently and MVVM architecture.
 
 <a href="" rel="nofollow"><img src="https://camo.githubusercontent.com/498ead3b529283d08c8db814f646db66ac683bb6b8ced181087fdcde9106c241/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d687474707325334125324625324673776966747061636b616765696e6465782e636f6d2532466170692532467061636b616765732532466d316775656c706625324673776966742d7265616c74696d652d6f70656e616925324662616467652533467479706525334473776966742d76657273696f6e7326636f6c6f723d627269676874677265656e" alt="Swift Version" data-canonical-src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fm1guelpf%2Fswift-realtime-openai%2Fbadge%3Ftype%3Dswift-versions&amp;color=brightgreen" style="max-width: 100%;"></a>
 
 ## Table of Contents
-1. [Description](#description)
-2. [Getting started](#getting-started)
+1. [Features](#features)
+2. [Applied Knowledge](#applied-knowledge)
 3. [Technologies](#technologies)
-4. [Architecture](#architecture)
-5. [Structure](#structure)
-6. [Dependencies](#dependencies)
-7. [API](#api)
-8. [TODO](#todo)
+4. [Key Takeaways](#key-takeaways)
+5. [Dependencies](#dependencies)
+6. [API](#api)
 
-## Description
-The Cupcake Corner project is design to solve the commun problems that a cupcake store can be.<br>
-Think about, in a traditional Cupcake store:
-- The clients needs to go the store;<br>
-- Talks with a shop assistant;<br>
-- The shop assistant will show all availables flavor, and also customizations available;<br>
-- Calculates the final price, based on the fixed price of the cupcake, customizations and quantities;<br>
-- The shop assistant, also needs to share the order with a confectioner, that'll prepare it;<br>
-- And finally, when it's read, the shop assistant needs to notify the client that your order is ready.<br>
+## 🚀 Features
 
-<p>So, with these problems in mind, Cupcake Corner comes into play, it's an easy-use application, that solve all mentionated problems with just a few clicks. The app also split into two targets, one for bolth client and other admin side, each solves the problems that each type of users can face.<br><p>
+- 🔒 Authentication with persistent login support (access token + refresh token);
+- 📲 Secure storage of access tokens in the **Keychain**;
+- 🧁 Interactive catalog with a variety of cupcakes;
+- 📝 ​​Order customization (In progress to offer more customizations);
+- 🔄 Real-time order status updates;
+- 📋 List of orders already placed;
 
-### Client side
-In this target, is aimed at cupcake orders themselves. 
-So because this, here the app offers:
-- A simple and easy to understand list of flavors that are available to order;
-- An easy away to choice a flavor to order, customize, based on your needs and taste, and also make an order;
-- Flowing the status change of an order, in real-time, based on updated that an admin can be;
-- And finally, see the balance of your orders within a date range.
-    
-### Admin target
-In this target, the app, is aimed to manage the store and the portfolio itself.
-So because this, here the user can:
-- Enter in the app and see what flavors are available into the store's portfolio;
-- Offers a simple and intuitive UI to easy create, update or delete flavors, based on store's needed;
-- An easy away to look and flow the client's orders that arrives;
-- Update the order status;
-- And finally, see the balance of the cupcake sells, to look what are the most selled flavor, total of sells, invoicing and more, within a date range.
-    
-<p>Finaly, this app comminicates with a custom backend system, whitch provides the core functionality, like the database, WebSockte system, to enable the biderectional and real-time to comunicate with a server and also with the client, and also a authentication system, that enables users to register in the system, and access the protect resources, like make an order, and also restrict some functionalities, like create or delete an cupcake flavor from an unauthorized user.</p>
+## 🧠 Applied Knowledge
 
-To see this application in action see the [demontration video](https://youtu.be/HCnSd-yPiJk).
+### ✅ Secure Authentication
+- Implementation of a login flow with secure storage of **access token** and **refresh token** in the Keychain;
+- Clean logout with Keychain and session state clearing.
 
-## Getting started
-1. Make sure you have the Xcode version 16 or above installed on your computer.<br>
-2. Downloads the Cupcake Corner project file from this repositorys.<br>
-3. Opens the [Cupcake Corner API](https://github.com/isaqueDaSilva/CupcakeCornerAPI.git) repository and flow your instruction as well.<br>
-4. Open the project files in Xcode.<br>
-5. Review the code and make sure you understand what it does.
-6. Run the CupcakeCorner and CupcakeCornerForAdmin targets.
-    - Uses the admin credentials to log into admin target.
+### ⚙️ Advanced Asynchronous Programming
+- Intensive use of `async/await` for REST calls with refined error handling (`do-catch`, `try await`, `Task {}`);
+- Organization of concurrent tasks with `TaskGroup` when necessary;
+- Update UI data with `@MainActor`.
 
-## Technologies
-- Programming language: Swift;
-- Frameworks: SwiftUI, SwiftData, SwiftCharts, Network, Security, CryptoKit;
-- Web Communication: RESTful API
-- Others: WebSocket
+### 🌐 Integration with RESTful API
+- Modular HTTP call structure with support for authentication, dynamic headers, and JSON parsing with `Codable`;
+- Endpoints separated by responsibility (authentication, requests, etc.);
+- Support for pagination and incremental data loading.
 
-## Architecture
-* Cupcake Corner is implemented using the <strong>Model-View-ViewModel (MVVM)</strong> architecture pattern.
-    - Model has the base data need to generate each of them.<br>
-    - View is responsible for displaying the requested list of data, given by the server request.<br>
-    - ViewModel is responsable to process any user input behind the scenes, like refresh, post new data and more.<br>
-    - The app, also has some extra layers, like extensions, services and utilities, that helps to the app keeps organized and easy to maintaining.
-* The project uses the SwiftData to persist on-device an user profile, that given back from the request.<br>
+### 📡 Real-time data
+- Implementation of a **WebSockets** mechanism to track order status in real time.
 
-# Structure 
-```
-├── Common
-|   ├── App
-|   |   ├── MainEntrypoint.swift
-|   |   ├── MainRootView.swift
-|   |   └── SplashScreen.swift
-|   ├── Core
-|   |   ├── Components
-|   |   |   ├── ActionButton.swift
-|   |   |   |── CoverImageView.swift
-|   |   |   ├── EditAccount.swift
-|   |   |   |── EmptyStateView.swift
-|   |   |   ├── Icon.swift
-|   |   |   ├── ImageResizer.swift
-|   |   |   |── IngredientCell.swift
-|   |   |   ├── LogoView.swift
-|   |   |   |── OrderEmptyView.swift
-|   |   |   └── TextFieldFocused.swift
-|   |   └── Views
-|   |       |── Balance
-|   |       |   |── BalanceView.swift
-|   |       |   └── BalanceView+ViewModel.swift
-|   |       |── Home
-|   |       |   |── Components
-|   |       |   |   └── HomeTabView.swift
-|   |       |   └── HomeView.swift
-|   |       ├── Login View
-|   |       |   |── LoginView.swift
-|   |       |   └── LoginView+ViewModel.swift
-|   |       |── Menu
-|   |       |   ├── Components
-|   |       |   |   ├── MenuView+CupcakeCard.swift
-|   |       |   |   ├── MenuView+MenuList.swift
-|   |       |   |   └── OverlayView.swift
-|   |       |   |── MenuView.swift
-|   |       |   └── MenuView+ViewModel.swift
-|   |       ├── Order
-|   |       |   ├── Components
-|   |       |   |   ├── ItemCard.swift
-|   |       |   |   └── OrderFilterPickerView.swift
-|   |       |   ├── OrderView.swift
-|   |       |   └── OrderView+ViewModel.swift
-|   |       └── User Account
-|   |           |── UserAccountView.swift
-|   |           └── UserAccountView+ViewModel.swift
-|   ├── Extensions
-|   |   ├── CGSize+Extension.swift
-|   |   |── Date+Extension.swift
-|   |   ├── Dictionary+Extension.swift
-|   |   |── Double+Extension.swift
-|   |   ├── ExecutionError+Extension.swift
-|   |   |── Image+Extension.swift
-|   |   ├── TimeInterval+Extension.swift
-|   |   |── UIImage+Extension.swift
-|   |   └── View+Extension.swift
-|   ├── Models
-|   |   ├── Balance
-|   |   |   |── Balance.swift
-|   |   |   └── Balance+Get.swift
-|   |   |── Cupcake
-|   |   |   |── Cupcake.swift
-|   |   |   └── Cupcake+ListResponse.swift
-|   |   ├── Order
-|   |   |   |── Order.swift
-|   |   |   └── Order+ReadList.swift
-|   |   |── Security
-|   |   |   |── EncryptedField.swift
-|   |   |   |── LoginResponse.swift
-|   |   |   |── PublicKeyAgreement.swift
-|   |   |   └── Token.swift
-|   |   ├── User
-|   |   |   |── User.swift
-|   |   |   |── User+Create.swift
-|   |   |   └── User+Get.swift
-|   |   |── PaymentMethod.swift
-|   |   ├── Role.swift
-|   |   |── Status.swift
-|   |   |── TabSection.swift
-|   |   └── WebSocketMessage.swift
-|   ├── Service
-|   |   |── AppLogger.swift
-|   |   |── Encryptor.swift
-|   |   |── SecureServerCommunication.swift
-|   |   └── TokenGetter.swift
-|   ├── Utilities
-|   |   |── Network
-|   |   |   |── EndpointBuilder.swift
-|   |   |   └── Network.swift
-|   |   ├── Preview
-|   |   |   └── ModelContext+InMemory.swift
-|   |   └── Repositories
-|   |       |── CupcakeRepository.swift
-|   |       └── UserRepository.swift
-|   └── Assets.xcassets
-├── CupcakeCorner
-|   |── App
-|   |   └── CupcakeCornerApp.swift
-|   |── Core
-|   |   |── Components
-|   |   |   |── InformationLabel.swift
-|   |   |   └── SelectionPicker.swift
-|   |   └── View
-|   |       |── About Cupcake
-|   |       |   └── AboutCupcakeView.swift
-|   |       ├── Create Account
-|   |       |   |── CreateAccountView.swift
-|   |       |   └── CreateAccountView+ViewModel.swift
-|   |       ├── Menu
-|   |       |   └── ClientMenuView.swift
-|   |       └── Orders
-|   |           |── OrderView.swift
-|   |           └── OrderView+ViewModel.swift
-|   |── Model
-|   |   └── Order+Create.swift
-|   |── Preview Content
-|   |   └── Preview Assets.xcassets
-|   └── Info.plist   
-├── CupcakeCornerForAdmin
-|   |── App
-|   |   └── CupcakeCornerForAdminApp.swift
-|   |── Core
-|   |   |── Components
-|   |   |   |── EditCupcake.swift
-|   |   |   └── IngredientsList.swift
-|   |   └── View
-|   |       |── Create Cupcake
-|   |       |   |── CreateNewCupcakeView.swift
-|   |       |   └── CreateNewCupcakeView+ViewModel.swift
-|   |       |── Cupcake Deatail
-|   |       |   |── CupcakeDetailView.swift
-|   |       |   └── CupcakeDetailView+ViewModel.swift
-|   |       ├── Menu
-|   |       |   └── AdminMenuView.swift
-|   |       └── Update Cupcake
-|   |           |── UpdateCupcakeView.swift
-|   |           └── UpdateCupcakeView+ViewModel.swift
-|   |── Extensions
-|   |   └── CupcakeRepository+Extension.swift
-|   |── Model
-|   |   |── Action.swift
-|   |   |── Cupcake+Update.swift
-|   |   └── Order+Update.swift
-|   |── Preview Content
-|   |   └── Preview Assets.xcassets
-|   |── Service
-|   |   └── GetPhoto.swift
-|   └── Info.plist   
-├── LICENSE
-└── README.md       
-```
+### 📊 Large data sets
+- Asynchronous pagination and on-demand loading to improve performance;
+- Use of the `.onScrollVisibilityChange(threshold:)` modifier, which loads more data when 80% of the items are loaded, ensuring fluidity and responsiveness even with large lists. (We will use LazyVStack in the future, after figuring out what is causing items from pagination to not render.).
+
+### 🏗️ Architecture
+- Follows MVVM pattern to separate business logic, networking, and UI code.
+- Promotes testability and scalability.
+
+## 🔧 Technologies
+
+- **Swift**
+- **SwiftUI**
+- **RESTful API**
+- **Keychain** to keep sensitive data secure
+- **Swift Concurrency**, `async/await`, `Task`, `Codable`, `MainActor`, `@Observable`
+
+## 🧩 Key Takeaways
+
+> 🔐 *"Working with Keychain was a game-changer for understanding how to ensure secure credential storage."*
+
+> ⚡ *"I learned hands-on how to effectively manage asynchronous tasks with `async/await`, which gave me more control over concurrency and performance."*
+
+> 🌐 *"Integrating with real REST APIs and handling authentication and token renewal errors prepared me for real-world challenges."*
+
+> 📈 *"I optimized the user experience when working with large amounts of data without compromising performance."*
+
+## 📱 Screenshots
+
+## 📋 Future Improvements
+
+- Support for iOS 26;
+- Add unit tests;
+- Continue improving the app's architecture.
 
 ## Dependencies
 Swift Package Manager is used as a dependency manager.
 ## List of dependencies: 
 * [ErrorWrapper](https://github.com/isaqueDaSilva/ErrorWrapper.git) -> My library that, used to set error alerts more easy.
-* [KeychainService](https://github.com/isaqueDaSilva/KeychainService.git) -> My library, used to handle with store, retrive and delete token from the keychian. 
-* [NetworkKit](https://github.com/isaqueDaSilva/NetworkKit.git) -> My library, used to handle with the http call and WebSocket tasks more easy.
+* [KeychainService](https://github.com/isaqueDaSilva/KeychainService.git) -> My library, used to handle storing, retrieving, and deleting tokens from the Keychain.
+* [Swift HTTP Types](https://github.com/apple/swift-http-types.git) -> A Swift library to handle with the network layer more easily and efficiently. 
 
 ## API 
 * This projects is using a REST API
 * List of API calls is [here](https://github.com/isaqueDaSilva/CupcakeCornerAPI?tab=readme-ov-file#api) 
-
-## Todo
-- [x] Building efficients and user-friendly UI;<br>
-- [x] Connect the app with the Backend Service;<br>
-- [x] Implement the Authentication System with a user-friendly UI;<br>
-- [x] Adding a chart to show a balance a choose range of data;<br>
-- [x] Implement the WebSocket connection;<br>
-- [x] Implemet an user-friendly UI to handle with the real-time update;<br>
-- [ ] Improving the app architecture(MMVM + Clean Code);<br>
-- [ ] Add test coverge to the app;<br>
-- [ ] Add macOS support
