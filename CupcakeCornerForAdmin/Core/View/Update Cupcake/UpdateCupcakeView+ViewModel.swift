@@ -36,8 +36,6 @@ extension UpdateCupcakeView {
                 do {
                     let token = try TokenGetter.getValue()
                     
-                    guard let id = cupcake.id else { throw AppError.missingData }
-                    
                     let updatedCupcakeJSON = self.makeUpdate(for: self.cupcake)
                     
                     let updatedCupcake = try await self.updateCupcake(
