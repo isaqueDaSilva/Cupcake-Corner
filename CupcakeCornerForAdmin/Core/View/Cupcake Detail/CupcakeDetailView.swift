@@ -67,25 +67,24 @@ struct CupcakeDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack {
-                        Button(role: .destructive) {
-                            viewModel.isShowingDeleteAlert = true
-                        } label: {
-                            Icon.trash.systemImage
+                if #available(iOS 26, *) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        self.deleteButton
+                            .tint(.red)
+                    }
+                    
+                    ToolbarSpacer(.flexible, placement: .topBarTrailing)
+                    
+                    ToolbarItem(placement: .topBarTrailing) {
+                        self.editButton
+                            .tint(.blue)
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        HStack {
+                            self.deleteButton
+                            self.editButton
                         }
-                        .disabled(viewModel.isLoading)
-                        
-                        Button {
-                            viewModel.isShowingUpdateCupcakeView = true
-                        } label: {
-                            Icon.pencil.systemImage
-                        }
-                        .disabled(viewModel.isLoading)
-                        .matchedTransitionSource(
-                            id: self.plusButtonID,
-                            in: self.plusButtonNamespace
-                        )
                     }
                 }
                 
@@ -154,6 +153,29 @@ extension CupcakeDetailView {
     }
 }
 
+extension CupcakeDetailView {
+    private var deleteButton: some View {
+        Button(role: .destructive) {
+            viewModel.isShowingDeleteAlert = true
+        } label: {
+            Icon.trash.systemImage
+        }
+        .disabled(viewModel.isLoading)
+    }
+    
+    private var editButton: some View {
+        Button {
+            viewModel.isShowingUpdateCupcakeView = true
+        } label: {
+            Icon.pencil.systemImage
+        }
+        .disabled(viewModel.isLoading)
+        .matchedTransitionSource(
+            id: self.plusButtonID,
+            in: self.plusButtonNamespace
+        )
+    }
+}
 
 #if DEBUG
 #Preview {
