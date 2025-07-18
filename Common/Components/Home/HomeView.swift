@@ -47,14 +47,6 @@ extension HomeView {
             ) {
                 OrderView(userRepository: userRepository)
             }
-            
-            Tab(
-                TabSection.profile.title,
-                systemImage: TabSection.profile.iconName,
-                value: .profile
-            ) {
-                UserAccountView()
-            }
         }
         .tabViewStyle(.sidebarAdaptable)
     }
