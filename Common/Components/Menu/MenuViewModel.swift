@@ -95,7 +95,9 @@ final class MenuViewModel {
             
             let cupcakesPage = try EncoderAndDecoder.decodeResponse(type: Page<ReadCupcake>.self, by: data)
             
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
                 self.cupcakes += cupcakesPage.items
                 self.pageMetadata = cupcakesPage.metadata
                 self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
