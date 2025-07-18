@@ -11,8 +11,6 @@
 		7E73177E2E06637A00B55C16 /* HTTPTypesFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 7E73177D2E06637A00B55C16 /* HTTPTypesFoundation */; };
 		7E7317802E06638400B55C16 /* HTTPTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 7E73177F2E06638400B55C16 /* HTTPTypes */; };
 		7E7317822E06638400B55C16 /* HTTPTypesFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 7E7317812E06638400B55C16 /* HTTPTypesFoundation */; };
-		7E96BC1A2E29CB1C009DAD03 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 7E96BC192E29CB1C009DAD03 /* OrderedCollections */; };
-		7E96BC1C2E29CB23009DAD03 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 7E96BC1B2E29CB23009DAD03 /* OrderedCollections */; };
 		7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */; };
 		7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */; };
 		7ED393552D87816D00DC559B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393542D87816D00DC559B /* README.md */; };
@@ -180,7 +178,6 @@
 				7E73177C2E06637A00B55C16 /* HTTPTypes in Frameworks */,
 				7EDD44E42D992FA200DC6592 /* KeychainService in Frameworks */,
 				7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */,
-				7E96BC1A2E29CB1C009DAD03 /* OrderedCollections in Frameworks */,
 				7EDD44E62D992FA200DC6592 /* ErrorWrapper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -194,7 +191,6 @@
 				7E7317802E06638400B55C16 /* HTTPTypes in Frameworks */,
 				7EDD44EA2D992FA800DC6592 /* KeychainService in Frameworks */,
 				7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */,
-				7E96BC1C2E29CB23009DAD03 /* OrderedCollections in Frameworks */,
 				7EDD44EC2D992FA800DC6592 /* ErrorWrapper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -259,7 +255,6 @@
 				7EDD44E52D992FA200DC6592 /* ErrorWrapper */,
 				7E73177B2E06637A00B55C16 /* HTTPTypes */,
 				7E73177D2E06637A00B55C16 /* HTTPTypesFoundation */,
-				7E96BC192E29CB1C009DAD03 /* OrderedCollections */,
 			);
 			productName = CupcakeCorner;
 			productReference = 7EAE76DE2D7E463800A69FF7 /* CupcakeCorner.app */;
@@ -287,7 +282,6 @@
 				7EDD44EB2D992FA800DC6592 /* ErrorWrapper */,
 				7E73177F2E06638400B55C16 /* HTTPTypes */,
 				7E7317812E06638400B55C16 /* HTTPTypesFoundation */,
-				7E96BC1B2E29CB23009DAD03 /* OrderedCollections */,
 			);
 			productName = CupcakeCornerForAdmin;
 			productReference = 7EAE77142D7E47BD00A69FF7 /* CupcakeCornerForAdmin.app */;
@@ -326,7 +320,6 @@
 				7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */,
 				7EDD44E02D992F6700DC6592 /* XCRemoteSwiftPackageReference "ErrorWrapper" */,
 				7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */,
-				7E96BC182E29CB00009DAD03 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7EAE76DF2D7E463800A69FF7 /* Products */;
@@ -701,14 +694,6 @@
 				minimumVersion = 1.4.0;
 			};
 		};
-		7E96BC182E29CB00009DAD03 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-collections.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.2.0;
-			};
-		};
 		7EDD44DE2D992F3300DC6592 /* XCRemoteSwiftPackageReference "NetworkKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/isaqueDaSilva/NetworkKit.git";
@@ -755,16 +740,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */;
 			productName = HTTPTypesFoundation;
-		};
-		7E96BC192E29CB1C009DAD03 /* OrderedCollections */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7E96BC182E29CB00009DAD03 /* XCRemoteSwiftPackageReference "swift-collections" */;
-			productName = OrderedCollections;
-		};
-		7E96BC1B2E29CB23009DAD03 /* OrderedCollections */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7E96BC182E29CB00009DAD03 /* XCRemoteSwiftPackageReference "swift-collections" */;
-			productName = OrderedCollections;
 		};
 		7EDD44E12D992FA200DC6592 /* NetworkKit */ = {
 			isa = XCSwiftPackageProductDependency;
