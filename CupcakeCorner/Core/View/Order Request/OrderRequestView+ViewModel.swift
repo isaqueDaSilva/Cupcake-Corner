@@ -16,109 +16,56 @@ extension OrderRequestView {
     final class ViewModel {
         private let basePrice: Double
         var quantity = 1
-        var extraFrosting = false
-        var addSprinkles = false
-        var paymentMethod: PaymentMethod = .cash
         
         var isLoading = false
         var isSuccessed = false
         var error: ExecutionError? = nil
-        var isShowingAboutCupcake = false
-        
-        var extraFrostingPrice: Double {
-            Double(quantity) * 1.5
-        }
-        
-        var addSprinklesPrice: Double {
-            Double(quantity) / 2.0
-        }
         
         var finalPrice: Double {
-            var cupcakeCost: Double {
-                basePrice * Double(quantity)
-            }
-            
-            var extraFrostingTax: Double {
-                extraFrosting ? extraFrostingPrice : 0
-            }
-            
-            var addSprinklesTax: Double {
-                addSprinkles ? addSprinklesPrice : 0
-            }
-            
-            let finalPrice = cupcakeCost + extraFrostingTax + addSprinklesTax
-        
-            return finalPrice
+            basePrice * Double(quantity)
         }
         
-        func makeOrder(
-            with session: URLSession = .shared,
-            cupcakeID: UUID?
-        ) {
+        func makeOrder(with cupcakeID: UUID?, session: URLSession = .shared) {
+            guard let cupcakeID else {
+                self.error = .missingData
+                return
+            }
+            
             self.isLoading = true
             
             Task { [weak self] in
                 guard let self else { return }
                 
-                do {
-                    guard let cupcakeID else {
-                        throw ExecutionError.missingData
-                    }
-                    
-                    let newOrder = self.setOrder(cupcakeID: cupcakeID)
-                    let newOrderData = try Network.encodeData(newOrder)
-                    let (_, response) = try await self.makeRequest(with: session, newOrderData: newOrderData)
-                    
-                    try Network.checkResponse(response)
-                    
-                    await MainActor.run { [weak self] in
-                        guard let self else { return }
-                        
-                        self.isSuccessed = true
-                    }
-                } catch let error as ExecutionError{
-                    await self.setError(error)
+                let token = try TokenGetter.getValue()
+                
+                let newOrder = Order(
+                    cupcakeInformation: cupcakeID,
+                    quantity: self.quantity,
+                    finalPrice: self.finalPrice
+                )
+                
+                let (_, response) = try await newOrder.create(
+                    with: token,
+                    session: session
+                )
+                
+                guard response.status == .created else {
+                    return await self.setError(.badResponse)
                 }
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.isLoading = false
+                    self.isSuccessed = true
                 }
             }
-        }
-        
-        private func setOrder(cupcakeID: UUID) -> Order.Create {
-            .init(
-                cupcakeID: cupcakeID,
-                quantity: self.quantity,
-                extraFrosting: self.extraFrosting,
-                addSprinkles: self.extraFrosting,
-                finalPrice: self.finalPrice,
-                paymentMethod: paymentMethod
-            )
-        }
-        
-        private func makeRequest(
-            with session: URLSession,
-            newOrderData: Data
-        ) async throws(ExecutionError) -> (Data, URLResponse) {
-            let token = try TokenGetter.getValue()
-            
-            return try await Network.getData(
-                path: EndpointBuilder.makePath(endpoint: .order, path: .create),
-                httpMethod: .post,
-                headers: [
-                    EndpointBuilder.Header.authorization.rawValue : token,
-                    EndpointBuilder.Header.contentType.rawValue : EndpointBuilder.HeaderValue.json.rawValue
-                ],
-                body: newOrderData,
-                session: session
-            )
         }
         
         private func setError(_ error: ExecutionError) async {
             await MainActor.run { [weak self] in
                 guard let self else { return }
-                
+                self.isLoading = false
                 self.error = error
             }
         }
