@@ -22,8 +22,6 @@ struct UserAccountView: View {
                 VStack {
                     userInfo
                     
-                    balanceNavigationButton
-                    
                     Grid {
                         GridRow {
                             signOutButton
@@ -64,26 +62,6 @@ extension UserAccountView {
         .bold()
         .frame(maxWidth: .infinity, alignment: .leading)
         .softBackground()
-    }
-}
-
-extension UserAccountView {
-    @ViewBuilder
-    private var balanceNavigationButton: some View {
-        NavigationLink {
-            BalanceView()
-        } label: {
-            HStack {
-                Text("Balance")
-                    .bold()
-                
-                Icon.chevronRight.systemImage
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .softBackground()
-        }
-        .buttonStyle(PlainButtonStyle())
     }
 }
 
