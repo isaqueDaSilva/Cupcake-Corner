@@ -29,7 +29,6 @@ A study-case app of selling cupcakes, whose goal was to combine all my knowledge
 
 ### ⚙️ Advanced Asynchronous Programming
 - Intensive use of `async/await` for REST calls with refined error handling (`do-catch`, `try await`, `Task {}`);
-- Organization of concurrent tasks with `TaskGroup` when necessary;
 - Update UI data with `@MainActor`.
 
 ### 🌐 Integration with RESTful API
