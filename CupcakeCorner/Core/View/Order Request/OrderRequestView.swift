@@ -13,27 +13,34 @@ struct OrderRequestView: View {
     
     @State private var viewModel: ViewModel
     
-    let cupcake: Cupcake
+    let cupcake: ReadCupcake
     
     var body: some View {
         ScrollView {
             VStack {
-                cupcakeHighlight
+                AsyncCoverImageView(
+                    imageName: cupcake.imageName,
+                    size: .midHighPicture
+                )
+                .padding(.bottom)
+                
+                aboutCupcake
                     .padding(.bottom)
                 
-                choicerView
+                quantityChoice
+                    .padding(.bottom)
                 
                 orderTotalLabel
-                    .padding(.bottom, 10)
+                    .padding(.bottom)
                 
                 ActionButton(
                     isLoading: $viewModel.isLoading,
                     label: "Make Order",
-                    width: .infinity,
-                    isDisabled: viewModel.isLoading
+                    width: .infinity
                 ) {
-                    viewModel.makeOrder(cupcakeID: cupcake.id)
+                    viewModel.makeOrder(with: self.cupcake.id)
                 }
+                .buttonStyle(.borderedProminent)
             }
             .padding([.horizontal, .bottom])
             .alert("Order Sent with Success",isPresented: $viewModel.isSuccessed) {
@@ -44,67 +51,42 @@ struct OrderRequestView: View {
                 Text("Go to the bag and track the progress of your order in real time.")
             }
             .errorAlert(error: $viewModel.error) { }
-            .sheet(isPresented: $viewModel.isShowingAboutCupcake) {
-                AboutCupcakeView(
-                    flavor: cupcake.flavor,
-                    coverImageData: cupcake.coverImage,
-                    madeWithText: self.madeWithText,
-                    ingredientsText: self.ingredientsText,
-                    dateDescriptionText: self.dateDescriptionText,
-                    createAtText: self.createAtText
-                )
-            }
         }
+        .navigationTitle(cupcake.flavor)
+        .navigationBarTitleDisplayMode(.inline)
     }
     
-    init(cupcake: Cupcake) {
+    init(cupcake: ReadCupcake) {
         self.cupcake = cupcake
         self._viewModel = .init(initialValue: .init(with: cupcake.price))
     }
 }
 
 extension OrderRequestView {
-    @ViewBuilder
-    private var cupcakeHighlight: some View {
-        VStack {
+    private var aboutCupcake: some View {
+        VStack(alignment: .leading) {
             HStack(alignment: .center) {
-                Text(cupcake.flavor)
+                Icon.infoCircle.systemImage
+                    .font(.title2)
+                    .bold()
+                    .foregroundStyle(.blue)
+                Text("About the Cupcake")
                     .headerSessionText(font: .title2)
-                    .multilineTextAlignment(.center)
-                
-                Button {
-                    viewModel.isShowingAboutCupcake = true
-                } label: {
-                    Icon.infoCircle.systemImage
-                        .foregroundStyle(.blue)
-                }
+            }
+            .padding(.bottom, 5)
+            
+            LabeledContent {
+                Text(ingredientsText)
+            } label: {
+                Text(madeWithText)
             }
             
-            Image(by: cupcake.coverImage, with: .midHighPicture)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: 150, maxHeight: 150)
-                .padding()
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
+            LabeledContent {
+                Text(dateDescriptionText)
+            } label: {
+                Text(createAtText)
+            }
 
-extension OrderRequestView {
-    @ViewBuilder
-    private var choicerView: some View {
-        Group {
-            quantityChoice
-                .padding(.bottom)
-                .disabled(viewModel.isLoading)
-            
-            specialRequestChoices
-                .padding(.bottom)
-                .disabled(viewModel.isLoading)
-
-            paymentMethodPicker
-                .padding(.bottom)
-                .disabled(viewModel.isLoading)
         }
     }
 }
@@ -142,86 +124,6 @@ extension OrderRequestView {
                 .contentTransition(.numericText(value: Double(viewModel.quantity)))
                 .font(.headline)
             }
-        }
-    }
-}
-
-extension OrderRequestView {
-    @ViewBuilder
-    private var paymentMethodPicker: some View {
-        VStack(alignment: .leading) {
-            Text("Choice a payment method:")
-                .headerSessionText(font: .title2)
-            
-            Grid {
-                GridRow {
-                    ForEach(PaymentMethod.allCases, id: \.id) { paymentMethod in
-                        Text(paymentMethod.displayedName)
-                            .font(.caption)
-                            .bold()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .selectionStyle {
-                                viewModel.paymentMethod == paymentMethod ?
-                                Color.blue : Color(uiColor: .systemGray3)
-                            }
-                            .onTapGesture {
-                                viewModel.paymentMethod = paymentMethod
-                            }
-                            .animation(.default, value: viewModel.paymentMethod)
-                    }
-                }
-            }
-        }
-    }
-}
-
-extension OrderRequestView {
-    @ViewBuilder
-    private var specialRequestChoices: some View {
-        VStack(alignment: .leading) {
-            Text("Special Request")
-                .headerSessionText(
-                    font: .title2
-                )
-            
-            VStack {
-                SpecialRequest(
-                    isActive: $viewModel.extraFrosting,
-                    price: viewModel.extraFrostingPrice,
-                    requestName: "Extra Frosting:"
-                )
-                .animation(.default, value: viewModel.extraFrostingPrice)
-                .contentTransition(.numericText(value: Double(viewModel.extraFrostingPrice)))
-                
-                SpecialRequest(
-                    isActive: $viewModel.addSprinkles,
-                    price: viewModel.addSprinklesPrice,
-                    requestName: "Extra Sprinkles:"
-                )
-                .animation(.default, value: viewModel.addSprinklesPrice)
-                .contentTransition(.numericText(value: Double(viewModel.addSprinklesPrice)))
-            }
-            .font(.headline)
-        }
-    }
-}
-
-extension OrderRequestView {
-    @ViewBuilder
-    private func SpecialRequest(
-        isActive: Binding<Bool>,
-        price: Double,
-        requestName: String
-    ) -> some View {
-        SelectionPicker(isActive: isActive) {
-            HStack {
-                LabeledContent(
-                    requestName,
-                    value: price,
-                    format: .currency(code: "USD")
-                )
-            }
-            .contentShape(.rect)
         }
     }
 }
