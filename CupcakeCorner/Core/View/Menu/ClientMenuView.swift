@@ -8,22 +8,18 @@
 import SwiftUI
 
 struct ClientMenuView: View {
-    @State private var cupcakeRepository: CupcakeRepository
+    @State private var viewModel = MenuViewModel()
     
     var body: some View {
         NavigationStack {
-            MenuView(cupcakeRepository: cupcakeRepository)
-                .navigationDestination(for: Cupcake.self) { cupcake in
-                    OrderRequestView(cupcake: cupcake)
+            MenuView(viewModel: $viewModel)
+                .navigationDestination(for: NavigationInfo.self) { info in
+                    OrderRequestView(cupcake: info.cupcake)
                 }
         }
-    }
-    
-    init(isPreview: Bool = false) {
-        self._cupcakeRepository = .init(initialValue: .init(isPreview: isPreview))
     }
 }
 
 #Preview {
-    ClientMenuView(isPreview: true)
+    ClientMenuView()
 }
