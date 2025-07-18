@@ -10,6 +10,7 @@ A study-case app of selling cupcakes, whose goal was to combine all my knowledge
 4. [Key Takeaways](#key-takeaways)
 5. [Dependencies](#dependencies)
 6. [API](#api)
+7. [Demo](#demo)
 
 ## 🚀 Features
 
@@ -83,3 +84,6 @@ Swift Package Manager is used as a dependency manager.
 ## API 
 * This projects is using a REST API
 * List of API calls is [here](https://github.com/isaqueDaSilva/CupcakeCornerAPI?tab=readme-ov-file#api) 
+
+## Demo
+Click [here](https://youtu.be/HCnSd-yPiJk) to access a brief demonstration of the application in action <ins>*(New version of the demonstration coming soon after the full redesign.)*</ins> 
