@@ -10,27 +10,38 @@ import Foundation
 struct Order: Identifiable {
     let id: UUID
     let userName: String
-    let paymentMethod: PaymentMethod
-    let cupcakeName: String
+    let cupcakeInformation: String
     let quantity: Int
-    let extraFrosting: Bool
-    let addSprinkles: Bool
     let finalPrice: Double
     let status: Status
     let orderTime: Date
     let readyForDeliveryTime: Date?
     let deliveredTime: Date?
+    
+    init(
+        cupcakeInformation: UUID,
+        quantity: Int,
+        finalPrice: Double
+    ) {
+        self.id = .init()
+        self.userName = ""
+        self.cupcakeInformation = cupcakeInformation.uuidString
+        self.quantity = quantity
+        self.finalPrice = finalPrice
+        self.status = .ordered
+        self.orderTime = .now
+        self.readyForDeliveryTime = nil
+        self.deliveredTime = nil
+    }
 }
 
+// MARK: - Encode and Decode strategy -
 extension Order: Codable {
     enum CodingKeys: CodingKey {
         case id
         case userName
-        case paymentMethod
-        case cupcakeName
+        case cupcakeInformation
         case quantity
-        case extraFrosting
-        case addSprinkles
         case finalPrice
         case status
         case orderTime
@@ -38,15 +49,23 @@ extension Order: Codable {
         case deliveredTime
     }
     
+    func encode(to encoder: any Encoder) throws {
+        guard let id = UUID(uuidString: self.cupcakeInformation) else {
+            throw AppError.missingData
+        }
+        
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .cupcakeInformation)
+        try container.encode(self.quantity, forKey: .quantity)
+        try container.encode(self.finalPrice, forKey: .finalPrice)
+    }
+    
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(UUID.self, forKey: .id)
         self.userName = try container.decode(String.self, forKey: .userName)
-        self.paymentMethod = try container.decode(PaymentMethod.self, forKey: .paymentMethod)
-        self.cupcakeName = try container.decode(String.self, forKey: .cupcakeName)
+        self.cupcakeInformation = try container.decode(String.self, forKey: .cupcakeInformation)
         self.quantity = try container.decode(Int.self, forKey: .quantity)
-        self.extraFrosting = try container.decode(Bool.self, forKey: .extraFrosting)
-        self.addSprinkles = try container.decode(Bool.self, forKey: .addSprinkles)
         self.finalPrice = try container.decode(Double.self, forKey: .finalPrice)
         self.status = try container.decode(Status.self, forKey: .status)
         self.orderTime = try container.decode(Date.self, forKey: .orderTime)
@@ -55,10 +74,31 @@ extension Order: Codable {
     }
 }
 
+// MARK: - Network strategy -
+extension Order {
+    func create(with token: String, session: URLSession) async throws -> DataAndResponse {
+        let orderData = try EncoderAndDecoder.encodeData(self)
+        
+        let request = _Network(
+            method: .post,
+            scheme: .https,
+            path: "/order/create",
+            fields: [
+                .authorization : token,
+                .contentType : _Network.HeaderValue.json.rawValue
+            ],
+            requestType: .upload(orderData)
+        )
+        
+        return try await request.getResponse(with: session)
+    }
+}
+
+// MARK: - Displaying Customization -
 extension Order {
     var title: String {
         #if CLIENT
-        cupcakeName
+        cupcakeInformation
         #elseif ADMIN
         userName
         #endif
@@ -68,23 +108,17 @@ extension Order {
         #if CLIENT
         let text = """
         Quantity: \(quantity)
-        Add Sprinkles: \(addSprinkles ? "Yes" : "No")
-        Extra Frosting: \(extraFrosting ? "Yes" : "No")
         Status: \(status.displayedName)
         Order Time: \(orderTime.dateString())
         Out For Delivery: \(readyForDeliveryTime?.dateString() ?? "N/A"),
         Delivered: \(deliveredTime?.dateString() ?? "N/A")
-        Payment Method: \(paymentMethod.displayedName)
         """
         return text
 
         #elseif ADMIN
         let text = """
-        Payment Method: \(paymentMethod.displayedName)
-        Cupcake: \(cupcakeName)
+        Cupcake: \(cupcakeInformation)
         Quantity: \(quantity)
-        Add Sprinkles: \(addSprinkles ? "Yes" : "No")
-        Extra Frosting: \(extraFrosting ? "Yes" : "No")
         Status: \(status.displayedName)
         Order Time: \(orderTime.dateString())
         Out For Delivery: \(readyForDeliveryTime?.dateString() ?? "N/A")
@@ -96,6 +130,7 @@ extension Order {
     }
 }
 
+// MARK: - Mocks -
 #if DEBUG
 extension Order {
     init(cupcakeFlavor: String = "Flavor: \(Int.random(in: 1...100))") {
@@ -104,11 +139,8 @@ extension Order {
         
         self.id = .init()
         self.userName = "User \(Int.random(in: 1...100))"
-        self.paymentMethod = .allCases.randomElement() ?? .cash
-        self.cupcakeName = cupcakeFlavor
+        self.cupcakeInformation = cupcakeFlavor
         self.quantity = Int.random(in: 1...20)
-        self.extraFrosting = Bool.random()
-        self.addSprinkles = Bool.random()
         self.finalPrice = Double.random(in: 20...100)
         self.status = status
         self.orderTime = orderTime
