@@ -9,6 +9,7 @@ import ErrorWrapper
 import SwiftUI
 
 struct MenuView: View {
+    @State private var isOpeningProfileView = false
     @Binding var viewModel: MenuViewModel
     
     var body: some View {
@@ -30,6 +31,23 @@ struct MenuView: View {
             self.viewModel.refresh()
         }
         .errorAlert(error: $viewModel.error) { }
+        .toolbar {
+            Button {
+                self.isOpeningProfileView = true
+            } label: {
+                if #available(iOS 26, *) {
+                    Icon.person.systemImage
+                } else {
+                    Icon.personCircle.systemImage
+                        .tint(.blue)
+                }
+            }
+
+        }
+        .sheet(isPresented: $isOpeningProfileView) {
+            UserAccountView()
+                .environment(UserRepository())
+        }
     }
 }
 
