@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Observation
+import OrderedCollections
 
 @Observable
 @MainActor
@@ -14,9 +14,25 @@ final class MenuViewModel {
     private let logger = AppLogger(category: "MenuViewModel")
     private var pageMetadata = PageMetadata()
     
-    var cupcakes: [ReadCupcake] = []
-    var viewState: ViewState = .default
-    var error: AppError?
+    var cupcakes: OrderedDictionary<UUID, ReadCupcake> = [:] {
+        didSet {
+            self.logger.info("Cupcake storage update. Total of Items: \(self.cupcakes.count)")
+        }
+    }
+    
+    var viewState: ViewState = .default {
+        didSet {
+            self.logger.info("View state update for \(self.viewState) status.")
+        }
+    }
+    
+    var error: AppError? = nil {
+        didSet {
+            if let error {
+                self.logger.info("An error was thrown. Error Description: \(error.description)")
+            }
+        }
+    }
     
     var isLoading: Bool {
         self.viewState == .loading ||
@@ -24,11 +40,13 @@ final class MenuViewModel {
         self.viewState == .refreshing
     }
     
+    var cupcakesIndicies: Range<Int> {
+        self.cupcakes.values.indices
+    }
+    
     var isCupcakeListEmpty: Bool {
         self.cupcakes.isEmpty
     }
-    
-    var cupcakeListIndexRange: Range<Int> { 0..<self.cupcakes.count }
     
     func fetchPage(session: URLSession = .shared) {
         guard self.isCupcakeListEmpty && self.viewState == .default else { return }
@@ -43,13 +61,17 @@ final class MenuViewModel {
             #if DEBUG
             await self.fetchMocks()
             #else
-            await fetch(page: 0, session: session)
+            await self.fetch(page: 1, session: session)
             #endif
+            
+            await MainActor.run {
+                self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+            }
         }
     }
     
-    func fetchMorePages(session: URLSession = .shared) {
-        guard viewState == .default else { return }
+    func fetchMorePages(isVisible: Bool, index: Int, session: URLSession = .shared) {
+        guard viewState == .default && self.isValidToFetchMore(isVisible: isVisible, index: index) else { return }
         
         self.viewState = .fetchingMore
         
@@ -63,11 +85,28 @@ final class MenuViewModel {
             #else
             await self.fetch(page: nextPage, session: session)
             #endif
+            
+            await MainActor.run {
+                self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+            }
         }
     }
     
+    private func isValidToFetchMore(isVisible: Bool, index: Int) -> Bool {
+        let eightyPorcentIndex = Int((Double((self.cupcakes.count - 1)) * 0.8).rounded(.up))
+        
+        guard isVisible, self.cupcakes.values.elements.indices.contains(eightyPorcentIndex),
+              self.cupcakes.values.elements[index].id == self.cupcakes.values.elements[eightyPorcentIndex].id else {
+            return false
+        }
+        
+        return true
+    }
+    
     func refresh(session: URLSession = .shared) {
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
+            
             await self.resetCupcakeList()
             
             #if DEBUG
@@ -75,6 +114,13 @@ final class MenuViewModel {
             #else
             await self.fetch(page: 0, session: session)
             #endif
+            
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+            }
+            
+            print(self.viewState)
         }
     }
     
@@ -98,14 +144,16 @@ final class MenuViewModel {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 
-                self.cupcakes += cupcakesPage.items
+                for cupcake in cupcakesPage.items {
+                    self.cupcakes.updateValue(cupcake, forKey: cupcake.id)
+                }
+                
                 self.pageMetadata = cupcakesPage.metadata
-                self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
             }
         } catch let error as AppError {
             await self.setError(error)
         } catch {
-            await self.setError(.init(title: "Failed to get cupcakes", descrition: error.localizedDescription))
+            await self.setError(.init(title: "Failed to get cupcakes", description: error.localizedDescription))
         }
     }
     
@@ -133,7 +181,7 @@ final class MenuViewModel {
             
             self.error = error
             self.viewState = .default
-            self.logger.error(error.descrition)
+            self.logger.error(error.description)
         }
     }
 }
@@ -146,11 +194,12 @@ extension MenuViewModel {
             
             await MainActor.run { [weak self] in
                 guard let self else { return }
-                print("Filling...")
-                self.cupcakes += ReadCupcake.mocks
-                print("Filled with \(self.cupcakes.count) cupcakes.")
-                self.viewState = cupcakes.count < 30 ? .default : .loadedAll
-                print("View State:", viewState)
+                
+                for cupcake in ReadCupcake.mocks {
+                    self.cupcakes.updateValue(cupcake.value, forKey: cupcake.key)
+                }
+                
+                self.pageMetadata = .init(total: 30)
             }
         } catch {
             await self.setError(.internalError)
