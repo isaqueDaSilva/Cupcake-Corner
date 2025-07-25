@@ -13,8 +13,8 @@ struct ClientMenuView: View {
     var body: some View {
         NavigationStack {
             MenuView(viewModel: $viewModel)
-                .navigationDestination(for: NavigationInfo.self) { info in
-                    OrderRequestView(cupcake: info.cupcake)
+                .navigationDestination(for: ReadCupcake.self) { cupcake in
+                    OrderRequestView(cupcake: cupcake)
                 }
         }
     }

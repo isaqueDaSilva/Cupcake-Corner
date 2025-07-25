@@ -6,7 +6,6 @@
 //
 
 import SwiftData
-import ErrorWrapper
 import SwiftUI
 
 /// A main root that guides the app's flows from the ``SplashScreen`` to the ``HomeView``.
@@ -16,7 +15,7 @@ struct MainRootView: View {
     @State private var isSplashViewPresented = true
     @State private var showError = false
     @State private var userRepository = UserRepository()
-    @State private var error: ExecutionError? = nil
+    @State private var error: AppError? = nil
     
     var body: some View {
         ZStack {
@@ -37,7 +36,7 @@ struct MainRootView: View {
             do {
                 try self.userRepository.load(with: self.modelContext)
             } catch {
-                self.error = error as? ExecutionError
+                self.error = error as? AppError
             }
         }
         .errorAlert(error: $error) { }

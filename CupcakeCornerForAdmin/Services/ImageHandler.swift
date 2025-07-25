@@ -59,7 +59,7 @@ final class ImageHandler {
         guard let cupcakeImage, self.cupcakeImage != self.initialCupcakeImage else {
             throw AppError(
                 title: "No image",
-                descrition: "You need a image to follow with this action."
+                description: "You need a image to follow with this action."
             )
         }
         
@@ -76,7 +76,7 @@ final class ImageHandler {
             self.logger.error(
                 "Failed to set image for cupcake \(cupcakeID.uuidString) with error: \(error.localizedDescription)"
             )
-            throw .init(title: "Failed to set image for this cupcake.", descrition: "")
+            throw .init(title: "Failed to set image for this cupcake.", description: "")
         }
     }
     
