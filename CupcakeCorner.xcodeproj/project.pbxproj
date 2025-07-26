@@ -13,16 +13,14 @@
 		7E7317822E06638400B55C16 /* HTTPTypesFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 7E7317812E06638400B55C16 /* HTTPTypesFoundation */; };
 		7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */; };
 		7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAE77AA2D7E5EB800A69FF7 /* SwiftUI.framework */; };
+		7EBD62402E3121D000AEDA98 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 7EBD623F2E3121D000AEDA98 /* OrderedCollections */; };
+		7EBD62422E3121D600AEDA98 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 7EBD62412E3121D600AEDA98 /* OrderedCollections */; };
 		7ED393552D87816D00DC559B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393542D87816D00DC559B /* README.md */; };
 		7ED393562D87816D00DC559B /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393532D87816D00DC559B /* LICENSE.txt */; };
 		7ED393572D87816D00DC559B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393542D87816D00DC559B /* README.md */; };
 		7ED393582D87816D00DC559B /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393532D87816D00DC559B /* LICENSE.txt */; };
-		7EDD44E22D992FA200DC6592 /* NetworkKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7EDD44E12D992FA200DC6592 /* NetworkKit */; };
 		7EDD44E42D992FA200DC6592 /* KeychainService in Frameworks */ = {isa = PBXBuildFile; productRef = 7EDD44E32D992FA200DC6592 /* KeychainService */; };
-		7EDD44E62D992FA200DC6592 /* ErrorWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = 7EDD44E52D992FA200DC6592 /* ErrorWrapper */; };
-		7EDD44E82D992FA800DC6592 /* NetworkKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7EDD44E72D992FA800DC6592 /* NetworkKit */; };
 		7EDD44EA2D992FA800DC6592 /* KeychainService in Frameworks */ = {isa = PBXBuildFile; productRef = 7EDD44E92D992FA800DC6592 /* KeychainService */; };
-		7EDD44EC2D992FA800DC6592 /* ErrorWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = 7EDD44EB2D992FA800DC6592 /* ErrorWrapper */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,27 +45,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7E11FABF2D80EC570016BC4B /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCorner" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Model/Order+Update.swift",
-			);
-			target = 7EAE76DD2D7E463800A69FF7 /* CupcakeCorner */;
-		};
-		7E4ACC7F2E198477006D5D0E /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCornerForAdmin" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 7EAE77132D7E47BD00A69FF7 /* CupcakeCornerForAdmin */;
-		};
-		7E96BC202E29D32D009DAD03 /* Exceptions for "CupcakeCorner" folder in "CupcakeCorner" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 7EAE76DD2D7E463800A69FF7 /* CupcakeCorner */;
-		};
 		7EAE772B2D7E493A00A69FF7 /* Exceptions for "Common" folder in "CupcakeCornerForAdmin" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -87,32 +64,29 @@
 				Components/ItemCard.swift,
 				Components/LogoView.swift,
 				Components/Menu/MenuView.swift,
-				"Components/Menu/MenuView+OverlayView.swift",
 				Components/Menu/MenuViewModel.swift,
-				Components/OrderEmptyView.swift,
+				Components/Order/Components/OrderFilterPickerView.swift,
+				Components/Order/Components/OrderListView.swift,
+				Components/Order/OrderView.swift,
+				"Components/Order/OrderView+ViewModel.swift",
+				Components/OverlayView.swift,
 				Components/TextFieldFocused.swift,
 				"Core/Views/Login View/LoginView.swift",
 				"Core/Views/Login View/LoginView+ViewModel.swift",
-				Core/Views/Order/Components/OrderFilterPickerView.swift,
-				Core/Views/Order/OrderView.swift,
-				"Core/Views/Order/OrderView+ViewModel.swift",
 				"Core/Views/User Account/UserAccountView.swift",
 				"Core/Views/User Account/UserAccountView+ViewModel.swift",
 				"Extensions/CGSize+Extension.swift",
 				"Extensions/Date+Extension.swift",
-				"Extensions/Dictionary+Extension.swift",
 				"Extensions/Double+Extension.swift",
-				"Extensions/ExecutionError+Extension.swift",
 				"Extensions/Image+Extension.swift",
 				"Extensions/TimeInterval+Extension.swift",
 				"Extensions/UIImage+Extension.swift",
 				"Extensions/View+Extension.swift",
+				Models/AppError.swift,
 				Models/Cupcake/CreateOrReadCupcake.swift,
 				Models/Cupcake/CupcakeImage.swift,
 				Models/Icon.swift,
-				Models/NavigationInfo.swift,
-				Models/Order/Order.swift,
-				"Models/Order/Order+ReadList.swift",
+				Models/Order.swift,
 				Models/Page.swift,
 				Models/Security/EncryptedField.swift,
 				Models/Security/LoginResponse.swift,
@@ -124,13 +98,15 @@
 				"Models/User/User+Create.swift",
 				"Models/User/User+Get.swift",
 				Models/ViewState.swift,
-				Models/WebSocketMessage.swift,
 				Service/AppLogger.swift,
 				Service/EncoderAndDecoder.swift,
 				Service/Encryptor.swift,
 				Service/ImageCache.swift,
 				Service/SecureServerComunication.swift,
 				Service/TokenGetter.swift,
+				Service/WebSocket/WebSocketClient.swift,
+				Service/WebSocket/WebSocketConfiguration.swift,
+				Service/WebSocket/WebSocketMessage.swift,
 				Utilities/Network/EndpointBuilder.swift,
 				Utilities/Network/Network.swift,
 				"Utilities/Preview/ModelContext+InMemory.swift",
@@ -143,18 +119,11 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7EAE76E02D7E463800A69FF7 /* CupcakeCorner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7E96BC202E29D32D009DAD03 /* Exceptions for "CupcakeCorner" folder in "CupcakeCorner" target */,
-			);
 			path = CupcakeCorner;
 			sourceTree = "<group>";
 		};
 		7EAE77152D7E47BD00A69FF7 /* CupcakeCornerForAdmin */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				7E11FABF2D80EC570016BC4B /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCorner" target */,
-				7E4ACC7F2E198477006D5D0E /* Exceptions for "CupcakeCornerForAdmin" folder in "CupcakeCornerForAdmin" target */,
-			);
 			path = CupcakeCornerForAdmin;
 			sourceTree = "<group>";
 		};
@@ -173,12 +142,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7EDD44E22D992FA200DC6592 /* NetworkKit in Frameworks */,
 				7E73177E2E06637A00B55C16 /* HTTPTypesFoundation in Frameworks */,
 				7E73177C2E06637A00B55C16 /* HTTPTypes in Frameworks */,
+				7EBD62402E3121D000AEDA98 /* OrderedCollections in Frameworks */,
 				7EDD44E42D992FA200DC6592 /* KeychainService in Frameworks */,
 				7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */,
-				7EDD44E62D992FA200DC6592 /* ErrorWrapper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,12 +154,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7EDD44E82D992FA800DC6592 /* NetworkKit in Frameworks */,
 				7E7317822E06638400B55C16 /* HTTPTypesFoundation in Frameworks */,
 				7E7317802E06638400B55C16 /* HTTPTypes in Frameworks */,
+				7EBD62422E3121D600AEDA98 /* OrderedCollections in Frameworks */,
 				7EDD44EA2D992FA800DC6592 /* KeychainService in Frameworks */,
 				7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */,
-				7EDD44EC2D992FA800DC6592 /* ErrorWrapper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,11 +217,10 @@
 			);
 			name = CupcakeCorner;
 			packageProductDependencies = (
-				7EDD44E12D992FA200DC6592 /* NetworkKit */,
 				7EDD44E32D992FA200DC6592 /* KeychainService */,
-				7EDD44E52D992FA200DC6592 /* ErrorWrapper */,
 				7E73177B2E06637A00B55C16 /* HTTPTypes */,
 				7E73177D2E06637A00B55C16 /* HTTPTypesFoundation */,
+				7EBD623F2E3121D000AEDA98 /* OrderedCollections */,
 			);
 			productName = CupcakeCorner;
 			productReference = 7EAE76DE2D7E463800A69FF7 /* CupcakeCorner.app */;
@@ -277,11 +243,10 @@
 			);
 			name = CupcakeCornerForAdmin;
 			packageProductDependencies = (
-				7EDD44E72D992FA800DC6592 /* NetworkKit */,
 				7EDD44E92D992FA800DC6592 /* KeychainService */,
-				7EDD44EB2D992FA800DC6592 /* ErrorWrapper */,
 				7E73177F2E06638400B55C16 /* HTTPTypes */,
 				7E7317812E06638400B55C16 /* HTTPTypesFoundation */,
+				7EBD62412E3121D600AEDA98 /* OrderedCollections */,
 			);
 			productName = CupcakeCornerForAdmin;
 			productReference = 7EAE77142D7E47BD00A69FF7 /* CupcakeCornerForAdmin.app */;
@@ -316,10 +281,9 @@
 			mainGroup = 7EAE76D52D7E463800A69FF7;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				7EDD44DE2D992F3300DC6592 /* XCRemoteSwiftPackageReference "NetworkKit" */,
 				7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */,
-				7EDD44E02D992F6700DC6592 /* XCRemoteSwiftPackageReference "ErrorWrapper" */,
 				7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */,
+				7EBD623E2E3121B900AEDA98 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7EAE76DF2D7E463800A69FF7 /* Products */;
@@ -694,12 +658,12 @@
 				minimumVersion = 1.4.0;
 			};
 		};
-		7EDD44DE2D992F3300DC6592 /* XCRemoteSwiftPackageReference "NetworkKit" */ = {
+		7EBD623E2E3121B900AEDA98 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/isaqueDaSilva/NetworkKit.git";
+			repositoryURL = "https://github.com/apple/swift-collections.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.8;
+				minimumVersion = 1.2.0;
 			};
 		};
 		7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */ = {
@@ -708,14 +672,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.3;
-			};
-		};
-		7EDD44E02D992F6700DC6592 /* XCRemoteSwiftPackageReference "ErrorWrapper" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/isaqueDaSilva/ErrorWrapper.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.7;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -741,35 +697,25 @@
 			package = 7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */;
 			productName = HTTPTypesFoundation;
 		};
-		7EDD44E12D992FA200DC6592 /* NetworkKit */ = {
+		7EBD623F2E3121D000AEDA98 /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 7EDD44DE2D992F3300DC6592 /* XCRemoteSwiftPackageReference "NetworkKit" */;
-			productName = NetworkKit;
+			package = 7EBD623E2E3121B900AEDA98 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
+		};
+		7EBD62412E3121D600AEDA98 /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7EBD623E2E3121B900AEDA98 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
 		};
 		7EDD44E32D992FA200DC6592 /* KeychainService */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */;
 			productName = KeychainService;
 		};
-		7EDD44E52D992FA200DC6592 /* ErrorWrapper */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7EDD44E02D992F6700DC6592 /* XCRemoteSwiftPackageReference "ErrorWrapper" */;
-			productName = ErrorWrapper;
-		};
-		7EDD44E72D992FA800DC6592 /* NetworkKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7EDD44DE2D992F3300DC6592 /* XCRemoteSwiftPackageReference "NetworkKit" */;
-			productName = NetworkKit;
-		};
 		7EDD44E92D992FA800DC6592 /* KeychainService */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */;
 			productName = KeychainService;
-		};
-		7EDD44EB2D992FA800DC6592 /* ErrorWrapper */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7EDD44E02D992F6700DC6592 /* XCRemoteSwiftPackageReference "ErrorWrapper" */;
-			productName = ErrorWrapper;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

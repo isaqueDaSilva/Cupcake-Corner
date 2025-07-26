@@ -5,7 +5,6 @@
 //  Created by Isaque da Silva on 3/11/25.
 //
 
-import ErrorWrapper
 import PhotosUI
 import SwiftUI
 

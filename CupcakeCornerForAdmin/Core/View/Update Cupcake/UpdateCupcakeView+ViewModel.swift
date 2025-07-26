@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Observation
 
 extension UpdateCupcakeView {
     @Observable
@@ -44,12 +43,10 @@ extension UpdateCupcakeView {
                         session: session
                     )
                     
-                    if let updatedCupcake,
-                       let id = updatedCupcake.id,
-                       let imageName = updatedCupcake.imageName
-                    {
-                        try await uploadPicture(id, imageName, token)
+                    if let updatedCupcake, let imageName = updatedCupcake.imageName {
+                        try await uploadPicture(updatedCupcake.id, imageName, token)
                     }
+                    
                     await MainActor.run {
                         action(updatedCupcake)
                     }
@@ -63,26 +60,26 @@ extension UpdateCupcakeView {
             }
         }
         
-        private func makeUpdate(for cupcake: CreateOrReadCupcake) -> [CreateOrReadCupcake.Key.RawValue: Any] {
-            var keysAndValues: [CreateOrReadCupcake.Key.RawValue: Any] = [:]
+        private func makeUpdate(for cupcake: ReadCupcake) -> [ReadCupcake.Key.RawValue: Any] {
+            var keysAndValues: [ReadCupcake.Key.RawValue: Any] = [:]
             
-            if cupcake.flavor != self.flavor {
-                keysAndValues[CreateOrReadCupcake.Key.flavor.rawValue] = self.flavor
+            if !cupcake.flavor.isEmpty && cupcake.flavor != self.flavor {
+                keysAndValues[ReadCupcake.Key.flavor.rawValue] = self.flavor
             }
             
             if !cupcake.ingredients.isEmpty && cupcake.ingredients != self.ingredients {
-                keysAndValues[CreateOrReadCupcake.Key.ingredients.rawValue] = self.ingredients
+                keysAndValues[ReadCupcake.Key.ingredients.rawValue] = self.ingredients
             }
             
             if cupcake.price > 0.1 && cupcake.price != self.price {
-                keysAndValues[CreateOrReadCupcake.Key.price.rawValue] = self.price
+                keysAndValues[ReadCupcake.Key.price.rawValue] = self.price
             }
             
             return keysAndValues
         }
         
         private func updateCupcake(
-            updatedCupcakeJSON: [CreateOrReadCupcake.Key.RawValue : Any],
+            updatedCupcakeJSON: [ReadCupcake.Key.RawValue : Any],
             token: String,
             session: URLSession
         ) async throws -> ReadCupcake? {

@@ -15,7 +15,6 @@ final actor ImageCache {
     
     func setImageData(_ imageData: Data, forKey key: String) {
         self.cache.setObject(imageData as NSData, forKey: key as NSString)
-        print("Image setted with success for key \(key).")
         self.logger.info("Image setted with success for key \(key).")
     }
     

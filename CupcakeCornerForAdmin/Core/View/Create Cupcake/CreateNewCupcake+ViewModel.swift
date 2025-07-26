@@ -36,12 +36,7 @@ extension CreateNewCupcakeView {
                     
                     let cupcake = try self.decodeResponse(from: data)
                     
-                    guard let id = cupcake.id else {
-                        self.logger.info("Missing the id of the cupcake.")
-                        throw AppError.missingData
-                    }
-                    
-                    try await uploadPicture(id, token, session)
+                    try await uploadPicture(cupcake.id, token, session)
                     
                     await MainActor.run {
                         action(cupcake)

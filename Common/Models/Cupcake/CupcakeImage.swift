@@ -25,7 +25,7 @@ extension CupcakeImage {
     ) async throws -> Response {
         let cupcakeImageData = try EncoderAndDecoder.encodeData(self)
         
-        let request = _Network(
+        let request = Network(
             method: .put,
             scheme: .https,
             path: "/cupcake/update/\(cupcakeID)",
@@ -43,13 +43,13 @@ extension CupcakeImage {
         token: String,
         session: URLSession
     ) async throws -> (Data, Response) {
-        let request = _Network(
+        let request = Network(
             method: .get,
             scheme: .https,
             path: "/cupcake/image/\(cupcakeID)",
             fields: [
                 .authorization : token,
-                .contentType : _Network.HeaderValue.json.rawValue
+                .contentType : Network.HeaderValue.json.rawValue
             ],
             requestType: .get
         )

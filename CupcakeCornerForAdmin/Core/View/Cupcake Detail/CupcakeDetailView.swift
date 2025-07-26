@@ -5,7 +5,6 @@
 //  Created by Isaque da Silva on 3/10/25.
 //
 
-import ErrorWrapper
 import SwiftUI
 
 struct CupcakeDetailView: View {
@@ -108,7 +107,7 @@ struct CupcakeDetailView: View {
                 
                 Button("Delete", role: .destructive) {
                     viewModel.deleteCupcake(cupcake: self.cupcake) {
-                        self.action(.delete)
+                        self.action(.delete(self.cupcake.id))
                     }
                 }
             } message: {
