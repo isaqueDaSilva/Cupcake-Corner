@@ -11,7 +11,7 @@ typealias CreateCupcake = CreateOrReadCupcake
 typealias ReadCupcake = CreateOrReadCupcake
 
 struct CreateOrReadCupcake: Identifiable, Hashable, Equatable {
-    let id: UUID?
+    let id: UUID
     var flavor: String
     var imageName: String?
     var ingredients: [String]
@@ -20,7 +20,7 @@ struct CreateOrReadCupcake: Identifiable, Hashable, Equatable {
     
     #if ADMIN
     init(flavor: String, ingredients: [String], price: Double) {
-        self.id = nil
+        self.id = .init()
         self.flavor = flavor
         self.imageName = nil
         self.ingredients = ingredients
@@ -66,6 +66,23 @@ extension CreateOrReadCupcake: Codable {
     }
 }
 
+extension ReadCupcake {
+    static func fetch(with token: String, currentPage: Int, and session: URLSession) async throws -> DataAndResponse {
+        let request = Network(
+            method: .patch,
+            scheme: .https,
+            path: " /cupcake/get?page=\(currentPage)",
+            fields: [
+                .authorization : token,
+                .contentType : Network.HeaderValue.json.rawValue
+            ],
+            requestType: .get
+        )
+        
+        return try await request.getResponse(with: session)
+    }
+}
+
 #if ADMIN
 extension CreateCupcake {
     private func checkIfIsValid() throws(AppError) {
@@ -86,13 +103,13 @@ extension CreateCupcake {
         
         let cupcakeData = try EncoderAndDecoder.encodeData(self)
         
-        let request = _Network(
+        let request = Network(
             method: .post,
             scheme: .https,
             path: "/cupcake/create",
             fields: [
                 .authorization : token,
-                .contentType : _Network.HeaderValue.json.rawValue
+                .contentType : Network.HeaderValue.json.rawValue
             ],
             requestType: .upload(cupcakeData)
         )
@@ -107,17 +124,15 @@ extension CreateOrReadCupcake {
         token: String,
         and session: URLSession
     ) async throws -> (Data, Response) {
-        guard let id else { throw AppError.missingData }
-        
         let updatedCupcakeData = try JSONSerialization.data(withJSONObject: json)
         
-        let request = _Network(
+        let request = Network(
             method: .patch,
             scheme: .https,
-            path: "/cupcake/update/\(id.uuidString)",
+            path: "/cupcake/update/\(self.id.uuidString)",
             fields: [
                 .authorization : token,
-                .contentType : _Network.HeaderValue.json.rawValue
+                .contentType : Network.HeaderValue.json.rawValue
             ],
             requestType: .upload(updatedCupcakeData)
         )
@@ -126,12 +141,10 @@ extension CreateOrReadCupcake {
     }
     
     func delete(with token: String, and session: URLSession) async throws -> Response {
-        guard let id else { throw AppError.missingData }
-        
-        let request = _Network(
+        let request = Network(
             method: .patch,
             scheme: .https,
-            path: "/cupcake/delete/\(id.uuidString)",
+            path: "/cupcake/delete/\(self.id.uuidString)",
             fields: [
                 .authorization : token
             ],
@@ -145,24 +158,8 @@ extension CreateOrReadCupcake {
 }
 #endif
 
-extension ReadCupcake {
-    static func fetch(with token: String, currentPage: Int, and session: URLSession) async throws -> DataAndResponse {
-        let request = _Network(
-            method: .patch,
-            scheme: .https,
-            path: " /cupcake/get?page=\(currentPage)",
-            fields: [
-                .authorization : token,
-                .contentType : _Network.HeaderValue.json.rawValue
-            ],
-            requestType: .get
-        )
-        
-        return try await request.getResponse(with: session)
-    }
-}
-
 #if DEBUG
+import OrderedCollections
 extension CreateOrReadCupcake {
     init() {
         id = .init()
@@ -173,15 +170,15 @@ extension CreateOrReadCupcake {
         imageName = "Image Name \(Int.random(in: 1...100))"
     }
     
-    static let mocks: [CreateOrReadCupcake] = {
-        var cupcakesDictionary = [CreateOrReadCupcake]()
+    static var mocks: OrderedDictionary<UUID, CreateOrReadCupcake> {
+        var cupcakesDictionary = OrderedDictionary<UUID, CreateOrReadCupcake>()
         
         for _ in 0..<10 {
             let newCupcake = CreateOrReadCupcake()
-            cupcakesDictionary.append(newCupcake)
+            cupcakesDictionary.updateValue(newCupcake, forKey: newCupcake.id)
         }
         
         return cupcakesDictionary
-    }()
+    }
 }
 #endif
