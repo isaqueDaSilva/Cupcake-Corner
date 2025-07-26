@@ -16,7 +16,7 @@ struct OrderView: View {
         NavigationStack {
             ZStack {
                 if self.viewModel.isLoading && self.viewModel.orders.isEmpty {
-                    OverlayView(
+                    OverlayEmptyView(
                         itemName: "Orders",
                         isLoading: viewModel.isLoading,
                         isListEmpty: viewModel.orders.isEmpty

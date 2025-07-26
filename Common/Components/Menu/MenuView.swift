@@ -17,7 +17,7 @@ struct MenuView: View {
     var body: some View {
         ZStack {
             if self.viewModel.isLoading && self.viewModel.isCupcakeListEmpty {
-                OverlayView(
+                OverlayEmptyView(
                     itemName: "Cupcakes",
                     isLoading: self.viewModel.isLoading,
                     isListEmpty: self.viewModel.cupcakes.isEmpty
