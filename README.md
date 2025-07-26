@@ -76,8 +76,8 @@ A study-case app of selling cupcakes, whose goal was to combine all my knowledge
 ## Dependencies
 Swift Package Manager is used as a dependency manager.
 ## List of dependencies: 
-* [ErrorWrapper](https://github.com/isaqueDaSilva/ErrorWrapper.git) -> My library that, used to set error alerts more easy.
 * [KeychainService](https://github.com/isaqueDaSilva/KeychainService.git) -> My library, used to handle storing, retrieving, and deleting tokens from the Keychain.
+* [Swift Collections](https://github.com/apple/swift-collections.git) -> A Swift library to add new data structures to the project.
 * [Swift HTTP Types](https://github.com/apple/swift-http-types.git) -> A Swift library to handle with the network layer more easily and efficiently. 
 
 ## API 
