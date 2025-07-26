@@ -5,10 +5,7 @@
 //  Created by Isaque da Silva on 3/10/25.
 //
 
-import ErrorWrapper
 import Foundation
-import NetworkHandler
-import Observation
 
 extension OrderRequestView {
     @Observable
@@ -19,7 +16,7 @@ extension OrderRequestView {
         
         var isLoading = false
         var isSuccessed = false
-        var error: ExecutionError? = nil
+        var error: AppError? = nil
         
         var finalPrice: Double {
             basePrice * Double(quantity)
@@ -39,13 +36,13 @@ extension OrderRequestView {
                 let token = try TokenGetter.getValue()
                 
                 let newOrder = Order(
-                    cupcakeInformation: cupcakeID,
                     quantity: self.quantity,
                     finalPrice: self.finalPrice
                 )
                 
                 let (_, response) = try await newOrder.create(
                     with: token,
+                    cupcakeID: cupcakeID,
                     session: session
                 )
                 
@@ -62,7 +59,7 @@ extension OrderRequestView {
             }
         }
         
-        private func setError(_ error: ExecutionError) async {
+        private func setError(_ error: AppError) async {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.isLoading = false
