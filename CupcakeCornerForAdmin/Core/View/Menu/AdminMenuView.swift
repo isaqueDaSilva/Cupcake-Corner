@@ -16,14 +16,16 @@ struct AdminMenuView: View {
     var body: some View {
         NavigationStack {
             MenuView(viewModel: $viewModel)
-                .navigationDestination(for: NavigationInfo.self) { info in
-                    CupcakeDetailView(cupcake: info.cupcake) { action in
+                .navigationDestination(for: ReadCupcake.self) { cupcake in
+                    CupcakeDetailView(cupcake: cupcake) { action in
                         switch action {
                         case .update(let updatedCupcake):
-                            self.viewModel.cupcakes.remove(at: info.index)
-                            self.viewModel.cupcakes.insert(updatedCupcake, at: info.index)
-                        case .delete:
-                            self.viewModel.cupcakes.remove(at: info.index)
+                            self.viewModel.cupcakes.updateValue(
+                                updatedCupcake,
+                                forKey: updatedCupcake.id
+                            )
+                        case .delete(let cupcakeID):
+                            self.viewModel.cupcakes.removeValue(forKey: cupcakeID)
                         default:
                             break
                         }
@@ -46,7 +48,10 @@ struct AdminMenuView: View {
                 }
                 .sheet(isPresented: $isShowingCreateNewCupcake) {
                     CreateNewCupcakeView { newCupcake in
-                        self.viewModel.cupcakes.append(newCupcake)
+                        self.viewModel.cupcakes.updateValue(
+                            newCupcake,
+                            forKey: newCupcake.id
+                        )
                     }
                     .navigationTransition(
                         .zoom(
