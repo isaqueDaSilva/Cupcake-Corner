@@ -5,10 +5,10 @@
 //  Created by Isaque da Silva on 3/10/25.
 //
 
-import Foundation
+import struct Foundation.UUID
 
 enum Action {
     case noAction
     case update(ReadCupcake)
-    case delete
+    case delete(UUID)
 }
