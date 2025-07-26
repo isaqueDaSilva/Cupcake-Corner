@@ -5,7 +5,6 @@
 //  Created by Isaque da Silva on 3/10/25.
 //
 
-import ErrorWrapper
 import SwiftUI
 
 struct CreateNewCupcakeView: View {
