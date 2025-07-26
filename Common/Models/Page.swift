@@ -7,19 +7,23 @@
 
 import Foundation
 
-struct Page<T>: Decodable where T: Decodable {
+struct Page<T>: Codable where T: Codable {
     let items: [T]
     let metadata: PageMetadata
 }
 
-struct PageMetadata: Decodable {
+struct PageMetadata: Codable, CustomStringConvertible {
     let page: Int
     let per: Int
     let total: Int
     
-    init() {
-        self.page = 1
-        self.per = 0
-        self.total = 0
+    init(page: Int = 0, per: Int = 0, total: Int = 0) {
+        self.page = page
+        self.per = per
+        self.total = total
+    }
+    
+    var description: String {
+        "Page: \(self.page); Per: \(self.per); Total: \(self.total)"
     }
 }
