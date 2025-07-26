@@ -11,17 +11,28 @@ struct MenuView: View {
     @State private var isOpeningProfileView = false
     @Binding var viewModel: MenuViewModel
     
+    @Namespace private var profileButtonNamespace
+    private let profileButtonTransionID = "PROFILE_BUTTON_TRANSITION_ID"
+    
     var body: some View {
         ZStack {
             if self.viewModel.isLoading && self.viewModel.isCupcakeListEmpty {
                 OverlayView(
                     itemName: "Cupcakes",
-                    isLoading: viewModel.isLoading,
-                    isListEmpty: viewModel.cupcakes.isEmpty
+                    isLoading: self.viewModel.isLoading,
+                    isListEmpty: self.viewModel.cupcakes.isEmpty
                 )
             }
             
-            menuList
+            MenuListView(
+                cupcakes: self.viewModel.cupcakes.values.elements,
+                currentViewState: self.viewModel.viewState
+            ) { isVisible, index in
+                self.viewModel.fetchMorePages(
+                    isVisible: isVisible,
+                    index: index
+                )
+            }
         }
         .navigationTitle("Menu")
         .onAppear {
@@ -30,55 +41,39 @@ struct MenuView: View {
         .refreshable {
             self.viewModel.refresh()
         }
-        .errorAlert(error: $viewModel.error) { }
+        .errorAlert(error: self.$viewModel.error) { }
         .toolbar {
-            Button {
-                self.isOpeningProfileView = true
-            } label: {
-                if #available(iOS 26, *) {
-                    Icon.person.systemImage
-                } else {
-                    Icon.personCircle.systemImage
-                        .tint(.blue)
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    self.isOpeningProfileView = true
+                } label: {
+                    if #available(iOS 26, *) {
+                        Icon.person.systemImage
+                    } else {
+                        Icon.personCircle.systemImage
+                            .tint(.blue)
+                    }
                 }
+                .matchedTransitionSource(
+                    id: self.profileButtonTransionID,
+                    in: self.profileButtonNamespace
+                )
+            }
+            
+            if #available(iOS 26, *) {
+                ToolbarSpacer()
             }
 
         }
         .sheet(isPresented: $isOpeningProfileView) {
             UserAccountView()
                 .environment(UserRepository())
-        }
-    }
-}
-
-extension MenuView {
-    private var menuList: some View {
-        ScrollView {
-            LazyVStack {
-                ForEach(self.viewModel.cupcakesIndicies, id: \.self) { index in
-                    if !viewModel.cupcakes.isEmpty {
-                        NavigationLink(value: viewModel.cupcakes.values.elements[index]) {
-                            ItemCard(
-                                imageName: viewModel.cupcakes.values.elements[index].imageName,
-                                name: viewModel.cupcakes.values.elements[index].flavor,
-                                description: viewModel.cupcakes.values.elements[index].description,
-                                price: viewModel.cupcakes.values.elements[index].price
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .onScrollVisibilityChange(threshold: 0.8) { isVisible in
-                            viewModel.fetchMorePages(isVisible: isVisible, index: index)
-                        }
-                    }
-                }
-                
-                Group {
-                    if viewModel.viewState == .fetchingMore {
-                        ProgressView()
-                    }
-                }
-            }
-            .padding()
+                .navigationTransition(
+                    .zoom(
+                        sourceID: self.profileButtonTransionID,
+                        in: self.profileButtonNamespace
+                    )
+                )
         }
     }
 }

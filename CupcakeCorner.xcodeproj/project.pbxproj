@@ -63,6 +63,7 @@
 				Components/IngredientCell.swift,
 				Components/ItemCard.swift,
 				Components/LogoView.swift,
+				Components/Menu/MenuListView.swift,
 				Components/Menu/MenuView.swift,
 				Components/Menu/MenuViewModel.swift,
 				Components/Order/Components/OrderFilterPickerView.swift,
