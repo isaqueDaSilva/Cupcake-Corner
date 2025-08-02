@@ -6,44 +6,43 @@
 //
 
 import CryptoKit
-import ErrorWrapper
 import Foundation
-import NetworkHandler
 
+typealias SymmetricKey = CryptoKit.SymmetricKey
 typealias PrivateKey = P384.KeyAgreement.PrivateKey
 typealias PublicKey = P384.KeyAgreement.PublicKey
 
 enum SecureServerComunication {
-    static func getPublicAndSharedKey(with session: URLSession) async throws(ExecutionError) -> (UUID, PublicKey, SymmetricKey) {
+    static func getPublicAndSharedKey(with session: URLSession) async throws -> (UUID, PublicKey, SymmetricKey) {
         let privateKey = PrivateKey()
         
-        let serverPublicKey = try await getServerPublicKey(with: session)
+        let serverPublicKey = try await Self.getServerPublicKey(with: session)
         
-        do {
-            let serverPublicKeyRawRespresentation = try PublicKey(rawRepresentation: serverPublicKey.publicKey)
-            let sharedKey = try privateKey.sharedSecretFromKeyAgreement(with: serverPublicKeyRawRespresentation)
-            
-            let symmetricSharedKey = sharedKey.x963DerivedSymmetricKey(
-                using: SHA512.self,
-                sharedInfo: Data(),
-                outputByteCount: 32
-            )
-            
-            return (serverPublicKey.id, privateKey.publicKey, symmetricSharedKey)
-        } catch {
-            throw .internalError
-        }
+        let serverPublicKeyRawRespresentation = try PublicKey(rawRepresentation: serverPublicKey.publicKey)
+        let sharedKey = try privateKey.sharedSecretFromKeyAgreement(with: serverPublicKeyRawRespresentation)
+        
+        let symmetricSharedKey = sharedKey.x963DerivedSymmetricKey(
+            using: SHA512.self,
+            sharedInfo: Data(),
+            outputByteCount: 32
+        )
+        
+        return (serverPublicKey.privateKeyID, privateKey.publicKey, symmetricSharedKey)
     }
     
-    private static func getServerPublicKey(with session: URLSession) async throws(ExecutionError) -> PublicKeyAgreement {
-        let (data, response) = try await Network.getData(
-            path: EndpointBuilder.makePath(endpoint: .serverPublicKey, path: nil),
-            httpMethod: .get,
-            session: session
+    private static func getServerPublicKey(with session: URLSession) async throws -> ECKeyPair {
+        let request = Network(
+            method: .get,
+            scheme: .https,
+            path: "/serverPublicKey",
+            fields: [:],
+            requestType: .get
         )
-        try Network.checkResponse(response)
-        let serverPublicKey = try Network.decodeResponse(type: PublicKeyAgreement.self, by: data)
         
-        return serverPublicKey
+        let (data, response) = try await request.getResponse(with: session)
+        
+        guard response.status == .ok else { throw AppAlert.badResponse }
+        
+        return try EncoderAndDecoder.decodeResponse(type: ECKeyPair.self, by: data)
     }
 }

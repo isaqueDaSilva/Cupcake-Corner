@@ -8,7 +8,7 @@
 import Foundation
 
 enum EncoderAndDecoder {
-    static func encodeData<T: Encodable>(_ model: T, encoder: JSONEncoder = .init()) throws(AppError) -> Data {
+    static func encodeData<T: Encodable>(_ model: T, encoder: JSONEncoder = .init()) throws(AppAlert) -> Data {
         do {
             return try encoder.encode(model)
         } catch {
@@ -20,7 +20,7 @@ enum EncoderAndDecoder {
         type: T.Type,
         by data: Data,
         with decoder: JSONDecoder = .init()
-    ) throws(AppError) -> T {
+    ) throws(AppAlert) -> T {
         guard let data = try? decoder.decode(T.self, from: data) else {
             throw .decodedFailure
         }

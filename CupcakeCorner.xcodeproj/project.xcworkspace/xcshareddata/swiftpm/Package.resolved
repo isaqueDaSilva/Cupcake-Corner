@@ -1,15 +1,6 @@
 {
-  "originHash" : "d5563cb875dc380b41661ef4a392ecdeca98bc7121fada0522a7aa0fe3b223ed",
+  "originHash" : "88b2bab86e7baddb7d1040b22e34b81fc5d7163364e7834d0134c6d5750ab812",
   "pins" : [
-    {
-      "identity" : "keychainservice",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/isaqueDaSilva/KeychainService.git",
-      "state" : {
-        "revision" : "c453ffd6b04ea38512963a63ec19ec7276a38cb8",
-        "version" : "1.0.3"
-      }
-    },
     {
       "identity" : "swift-collections",
       "kind" : "remoteSourceControl",

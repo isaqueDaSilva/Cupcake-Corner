@@ -20,19 +20,23 @@ struct SplashScreen: View {
     var body: some View {
         ZStack {
             LogoView(size: .midSizePicture)
-                .scaleEffect(scale)
+                .scaleEffect(self.scale)
             
             Circle()
-                .trim(from: 0.0, to: CGFloat(cicleCount) / 2)
-                .stroke(style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                .trim(from: 0.0, to: CGFloat(self.cicleCount) / 2)
+                .stroke(
+                    style: StrokeStyle(
+                        lineWidth: 3, lineCap: .round, lineJoin: .round
+                    )
+                )
                 .rotationEffect(Angle(degrees: -90))
-                .animation(Animation.easeInOut(duration: 1), value: cicleCount)
-                .opacity(cicleOpacity)
+                .animation(Animation.easeInOut(duration: 1), value: self.cicleCount)
+                .opacity(self.cicleOpacity)
                 .frame(width: 200, height: 200)
         }
-        .opacity(viewOpacity)
+        .opacity(self.viewOpacity)
         .onAppear {
-            executeAnimation()
+            self.executeAnimation()
         }
     }
     
@@ -40,18 +44,18 @@ struct SplashScreen: View {
     private func executeAnimation() {
         Task { @MainActor in
             while timerCount > 0 {
-                cicleCount += 1
-                timerCount -= 1
+                self.cicleCount += 1
+                self.timerCount -= 1
                 
                 try? await Task.sleep(for: .seconds(1))
             }
             
-            cicleOpacity = 0
+            self.cicleOpacity = 0
             
             withAnimation(.easeInOut) {
-                scale = .init(width: 50, height: 50)
-                viewOpacity = 0
-                isSplashViewShowing = false
+                self.scale = .init(width: 50, height: 50)
+                self.viewOpacity = 0
+                self.isSplashViewShowing = false
             }
         }
     }

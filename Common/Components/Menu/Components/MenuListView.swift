@@ -32,11 +32,7 @@ struct MenuListView: View {
                     }
                 }
                 
-                Group {
-                    if self.currentViewState == .fetchingMore {
-                        ProgressView()
-                    }
-                }
+                Spinner(currentViewState: self.currentViewState)
             }
             .padding()
         }

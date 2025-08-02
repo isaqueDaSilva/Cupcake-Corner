@@ -30,12 +30,7 @@ struct CreateOrReadCupcake: Identifiable, Hashable, Equatable {
     #endif
 }
 
-extension ReadCupcake {
-    var description: String {
-        "Made with " + self.ingredients.joined(separator: ", ") + "."
-    }
-}
-
+// MARK: - Encode and Decode strategy -
 extension CreateOrReadCupcake: Codable {
     enum Key: String, CodingKey {
         case id
@@ -66,12 +61,13 @@ extension CreateOrReadCupcake: Codable {
     }
 }
 
+// MARK: - Network strategy -
 extension ReadCupcake {
     static func fetch(with token: String, currentPage: Int, and session: URLSession) async throws -> DataAndResponse {
         let request = Network(
             method: .patch,
             scheme: .https,
-            path: " /cupcake/get?page=\(currentPage)",
+            path: "/cupcake/get?page=\(currentPage)",
             fields: [
                 .authorization : token,
                 .contentType : Network.HeaderValue.json.rawValue
@@ -85,7 +81,7 @@ extension ReadCupcake {
 
 #if ADMIN
 extension CreateCupcake {
-    private func checkIfIsValid() throws(AppError) {
+    private func checkIfIsValid() throws(AppAlert) {
         guard !ingredients.isEmpty else {
             throw .emptyIngredientsList
         }
@@ -158,6 +154,18 @@ extension CreateOrReadCupcake {
 }
 #endif
 
+// MARK: - Displaying Customization -
+extension ReadCupcake {
+    var title: String {
+        self.flavor
+    }
+    
+    var description: String {
+        "Made with " + self.ingredients.joined(separator: ", ") + "."
+    }
+}
+
+// MARK: - Mocks -
 #if DEBUG
 import OrderedCollections
 extension CreateOrReadCupcake {

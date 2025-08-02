@@ -43,7 +43,7 @@ final class WebSocketClient: NSObject, Sendable {
     private var pingTryCount = 0
     
     /// A default combine subject that transimit all messages to a top level application.
-    var onReceiveMessageSubject: PassthroughSubject<WebSocketMessage<Receive>, AppError> = .init()
+    var onReceiveMessageSubject: PassthroughSubject<WebSocketMessage<Receive>, AppAlert> = .init()
     
     /// A default combine subject that transimit the current state of the connection status.
     var connectionStateSubject: CurrentValueSubject<ConnectionState, Never> = .init(.disconnected)
@@ -75,7 +75,7 @@ final class WebSocketClient: NSObject, Sendable {
     }
     
     /// Send an ``WebSocketClientMessage`` to the channel.
-    func send(_ message: SendMessage) async throws(AppError) {
+    func send(_ message: SendMessage) async throws(AppAlert) {
         guard let task = wsTask, connectionState == .connected else {
             self.logger.error(
                 "Cannot possible to send a message. WS Task: \(self.wsTask == nil ? "On" : "Off"); Connection State: \(self.connectionState.rawValue)"

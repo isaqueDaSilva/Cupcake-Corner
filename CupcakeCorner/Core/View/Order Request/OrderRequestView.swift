@@ -32,27 +32,24 @@ struct OrderRequestView: View {
                 orderTotalLabel
                     .padding(.bottom)
                 
-                ActionButton(
-                    isLoading: $viewModel.isLoading,
-                    label: "Make Order",
-                    width: .infinity
-                ) {
+                ActionButton(isLoading: self.$viewModel.isLoading, width: .infinity) {
+                    Text("Order")
+                } action: {
                     viewModel.makeOrder(with: self.cupcake.id)
                 }
-                .buttonStyle(.borderedProminent)
             }
             .padding([.horizontal, .bottom])
-            .alert("Order Sent with Success",isPresented: $viewModel.isSuccessed) {
-                Button("OK") {
-                    dismiss()
+            .appAlert(alert: $viewModel.alert) {
+                if viewModel.isSuccessed {
+                    Button("OK") {
+                        dismiss()
+                    }
                 }
-            } message: {
-                Text("Go to the bag and track the progress of your order in real time.")
             }
-            .errorAlert(error: $viewModel.error) { }
         }
         .navigationTitle(cupcake.flavor)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarVisibility(.hidden, for: .tabBar)
     }
     
     init(cupcake: ReadCupcake) {
@@ -168,6 +165,6 @@ extension OrderRequestView {
 #Preview {
     NavigationStack {
         OrderRequestView(cupcake: .init())
-            .environment(UserRepository())
+            .environment(AccessHandler())
     }
 }

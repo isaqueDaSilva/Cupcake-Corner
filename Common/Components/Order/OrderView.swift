@@ -9,7 +9,7 @@ import SwiftUI
 
 struct OrderView: View {
     @Environment(\.scenePhase) private var scenePhase
-    @Bindable private var userRepository: UserRepository
+    @Bindable private var accessHandler: AccessHandler
     @State private var viewModel = ViewModel()
     
     var body: some View {
@@ -67,20 +67,20 @@ struct OrderView: View {
                     viewModel.reconnect()
                 }
             }
-            .onChange(of: userRepository.user) { _, _ in
-                if userRepository.user == nil {
+            .onChange(of: self.accessHandler.userProfile) { _, _ in
+                if accessHandler.userProfile == nil {
                     viewModel.disconnect(isWaitingForDisconnect: false)
                 }
             }
-            .errorAlert(error: $viewModel.error) { }
+            .appAlert(alert: $viewModel.error) { }
         }
     }
     
-    init(userRepository: UserRepository) {
-        self._userRepository = .init(userRepository)
+    init(accessHandler: AccessHandler) {
+        self._accessHandler = .init(accessHandler)
     }
 }
 
 #Preview {
-    OrderView(userRepository: UserRepository())
+    OrderView(accessHandler: AccessHandler())
 }

@@ -8,18 +8,22 @@
 import SwiftUI
 
 /// Sets a default action button to use throughout the app
-struct ActionButton: View {
+struct ActionButton<Label: View, ActionButtonStyle: PrimitiveButtonStyle>: View {
     /// Indicates if this button is loading.
     @Binding var isLoading: Bool
     
     /// A textual representation of what this button makes.
-    private let label: String
+    private let label: Label
     
     /// Indicates how much width this button has.
     private let width: CGFloat?
     
     /// Indicates how much heigh this button has.
     private let height: CGFloat?
+    
+    private let alignment: Alignment
+    
+    private let buttonStyle: ActionButtonStyle
     
     /// Stores the action that this botton will be execcute.
     private var action: () -> Void
@@ -38,24 +42,28 @@ struct ActionButton: View {
                 } label: {
                     self.buttonLabel
                 }
-                .buttonStyle(.borderedProminent)
             }
         }
+        .buttonStyle(self.buttonStyle)
         .disabled(self.isLoading)
     }
     
     init(
         isLoading: Binding<Bool>,
-        label: String,
         width: CGFloat? = nil,
         height: CGFloat? = nil,
+        alignment: Alignment = .center,
+        buttonStyle: ActionButtonStyle = BorderedProminentButtonStyle(),
+        @ViewBuilder label: () -> Label,
         action: @escaping () -> Void
     ) {
         _isLoading = isLoading
-        self.label = label
+        self.label = label()
         self.action = action
         self.width = width
         self.height = height
+        self.alignment = alignment
+        self.buttonStyle = buttonStyle
     }
 }
 
@@ -66,30 +74,25 @@ extension ActionButton {
             case true:
                 ProgressView()
             case false:
-                Text(label)
-                    .bold()
+                self.label
             }
         }
         .frame(maxWidth: width)
-        .frame(height: height, alignment: .center)
+        .frame(height: height, alignment: self.alignment)
     }
 }
 
 #Preview {
     NavigationStack {
         VStack {
-            ActionButton(
-                isLoading: .constant(true),
-                label: "Action",
-                width: .infinity
-            ) { }
-                .padding()
+            ActionButton(isLoading: .constant(true)) {
+                Text("Action")
+            } action: { }.padding()
         }
         .toolbar {
-            ActionButton(
-                isLoading: .constant(false),
-                label: "Action"
-            ) { }.padding()
+            ActionButton(isLoading: .constant(false)) {
+                Text("Action")
+            } action: { }.padding()
         }
     }
 }
@@ -97,17 +100,14 @@ extension ActionButton {
 #Preview {
     NavigationStack {
         VStack {
-            ActionButton(
-                isLoading: .constant(false),
-                label: "Action"
-            ) { }.padding()
+            ActionButton(isLoading: .constant(false)) {
+                Text("Action")
+            } action: { }.padding()
         }
         .toolbar {
-            ActionButton(
-                isLoading: .constant(true),
-                label: "Action",
-            ) { }
-                .padding()
+            ActionButton(isLoading: .constant(true)) {
+                Text("Action")
+            } action: { }.padding()
         }
     }
 }

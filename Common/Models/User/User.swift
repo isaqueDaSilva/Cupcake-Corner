@@ -10,17 +10,29 @@ import SwiftData
 
 @Model
 final class User {
-    #Unique<User>([\.id, \.name])
+    #Unique<User>([\.id, \.name, \.email])
     #Index<User>([\.id])
+    
+    static let fetchDescriptor = FetchDescriptor<User>()
     
     var id: UUID
     var name: String
+    var email: String
+    var currentAccessTokenExpirationTime: Date
+    var currentRefreshTokenExpirationTime: Date
+    
+    var profile: UserProfile { .init(by: self) }
     
     init(
-        with result: Get
+        with result: CreateUser,
+        currentAccessTokenExpirationTime: Date,
+        currentRefreshTokenExpirationTime: Date
     ) {
         self.id = result.id
         self.name = result.name
+        self.email = result.email
+        self.currentAccessTokenExpirationTime = currentAccessTokenExpirationTime
+        self.currentRefreshTokenExpirationTime = currentRefreshTokenExpirationTime
     }
 }
 
@@ -29,9 +41,13 @@ final class User {
 extension User {
     static let mock = User(
         with: .init(
-            id: .init(),
-            name: "Tim Cook"
-        )
+            name: "Tim Cook",
+            email: "sample@email.com",
+            password: .init(),
+            keyCollection: .init()
+        ),
+        currentAccessTokenExpirationTime: .now.addingTimeInterval(350),
+        currentRefreshTokenExpirationTime: .now.addingTimeInterval(700)
     )
 }
 #endif

@@ -5,10 +5,12 @@
 //  Created by Isaque da Silva on 3/13/25.
 //
 
-import ErrorWrapper
+import SwiftData
 import SwiftUI
 
 struct CreateAccountView: View {
+    @Environment(AccessHandler.self) private var accessHandler
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) var dismiss
     @State private var viewModel = ViewModel()
     
@@ -19,28 +21,25 @@ struct CreateAccountView: View {
                     .padding(proxy.frame(in: .global).maxY * 0.07)
                 
                 EditAccount(
-                    name: $viewModel.newUser.name,
-                    email: $viewModel.newUser.email,
-                    password: $viewModel.newUser.password,
-                    confirmPassword: $viewModel.newUser.confirmPassword,
+                    name: $viewModel.name,
+                    email: $viewModel.email,
+                    password: $viewModel.password,
+                    confirmPassword: $viewModel.confirmPassword,
                     isLoading: $viewModel.isLoading,
                     buttonLabel: "Create"
                 ) {
-                    viewModel.createAccount()
+                    viewModel.createAccount { signupResponse, privateKey, session in
+                        try accessHandler.fillStorange(
+                            with: signupResponse,
+                            privateKey: privateKey,
+                            context: self.modelContext,
+                            session: session
+                        )
+                    }
                 }
                 .navigationTitle("Create Account")
                 .navigationBarTitleDisplayMode(.inline)
-                .errorAlert(error: $viewModel.error) { }
-                .alert(
-                    "Account Created",
-                    isPresented: $viewModel.isShowingCreateAccountConfirmation
-                ) {
-                    Button("OK") {
-                        dismiss()
-                    }
-                } message: {
-                    Text("Your account was created with success, click in OK and log in the system for gets the full access in the App.")
-                }
+                .appAlert(alert: $viewModel.error) { }
             }
         }
     }
@@ -49,5 +48,7 @@ struct CreateAccountView: View {
 #Preview {
     NavigationStack {
         CreateAccountView()
+            .environment(AccessHandler())
+            .modelContext(ModelContext.inMemoryModelContext)
     }
 }

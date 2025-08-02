@@ -13,7 +13,7 @@ extension CupcakeDetailView {
     final class ViewModel {
         var isLoading = false
         var isShowingDeleteAlert = false
-        var error: AppError?
+        var error: AppAlert?
         var isShowingUpdateCupcakeView = false
         
         func deleteCupcake(
@@ -27,7 +27,10 @@ extension CupcakeDetailView {
                 guard let self else { return }
                 
                 do {
-                    let token = try TokenGetter.getValue()
+                    guard let token = try TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
+                        throw AppAlert.accessDenied
+                    }
+                    
                     let response = try await cupcake.delete(with: token, and: session)
                     
                     try self.checkResponse(response)
@@ -35,7 +38,7 @@ extension CupcakeDetailView {
                     await MainActor.run {
                         completation()
                     }
-                } catch let error as AppError {
+                } catch let error as AppAlert {
                     await self.setError(error)
                 }
                 
@@ -47,13 +50,13 @@ extension CupcakeDetailView {
             }
         }
         
-        private func checkResponse(_ response: Response) throws(AppError) {
+        private func checkResponse(_ response: Response) throws(AppAlert) {
             guard response.status == .ok else {
                 throw .badResponse
             }
         }
         
-        private func setError(_ error: AppError) async {
+        private func setError(_ error: AppAlert) async {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 

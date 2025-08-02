@@ -5,22 +5,25 @@
 //  Created by Isaque da Silva on 3/13/25.
 //
 
-import CryptoKit
-import ErrorWrapper
 import Foundation
-import NetworkHandler
-import Observation
 
 extension CreateAccountView {
     @Observable
     @MainActor
     final class ViewModel {
-        var newUser = User.Create()
+        var name = ""
+        var email = ""
+        var password = ""
+        var confirmPassword = ""
         var isLoading = false
-        var error: ExecutionError? = nil
-        var isShowingCreateAccountConfirmation = false
+        var error: AppAlert? = nil
         
-        func createAccount(session: URLSession = .shared) {
+        private let logger = AppLogger(category: "CreateAccount+ViewModel")
+        
+        func createAccount(
+            with session: URLSession = .shared,
+            completation: @escaping (SignUpResponse, PrivateKey, URLSession) throws -> Void
+        ) {
             self.isLoading = true
             
             Task { [weak self] in
@@ -31,26 +34,32 @@ extension CreateAccountView {
                         with: session
                     )
                     
-                    let credentialsData = try await encodeCredentials(
-                        with: serverPublicKeyID,
-                        publicKey: publicKey,
-                        sharedKey: sharedKey
+                    let refreshTokenKey = PrivateKey()
+                    
+                    let encryptedPassword = try self.encryptPassword(with: sharedKey)
+                    
+                    let keyCollection = KeyCollection(
+                        keyPairForDecryption: .init(
+                            privateKeyID: serverPublicKeyID,
+                            publicKey: publicKey.rawRepresentation
+                        ),
+                        publicKeyForEncryption: refreshTokenKey.publicKey.rawRepresentation
                     )
                     
-                    let (_, response) = try await performCreation(
-                        with: credentialsData,
+                    let signupResponse = try await SignUpResponse.signUp(
+                        with: self.name,
+                        email: self.email,
+                        encryptedPassword: encryptedPassword,
+                        keyCollection: keyCollection,
                         and: session
                     )
                     
-                    try Network.checkResponse(response)
-                    
-                    await MainActor.run { [weak self] in
-                        guard let self else { return }
-                        
-                        self.isShowingCreateAccountConfirmation = true
+                    try await MainActor.run {
+                        try completation(signupResponse, refreshTokenKey, session)
                     }
-                } catch let error as ExecutionError {
-                    await self.setError(error)
+                } catch {
+                    self.logger.error("Failed to create account with error: \(error.localizedDescription)")
+                    await self.setError(.init(title: "Failed to create Account", description: ""))
                 }
                 
                 await MainActor.run { [weak self] in
@@ -61,38 +70,21 @@ extension CreateAccountView {
             }
         }
         
-        private func encodeCredentials(
-            with serverPublicKeyID: UUID,
-            publicKey: PublicKey,
-            sharedKey: SymmetricKey
-        ) async throws(ExecutionError) -> Data {
-            try newUser.encryptCredentials(
-                with: .init(
-                    id: serverPublicKeyID,
-                    publicKey: publicKey.rawRepresentation
-                ),
-                sharedKey: sharedKey
-            )
+        private func encryptPassword(with sharedKey: SymmetricKey) throws -> Data {
+            guard let passwordData = self.password.data(using: .utf8) else {
+                throw AppAlert.missingData
+            }
             
-            return try Network.encodeData(newUser)
+            return try Encryptor.encrypt(passwordData, with: sharedKey)
         }
         
-        private func performCreation(
-            with credentialsData: Data,
-            and session: URLSession
-        ) async throws -> (Data, URLResponse) {
-            try await Network.getData(
-                path: EndpointBuilder.makePath(endpoint: .user, path: .create),
-                httpMethod: .post,
-                headers: [
-                    EndpointBuilder.Header.contentType.rawValue: EndpointBuilder.HeaderValue.json.rawValue
-                ],
-                body: credentialsData,
-                session: session
-            )
+        private func checkResponse(_ response: Response) throws {
+            guard response.status == .ok else {
+                throw AppAlert.badResponse
+            }
         }
         
-        private func setError(_ error: ExecutionError) async {
+        private func setError(_ error: AppAlert) async {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 

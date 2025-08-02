@@ -69,10 +69,9 @@ struct EditCupcake: View {
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    ActionButton(
-                        isLoading: $isLoading,
-                        label: "OK"
-                    ) {
+                    ActionButton(isLoading: self.$isLoading, buttonStyle: .automatic) {
+                        Text("OK").bold()
+                    } action: {
                         if flavorName.isEmpty {
                             focusedField = .flavorName
                         } else if price < 1 {

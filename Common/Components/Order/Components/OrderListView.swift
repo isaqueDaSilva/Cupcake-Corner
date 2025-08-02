@@ -41,11 +41,7 @@ struct OrderListView: View {
                     }
                 }
                 
-                Group {
-                    if self.currentViewState == .fetchingMore {
-                        ProgressView()
-                    }
-                }
+                Spinner(currentViewState: self.currentViewState)
             }
         }
     }

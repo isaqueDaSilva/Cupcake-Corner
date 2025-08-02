@@ -26,7 +26,7 @@ final class MenuViewModel {
         }
     }
     
-    var error: AppError? = nil {
+    var error: AppAlert? = nil {
         didSet {
             if let error {
                 self.logger.info("An error was thrown. Error Description: \(error.description)")
@@ -92,17 +92,6 @@ final class MenuViewModel {
         }
     }
     
-    private func isValidToFetchMore(isVisible: Bool, index: Int) -> Bool {
-        let eightyPorcentIndex = Int((Double((self.cupcakes.count - 1)) * 0.8).rounded(.up))
-        
-        guard isVisible, self.cupcakes.values.elements.indices.contains(eightyPorcentIndex),
-              self.cupcakes.values.elements[index].id == self.cupcakes.values.elements[eightyPorcentIndex].id else {
-            return false
-        }
-        
-        return true
-    }
-    
     func refresh(session: URLSession = .shared) {
         Task { [weak self] in
             guard let self else { return }
@@ -119,9 +108,18 @@ final class MenuViewModel {
                 guard let self else { return }
                 self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
             }
-            
-            print(self.viewState)
         }
+    }
+    
+    private func isValidToFetchMore(isVisible: Bool, index: Int) -> Bool {
+        let eightyPorcentIndex = Int((Double((self.cupcakes.count - 1)) * 0.8).rounded(.up))
+        
+        guard isVisible, self.cupcakes.values.elements.indices.contains(eightyPorcentIndex),
+              self.cupcakes.values.elements[index].id == self.cupcakes.values.elements[eightyPorcentIndex].id else {
+            return false
+        }
+        
+        return true
     }
     
     private func fetch(
@@ -129,7 +127,7 @@ final class MenuViewModel {
         session: URLSession = .shared
     ) async {
         do {
-            let token = try TokenGetter.getValue()
+            let token = try TokenHandler.getValue(key: .accessToken)
             
             let (data, response) = try await ReadCupcake.fetch(
                 with: token,
@@ -150,7 +148,7 @@ final class MenuViewModel {
                 
                 self.pageMetadata = cupcakesPage.metadata
             }
-        } catch let error as AppError {
+        } catch let error as AppAlert {
             await self.setError(error)
         } catch {
             await self.setError(.init(title: "Failed to get cupcakes", description: error.localizedDescription))
@@ -169,13 +167,13 @@ final class MenuViewModel {
         }
     }
     
-    private func checkResponse(_ response: Response) throws(AppError) {
+    private func checkResponse(_ response: Response) throws(AppAlert) {
         guard response.status == .ok else {
             throw .badResponse
         }
     }
     
-    private func setError(_ error: AppError) async {
+    private func setError(_ error: AppAlert) async {
         await MainActor.run { [weak self] in
             guard let self else { return }
             

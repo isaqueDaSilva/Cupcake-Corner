@@ -8,11 +8,7 @@
 import SwiftUI
 
 struct MenuView: View {
-    @State private var isOpeningProfileView = false
     @Binding var viewModel: MenuViewModel
-    
-    @Namespace private var profileButtonNamespace
-    private let profileButtonTransionID = "PROFILE_BUTTON_TRANSITION_ID"
     
     var body: some View {
         ZStack {
@@ -41,40 +37,7 @@ struct MenuView: View {
         .refreshable {
             self.viewModel.refresh()
         }
-        .errorAlert(error: self.$viewModel.error) { }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    self.isOpeningProfileView = true
-                } label: {
-                    if #available(iOS 26, *) {
-                        Icon.person.systemImage
-                    } else {
-                        Icon.personCircle.systemImage
-                            .tint(.blue)
-                    }
-                }
-                .matchedTransitionSource(
-                    id: self.profileButtonTransionID,
-                    in: self.profileButtonNamespace
-                )
-            }
-            
-            if #available(iOS 26, *) {
-                ToolbarSpacer()
-            }
-
-        }
-        .sheet(isPresented: $isOpeningProfileView) {
-            UserAccountView()
-                .environment(UserRepository())
-                .navigationTransition(
-                    .zoom(
-                        sourceID: self.profileButtonTransionID,
-                        in: self.profileButtonNamespace
-                    )
-                )
-        }
+        .appAlert(alert: self.$viewModel.error) { }
     }
 }
 

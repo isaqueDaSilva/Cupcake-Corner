@@ -6,21 +6,20 @@
 //
 
 import CryptoKit
-import ErrorWrapper
 import Foundation
 
 enum Encryptor {
-    static func encrypt(_ field: Data, with sharedKey: SymmetricKey) throws(ExecutionError) -> Data {
+    static func encrypt(_ field: Data, with sharedKey: SymmetricKey) throws(AppAlert) -> Data {
         do {
             let sealedBox = try AES.GCM.seal(field, using: sharedKey, nonce: .init())
             
             guard let combinedData = sealedBox.combined else {
-                throw ExecutionError.missingData
+                throw AppAlert.missingData
             }
             
             return combinedData
-        } catch let executionError as ExecutionError {
-            throw executionError
+        } catch let appError as AppAlert {
+            throw appError
         } catch {
             throw .internalError
         }

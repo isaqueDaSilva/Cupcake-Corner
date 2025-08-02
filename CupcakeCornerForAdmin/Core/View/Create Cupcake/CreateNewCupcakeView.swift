@@ -35,7 +35,7 @@ struct CreateNewCupcakeView: View {
             }
 
         }
-        .errorAlert(error: $viewModel.error) { }
+        .appAlert(alert: $viewModel.error) { }
     }
 }
 

@@ -39,7 +39,7 @@ extension AsyncCoverImageView {
         
         private func dowloadImage(imageName: String) async {
             do {
-                let token = try TokenGetter.getValue()
+                let token = try TokenHandler.getValue(key: .accessToken)
 
                 let (data, response) = try await CupcakeImage.getImage(
                     with: imageName,
@@ -48,7 +48,7 @@ extension AsyncCoverImageView {
                 )
 
                 guard response.status == .ok else {
-                    throw AppError.badResponse
+                    throw AppAlert.badResponse
                 }
                 
                 try await Task.sleep(for: .seconds(4))

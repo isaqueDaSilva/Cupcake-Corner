@@ -53,7 +53,7 @@ extension OrderView {
             }
         }
         
-        var error: AppError? {
+        var error: AppAlert? {
             didSet {
                 if let error {
                     self.logger.info("An error was thrown. Error Description: \(error.description).")
@@ -146,13 +146,13 @@ extension OrderView.ViewModel {
     
     private func setWSService(with session: URLSession) {
         do {
-            let token = try TokenGetter.getValue()
+            let token = try TokenHandler.getValue(key: .accessToken)
             self.configureService(with: token, session: session)
         } catch {
             Task { [weak self] in
                 guard let self else { return }
                 
-                await setError(error)
+                await setError(.init(title: "Failed to connect to channel", description: error.localizedDescription))
             }
         }
     }
@@ -327,7 +327,7 @@ extension OrderView.ViewModel {
 
 // MARK: - Set Error -
 extension OrderView.ViewModel {
-    private func setError(_ error: AppError) async {
+    private func setError(_ error: AppAlert) async {
         await MainActor.run { [weak self] in
             guard let self else { return }
             

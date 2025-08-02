@@ -13,7 +13,7 @@ typealias Response = HTTPResponse
 typealias DataAndResponse = (Data, HTTPResponse)
 
 struct Network {
-    static let authority = "localhost:8080"
+    private let authority = "localhost:8080"
     private let method: HTTPRequest.Method
     private let scheme: Scheme
     private let path: String
@@ -24,7 +24,7 @@ struct Network {
         var request = HTTPRequest(
             method: self.method,
             scheme: self.scheme.rawValue,
-            authority: Self.authority,
+            authority: self.authority,
             path: self.path
         )
         
@@ -32,7 +32,7 @@ struct Network {
             request.headerFields.append(.init(name: field, value: value))
         }
         
-        guard let requestType else { throw AppError(title: "Failed to complete the request", description: "") }
+        guard let requestType else { throw AppAlert(title: "Failed to complete the request", description: "") }
         
         return try await requestType.performTask(with: request, and: urlSession)
     }
@@ -41,8 +41,8 @@ struct Network {
         var request = HTTPRequest(
             method: self.method,
             scheme: self.scheme.rawValue,
-            authority: Self.authority,
-            path: self.path
+            authority: self.authority,
+            path: "/api/\(self.path)"
         )
         
         for (field, value) in self.fields {

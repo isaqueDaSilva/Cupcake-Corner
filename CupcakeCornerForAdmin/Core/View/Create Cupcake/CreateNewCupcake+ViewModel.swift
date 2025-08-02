@@ -15,7 +15,7 @@ extension CreateNewCupcakeView {
         private let logger = AppLogger(category: "CreateNewCupcake+ViewModel")
         
         var newCupcake = CreateOrReadCupcake(flavor: "", ingredients: [], price: 0.0)
-        var error: AppError? = nil
+        var error: AppAlert? = nil
         var isLoading = false
         
         func create(
@@ -29,7 +29,9 @@ extension CreateNewCupcakeView {
                 guard let self else { return }
                 
                 do {
-                    let token = try TokenGetter.getValue()
+                    guard let token = try TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
+                        throw AppAlert.accessDenied
+                    }
                     let (data, response) = try await self.newCupcake.createCupcake(with: token, and: session)
                     
                     try self.checkResponse(response)
@@ -41,7 +43,7 @@ extension CreateNewCupcakeView {
                     await MainActor.run {
                         action(cupcake)
                     }
-                } catch let error as AppError {
+                } catch let error as AppAlert {
                     await self.setError(error)
                 }
                 
@@ -53,7 +55,7 @@ extension CreateNewCupcakeView {
             }
         }
         
-        private func checkResponse(_ response: Response) throws(AppError) {
+        private func checkResponse(_ response: Response) throws(AppAlert) {
             guard response.status == .ok else {
                 throw .badResponse
             }
@@ -66,7 +68,7 @@ extension CreateNewCupcakeView {
             return try EncoderAndDecoder.decodeResponse(type: ReadCupcake.self, by: data)
         }
         
-        private func setError(_ error: AppError) async {
+        private func setError(_ error: AppAlert) async {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.error = error

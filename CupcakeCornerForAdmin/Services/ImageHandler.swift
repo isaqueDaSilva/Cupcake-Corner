@@ -55,9 +55,9 @@ final class ImageHandler {
         with cupcakeID: UUID,
         token: String,
         and session: URLSession
-    ) async throws(AppError) {
+    ) async throws(AppAlert) {
         guard let cupcakeImage, self.cupcakeImage != self.initialCupcakeImage else {
-            throw AppError(
+            throw AppAlert(
                 title: "No image",
                 description: "You need a image to follow with this action."
             )
@@ -70,7 +70,7 @@ final class ImageHandler {
                     session: session
                 ).status == .ok
             else {
-                throw AppError.badResponse
+                throw AppAlert.badResponse
             }
         } catch {
             self.logger.error(

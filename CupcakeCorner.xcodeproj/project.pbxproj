@@ -19,8 +19,6 @@
 		7ED393562D87816D00DC559B /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393532D87816D00DC559B /* LICENSE.txt */; };
 		7ED393572D87816D00DC559B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393542D87816D00DC559B /* README.md */; };
 		7ED393582D87816D00DC559B /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7ED393532D87816D00DC559B /* LICENSE.txt */; };
-		7EDD44E42D992FA200DC6592 /* KeychainService in Frameworks */ = {isa = PBXBuildFile; productRef = 7EDD44E32D992FA200DC6592 /* KeychainService */; };
-		7EDD44EA2D992FA800DC6592 /* KeychainService in Frameworks */ = {isa = PBXBuildFile; productRef = 7EDD44E92D992FA800DC6592 /* KeychainService */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -48,21 +46,23 @@
 		7EAE772B2D7E493A00A69FF7 /* Exceptions for "Common" folder in "CupcakeCornerForAdmin" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				App/MainEntrypoint.swift,
-				App/MainRootView.swift,
-				App/SplashScreen.swift,
 				Assets.xcassets,
-				Components/ActionButton.swift,
 				Components/AsyncCoverImage/AsyncCoverImageView.swift,
 				"Components/AsyncCoverImage/AsyncCoverImageView+ViewModel.swift",
-				Components/BackButton.swift,
+				Components/Buttons/ActionButton.swift,
+				Components/Buttons/BackButton.swift,
 				Components/CoverImageView.swift,
 				Components/EditAccount.swift,
+				Components/Entrypoint/MainEntrypoint.swift,
+				Components/Entrypoint/MainRootView.swift,
+				Components/Entrypoint/SplashScreen.swift,
+				Components/History/HistoryView.swift,
+				"Components/History/HistoryView+ViewModel.swift",
 				Components/Home/HomeView.swift,
 				Components/IngredientCell.swift,
 				Components/ItemCard.swift,
 				Components/LogoView.swift,
-				Components/Menu/MenuListView.swift,
+				Components/Menu/Components/MenuListView.swift,
 				Components/Menu/MenuView.swift,
 				Components/Menu/MenuViewModel.swift,
 				Components/Order/Components/OrderFilterPickerView.swift,
@@ -70,45 +70,54 @@
 				Components/Order/OrderView.swift,
 				"Components/Order/OrderView+ViewModel.swift",
 				Components/OverlayEmptyView.swift,
+				Components/Profile/Components/InfoCell.swift,
+				Components/Profile/ProfileView.swift,
+				"Components/Profile/ProfileView+ViewModel.swift",
+				Components/SignIn/SignInView.swift,
+				"Components/SignIn/SignInView+ViewModel.swift",
+				Components/Spinner.swift,
 				Components/TextFieldFocused.swift,
-				"Core/Views/Login View/LoginView.swift",
-				"Core/Views/Login View/LoginView+ViewModel.swift",
-				"Core/Views/User Account/UserAccountView.swift",
-				"Core/Views/User Account/UserAccountView+ViewModel.swift",
 				"Extensions/CGSize+Extension.swift",
 				"Extensions/Date+Extension.swift",
 				"Extensions/Double+Extension.swift",
+				"Extensions/HTTPField.Name+Extension.swift",
 				"Extensions/Image+Extension.swift",
 				"Extensions/UIImage+Extension.swift",
 				"Extensions/View+Extension.swift",
-				Models/AppError.swift,
+				Models/AppAlert.swift,
 				Models/Cupcake/CreateOrReadCupcake.swift,
 				Models/Cupcake/CupcakeImage.swift,
 				Models/Icon.swift,
+				Models/Network.swift,
 				Models/Order.swift,
 				Models/Page.swift,
-				Models/Security/EncryptedField.swift,
-				Models/Security/LoginResponse.swift,
-				Models/Security/PublicKeyAgreement.swift,
+				Models/RevocationType.swift,
+				Models/SecureFieldType.swift,
+				Models/Security/ECKeyPair.swift,
+				Models/Security/KeyCollection.swift,
+				Models/Security/SignInAndSignUpResponse.swift,
 				Models/Security/Token.swift,
+				Models/Security/TokenFields.swift,
+				Models/Security/TokenPair.swift,
 				Models/Status.swift,
 				Models/TabSection.swift,
 				Models/User/User.swift,
-				"Models/User/User+Create.swift",
-				"Models/User/User+Get.swift",
+				Models/User/UserDTO.swift,
+				Models/User/UserProfile.swift,
 				Models/ViewState.swift,
+				"Preview/ModelContext+InMemory.swift",
+				Service/AccessHandler.swift,
 				Service/AppLogger.swift,
+				Service/Decryptor.swift,
 				Service/EncoderAndDecoder.swift,
 				Service/Encryptor.swift,
 				Service/ImageCache.swift,
+				Service/KeychainService.swift,
 				Service/SecureServerComunication.swift,
-				Service/TokenGetter.swift,
+				Service/TokenHandler.swift,
 				Service/WebSocket/WebSocketClient.swift,
 				Service/WebSocket/WebSocketConfiguration.swift,
 				Service/WebSocket/WebSocketMessage.swift,
-				Utilities/Network/Network.swift,
-				"Utilities/Preview/ModelContext+InMemory.swift",
-				Utilities/Repositories/UserRepository.swift,
 			);
 			target = 7EAE77132D7E47BD00A69FF7 /* CupcakeCornerForAdmin */;
 		};
@@ -143,7 +152,6 @@
 				7E73177E2E06637A00B55C16 /* HTTPTypesFoundation in Frameworks */,
 				7E73177C2E06637A00B55C16 /* HTTPTypes in Frameworks */,
 				7EBD62402E3121D000AEDA98 /* OrderedCollections in Frameworks */,
-				7EDD44E42D992FA200DC6592 /* KeychainService in Frameworks */,
 				7EAE77B22D7E5EE400A69FF7 /* SwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -155,7 +163,6 @@
 				7E7317822E06638400B55C16 /* HTTPTypesFoundation in Frameworks */,
 				7E7317802E06638400B55C16 /* HTTPTypes in Frameworks */,
 				7EBD62422E3121D600AEDA98 /* OrderedCollections in Frameworks */,
-				7EDD44EA2D992FA800DC6592 /* KeychainService in Frameworks */,
 				7EAE77AB2D7E5EB800A69FF7 /* SwiftUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -215,7 +222,6 @@
 			);
 			name = CupcakeCorner;
 			packageProductDependencies = (
-				7EDD44E32D992FA200DC6592 /* KeychainService */,
 				7E73177B2E06637A00B55C16 /* HTTPTypes */,
 				7E73177D2E06637A00B55C16 /* HTTPTypesFoundation */,
 				7EBD623F2E3121D000AEDA98 /* OrderedCollections */,
@@ -241,7 +247,6 @@
 			);
 			name = CupcakeCornerForAdmin;
 			packageProductDependencies = (
-				7EDD44E92D992FA800DC6592 /* KeychainService */,
 				7E73177F2E06638400B55C16 /* HTTPTypes */,
 				7E7317812E06638400B55C16 /* HTTPTypesFoundation */,
 				7EBD62412E3121D600AEDA98 /* OrderedCollections */,
@@ -279,7 +284,6 @@
 			mainGroup = 7EAE76D52D7E463800A69FF7;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */,
 				7E73177A2E06635200B55C16 /* XCRemoteSwiftPackageReference "swift-http-types" */,
 				7EBD623E2E3121B900AEDA98 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
@@ -464,7 +468,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "CupcakeCorner/Preview\\ Content Common/Utilities/Preview";
+				DEVELOPMENT_ASSET_PATHS = "CupcakeCorner/Preview\\ Content Common/Preview";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CupcakeCorner/Info.plist;
@@ -505,7 +509,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "CupcakeCorner/Preview\\ Content Common/Utilities/Preview";
+				DEVELOPMENT_ASSET_PATHS = "CupcakeCorner/Preview\\ Content Common/Preview";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CupcakeCorner/Info.plist;
@@ -544,7 +548,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "Common/Utilities/Preview CupcakeCornerForAdmin/Preview\\ Content";
+				DEVELOPMENT_ASSET_PATHS = "CupcakeCornerForAdmin/Preview\\ Content Common/Preview";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CupcakeCornerForAdmin/Info.plist;
@@ -583,7 +587,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "Common/Utilities/Preview CupcakeCornerForAdmin/Preview\\ Content";
+				DEVELOPMENT_ASSET_PATHS = "CupcakeCornerForAdmin/Preview\\ Content Common/Preview";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CupcakeCornerForAdmin/Info.plist;
@@ -664,14 +668,6 @@
 				minimumVersion = 1.2.0;
 			};
 		};
-		7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/isaqueDaSilva/KeychainService.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.3;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -704,16 +700,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7EBD623E2E3121B900AEDA98 /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = OrderedCollections;
-		};
-		7EDD44E32D992FA200DC6592 /* KeychainService */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */;
-			productName = KeychainService;
-		};
-		7EDD44E92D992FA800DC6592 /* KeychainService */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7EDD44DF2D992F4300DC6592 /* XCRemoteSwiftPackageReference "KeychainService" */;
-			productName = KeychainService;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

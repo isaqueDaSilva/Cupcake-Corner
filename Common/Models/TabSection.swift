@@ -10,6 +10,7 @@ import SwiftUI
 enum TabSection: Hashable, CaseIterable {
     case menu
     case orders
+    case profile
 }
 
 extension TabSection: Identifiable {
@@ -25,6 +26,8 @@ extension TabSection {
             "Menu"
         case .orders:
             "Orders"
+        case .profile:
+            "Profile"
         }
     }
 }
@@ -36,6 +39,8 @@ extension TabSection {
             Icon.menucard.rawValue
         case .orders:
             Icon.bag.rawValue
+        case .profile:
+            Icon.person.rawValue
         }
     }
 }

@@ -61,74 +61,75 @@ struct CupcakeDetailView: View {
                     )
                 }
             }
-            .padding()
-            .navigationTitle("Details")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                if #available(iOS 26, *) {
-                    ToolbarItem(placement: .topBarTrailing) {
+        }
+        .padding()
+        .navigationTitle("Details")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            if #available(iOS 26, *) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    self.deleteButton
+                        .tint(.red)
+                }
+                
+                ToolbarSpacer(.flexible, placement: .topBarTrailing)
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    self.editButton
+                        .tint(.blue)
+                }
+            } else {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack {
                         self.deleteButton
-                            .tint(.red)
-                    }
-                    
-                    ToolbarSpacer(.flexible, placement: .topBarTrailing)
-                    
-                    ToolbarItem(placement: .topBarTrailing) {
                         self.editButton
-                            .tint(.blue)
-                    }
-                } else {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        HStack {
-                            self.deleteButton
-                            self.editButton
-                        }
-                    }
-                }
-                
-                ToolbarItem(placement: .cancellationAction) {
-                    BackButton {
-                        if let isUpdated {
-                            self.action(isUpdated)
-                        } else {
-                            self.action(.noAction)
-                        }
-                        
-                        dismiss()
                     }
                 }
             }
-            .alert(
-                "Delete Cupcake",
-                isPresented: $viewModel.isShowingDeleteAlert
-            ) {
-                Button("Cancel", role: .cancel) { }
-                
-                Button("Delete", role: .destructive) {
-                    viewModel.deleteCupcake(cupcake: self.cupcake) {
-                        self.action(.delete(self.cupcake.id))
+            
+            ToolbarItem(placement: .cancellationAction) {
+                BackButton {
+                    if let isUpdated {
+                        self.action(isUpdated)
+                    } else {
+                        self.action(.noAction)
                     }
+                    
+                    dismiss()
                 }
-            } message: {
-                Text("Are you sure you want to delete this cupcake?")
-            }
-            .errorAlert(error: $viewModel.error) { }
-            .sheet(isPresented: $viewModel.isShowingUpdateCupcakeView) {
-                UpdateCupcakeView(cupcake: self.cupcake) { updatedCupcake in
-                    if let updatedCupcake {
-                        self.cupcake = updatedCupcake
-                        self.isUpdated = .update(updatedCupcake)
-                    }
-                }
-                .navigationTransition(
-                    .zoom(
-                        sourceID: self.plusButtonID,
-                        in: self.plusButtonNamespace
-                    )
-                )
             }
         }
+        .alert(
+            "Delete Cupcake",
+            isPresented: $viewModel.isShowingDeleteAlert
+        ) {
+            Button("Cancel", role: .cancel) { }
+            
+            Button("Delete", role: .destructive) {
+                viewModel.deleteCupcake(cupcake: self.cupcake) {
+                    self.action(.delete(self.cupcake.id))
+                }
+            }
+        } message: {
+            Text("Are you sure you want to delete this cupcake?")
+        }
+        .sheet(isPresented: $viewModel.isShowingUpdateCupcakeView) {
+            UpdateCupcakeView(cupcake: self.cupcake) { updatedCupcake in
+                if let updatedCupcake {
+                    self.cupcake = updatedCupcake
+                    self.isUpdated = .update(updatedCupcake)
+                }
+            }
+            .navigationTransition(
+                .zoom(
+                    sourceID: self.plusButtonID,
+                    in: self.plusButtonNamespace
+                )
+            )
+        }
+        .toolbarVisibility(.hidden, for: .tabBar)
+        .appAlert(alert: $viewModel.error) { }
     }
     
     init(cupcake: ReadCupcake, action: @escaping (Action) -> Void) {

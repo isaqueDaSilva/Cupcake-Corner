@@ -16,7 +16,7 @@ extension OrderRequestView {
         
         var isLoading = false
         var isSuccessed = false
-        var error: AppError? = nil
+        var alert: AppAlert? = nil
         
         var finalPrice: Double {
             basePrice * Double(quantity)
@@ -24,7 +24,7 @@ extension OrderRequestView {
         
         func makeOrder(with cupcakeID: UUID?, session: URLSession = .shared) {
             guard let cupcakeID else {
-                self.error = .missingData
+                self.alert = .missingData
                 return
             }
             
@@ -33,7 +33,7 @@ extension OrderRequestView {
             Task { [weak self] in
                 guard let self else { return }
                 
-                let token = try TokenGetter.getValue()
+                let token = try TokenHandler.getValue(key: .accessToken)
                 
                 let newOrder = Order(
                     quantity: self.quantity,
@@ -47,23 +47,25 @@ extension OrderRequestView {
                 )
                 
                 guard response.status == .created else {
-                    return await self.setError(.badResponse)
+                    return await self.setAlert(.badResponse, isSuccessed: false)
                 }
                 
-                await MainActor.run { [weak self] in
-                    guard let self else { return }
-                    
-                    self.isLoading = false
-                    self.isSuccessed = true
-                }
+                await self.setAlert(
+                    .init(
+                        title: "Order Sent with Success",
+                        description: "Go to the bag and track the progress of your order in real time."
+                    ),
+                    isSuccessed: true
+                )
             }
         }
         
-        private func setError(_ error: AppError) async {
+        private func setAlert(_ alert: AppAlert, isSuccessed: Bool) async {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.isLoading = false
-                self.error = error
+                self.isSuccessed = isSuccessed
+                self.alert = alert
             }
         }
         

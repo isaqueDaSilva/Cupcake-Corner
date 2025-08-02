@@ -34,7 +34,7 @@ struct UpdateCupcakeView: View {
 
 
         }
-        .errorAlert(error: $viewModel.error) { }
+        .appAlert(alert: $viewModel.error) { }
     }
     
     init(cupcake: ReadCupcake, action: @escaping (ReadCupcake?) -> Void) {

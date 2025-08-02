@@ -8,20 +8,23 @@
 import SwiftUI
 
 struct HomeView: View {
-    @Environment(UserRepository.self) private var userRepository
+    @Environment(AccessHandler.self) private var accessHandler
     @State private var tabSelected: TabSection = .menu
     
     var body: some View {
         Group {
-            switch userRepository.user {
-            case .some(_):
-                self.tabView
-                    .environment(userRepository)
-            case .none:
-                LoginView()
+            switch accessHandler.isLoading {
+            case true:
+                ProgressView()
+            case false:
+                switch self.accessHandler.userProfile {
+                case .some(_):
+                    self.tabView
+                case .none:
+                    SignInView()
+                }
             }
         }
-        .environment(userRepository)
     }
 }
 
@@ -45,7 +48,15 @@ extension HomeView {
                 systemImage: TabSection.orders.iconName,
                 value: .orders
             ) {
-                OrderView(userRepository: userRepository)
+                OrderView(accessHandler: accessHandler)
+            }
+            
+            Tab(
+                TabSection.profile.title,
+                systemImage: TabSection.profile.iconName,
+                value: .profile
+            ) {
+                ProfileView()
             }
         }
         .tabViewStyle(.sidebarAdaptable)
@@ -55,9 +66,8 @@ extension HomeView {
 #if DEBUG
 import SwiftData
 #Preview {
-    let inMemoryModelContext = ModelContext.inMemoryModelContext
-    let userRepository = UserRepository()
-    try? userRepository.load(with: inMemoryModelContext)
+    let userRepository = AccessHandler()
+    userRepository.isLoading = false
     
     return HomeView()
         .environment(userRepository)

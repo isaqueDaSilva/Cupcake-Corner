@@ -74,6 +74,25 @@ extension Order: Codable {
 
 // MARK: - Network strategy -
 extension Order {
+    static func requestMorePages(token: String, currentPage: Int, and session: URLSession) async throws -> Page<Order> {
+        let (data, response) = try await Network(
+            method: .get,
+            scheme: .https,
+            path: "/order/history?page=\(currentPage)",
+            fields: [
+                .authorization : token,
+                .contentType : Network.HeaderValue.json.rawValue
+            ],
+            requestType: .get
+        ).getResponse(with: session)
+        
+        guard response.status == .ok else {
+            throw AppAlert.badResponse
+        }
+        
+        return try EncoderAndDecoder.decodeResponse(type: Page<Order>.self, by: data)
+    }
+    
     static func requestMorePages(currentPage: Int, with wsClient: WebSocketClient) async throws {
         let message = SendMessage(data: .queryRecords(currentPage + 1))
         
@@ -121,9 +140,9 @@ extension Order {
 extension Order {
     var title: String {
         #if CLIENT
-        cupcakeName
+        self.cupcakeName
         #elseif ADMIN
-        userName
+        self.userName
         #endif
     }
     

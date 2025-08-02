@@ -1,16 +1,15 @@
 //
-//  LoginView.swift
+//  SignInView.swift
 //  CupcakeCorner
 //
 //  Created by Isaque da Silva on 3/13/25.
 //
 
-import ErrorWrapper
 import SwiftUI
 
-struct LoginView: View {
+struct SignInView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(UserRepository.self) private var userRepository
+    @Environment(AccessHandler.self) private var accessHandler
     @FocusState var focusedField: FocusedField?
     
     @State private var viewModel = ViewModel()
@@ -29,35 +28,36 @@ struct LoginView: View {
                     LogoView(size: .midSizePicture)
                         .padding(.bottom, 20)
                     
-                    fields
+                    self.fields
                     
                     ActionButton(
-                        isLoading: $viewModel.isLoading,
-                        label: "Sign In",
+                        isLoading: self.$viewModel.isLoading,
                         width: .infinity
                     ) {
+                        Text("Sign In")
+                            .bold()
+                    } action: {
                         loginAction()
                     }
+                    .buttonStyle(.borderedProminent)
+                    
+                    #if CLIENT
+                    self.createAccountButton
+                    #endif
+
                 }
                 .padding(.horizontal)
                 .navigationTitle("Login")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar(removing: .title)
-                #if CLIENT
-                .toolbar {
-                    ToolbarItem(placement: .bottomBar) {
-                        createAccountButton
-                    }
-                }
-                #endif
-                .errorAlert(error: $viewModel.error) { }
+                .appAlert(alert: $viewModel.error) { }
                 .frame(maxHeight: .infinity)
             }
         }
     }
 }
 
-extension LoginView {
+extension SignInView {
     @ViewBuilder
     private var fields: some View {
         VStack {
@@ -86,48 +86,48 @@ extension LoginView {
 }
 
 #if CLIENT
-extension LoginView {
+extension SignInView {
     @ViewBuilder
     private var createAccountButton: some View {
-        HStack {
-            Text("No Account?")
-                .bold()
-            
-            NavigationLink {
-                CreateAccountView()
-            } label: {
-                Text("Create an Account")
-                    .foregroundStyle(.blue)
-                    .underline()
-            }
-            .buttonStyle(PlainButtonStyle())
+        NavigationLink {
+            CreateAccountView()
+        } label: {
+            Text("Create an Account")
+                .foregroundStyle(.black)
+                .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.bordered)
     }
 }
 #endif
 
-extension LoginView {
+extension SignInView {
     enum FocusedField: Hashable {
         case email
         case password
     }
 }
 
-extension LoginView {
+extension SignInView {
     func loginAction() {
         if viewModel.email.isEmpty {
             focusedField = .email
         } else if viewModel.password.isEmpty {
             focusedField = .password
         } else {
-            viewModel.performLogin { newUser in
-                try userRepository.insert(newUser, with: modelContext)
+            self.viewModel.signIn { response, privateKey, session in
+                try self.accessHandler.fillStorange(
+                    with: response,
+                    privateKey: privateKey,
+                    context: self.modelContext,
+                    session: session
+                )
             }
         }
     }
 }
 
 #Preview {
-    LoginView()
-        .environment(UserRepository())
+    SignInView()
+        .environment(AccessHandler())
 }
