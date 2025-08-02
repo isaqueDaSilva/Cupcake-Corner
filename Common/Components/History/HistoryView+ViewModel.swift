@@ -38,8 +38,6 @@ extension HistoryView {
             Task { [weak self] in
                 guard let self else { return }
                 
-                await ImageCache.shared.removeAllImageData()
-                
                 #if DEBUG
                 await self.fetchMocks()
                 #else
