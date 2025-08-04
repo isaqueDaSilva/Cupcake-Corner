@@ -14,6 +14,7 @@ extension AsyncCoverImageView {
         private let imageName: String?
         private let logger = AppLogger(category: "AsyncCoverImageView")
         
+        var executionScheduler = [() -> Void]()
         var isLoading = false
         var imageData: Data? = nil
         
@@ -53,7 +54,7 @@ extension AsyncCoverImageView {
                 
                 try await Task.sleep(for: .seconds(4))
                 
-                let cupcakeImagedata = try JSONDecoder().decode(CupcakeImage.self, from: data).imageData
+                let cupcakeImagedata = try EncoderAndDecoder.decodeResponse(type: CupcakeImage.self, by: data).imageData
                 
                 await ImageCache.shared.setImageData(cupcakeImagedata, forKey: imageName)
                 
