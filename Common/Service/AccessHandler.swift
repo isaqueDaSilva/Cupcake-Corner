@@ -14,12 +14,14 @@ import SwiftData
 final class AccessHandler {
     private let logger = AppLogger(category: "AccessHandler")
     
+    /// A property that indicates that an action like,loading an user from persistent storage
+    /// refresh or revocation their token or even deleting the user is happening on the background.
+    var isPerfomingAction = false
+    
     private var user: User? = nil
     var error: AppAlert? = nil
-    var isLoading = true
-    
     var userProfile: UserProfile? { self.user?.profile }
-    private var accessTokenObserverTask: Task<Void, Never>?
+    private var accessTokenObserverTask: Task<Void, Never>? = nil
     
     func fillStorange(with response: SignInAndSignUpResponse, privateKey: PrivateKey, context: ModelContext, session: URLSession) throws {
         let currentAccessTokenExpirationTime = response.tokens.accessToken.expirationTime
@@ -42,6 +44,7 @@ final class AccessHandler {
     }
     
     func load(modelContext: ModelContext, session: URLSession) throws {
+        self.isPerfomingAction = true
         let user = try self.fetchFromStorage(with: modelContext)
         
         guard try TokenHandler.getTokenValue(with: .accessToken) != nil,
@@ -69,11 +72,15 @@ final class AccessHandler {
         }
         
         self.user = user
-        self.isLoading = false
+        self.isPerfomingAction = false
         self.observerExpirationTimeOfAccessToken(with: modelContext, session: session)
     }
     
     func revokeAccess(with revokeType: RevocationType, context: ModelContext, and session: URLSession) async throws {
+        await MainActor.run {
+            self.isPerfomingAction = true
+        }
+        
         guard let userProfile else {
             throw AppAlert.accessDenied
         }
@@ -84,6 +91,7 @@ final class AccessHandler {
             guard let self else { return }
             
             try self.deleteRegistersOfUser(with: context)
+            self.isPerfomingAction = false
         }
     }
 }
@@ -119,6 +127,12 @@ extension AccessHandler {
     }
     
     private func refreshAccessToken(with session: URLSession) async throws {
+        await MainActor.run { [weak self] in
+            guard let self else { return }
+            
+            self.isPerfomingAction = true
+        }
+        
         let currentAccessToken = try TokenHandler.getValue(key: .accessToken)
         let currentRefreshToken = try TokenHandler.getValue(key: .refreshToken)
         
@@ -149,6 +163,7 @@ extension AccessHandler {
             
             self.user?.currentAccessTokenExpirationTime = tokenPair.accessToken.expirationTime
             self.user?.currentRefreshTokenExpirationTime = tokenPair.refreshToken.expirationTime
+            self.isPerfomingAction = false
         }
     }
     
