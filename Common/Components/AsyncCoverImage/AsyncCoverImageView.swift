@@ -35,6 +35,7 @@ struct AsyncCoverImageView: View {
         )
         .onAppear {
             guard !accessHandler.isPerfomingAction else {
+                self.viewModel.startLoad()
                 self.viewModel.executionScheduler.append {
                     self.viewModel.setImage()
                 }

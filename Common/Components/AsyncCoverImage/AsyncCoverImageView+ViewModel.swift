@@ -18,10 +18,16 @@ extension AsyncCoverImageView {
         var isLoading = false
         var imageData: Data? = nil
         
+        func startLoad() {
+            self.isLoading = true
+        }
+        
         func setImage() {
             guard let imageName else { return }
             
-            self.isLoading = true
+            if !self.isLoading {
+                self.startLoad()
+            }
             
             Task { [weak self] in
                 guard let self else { return }
