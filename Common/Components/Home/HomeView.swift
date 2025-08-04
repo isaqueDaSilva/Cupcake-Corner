@@ -13,7 +13,7 @@ struct HomeView: View {
     
     var body: some View {
         Group {
-            switch accessHandler.isLoading {
+            switch accessHandler.isPerfomingAction {
             case true:
                 ProgressView()
             case false:
@@ -67,7 +67,7 @@ extension HomeView {
 import SwiftData
 #Preview {
     let userRepository = AccessHandler()
-    userRepository.isLoading = false
+    userRepository.isPerfomingAction = false
     
     return HomeView()
         .environment(userRepository)
