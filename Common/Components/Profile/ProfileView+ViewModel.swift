@@ -12,13 +12,38 @@ extension ProfileView {
     @Observable
     @MainActor
     final class ViewModel {
+        private let logger = AppLogger(category: "ProfileView+ViewModel")
+        
+        var executionScheduler = [() -> Void]() {
+            didSet {
+                self.logger.info("Execution Scheduler was changed. There is \(self.executionScheduler.count) tasks inside it.")
+            }
+        }
+        
         #if CLIENT
         var isLoadingDeleteAccountButton = false
         #endif
         
         var isLoadingSignOutButton = false
-        var alert: AppAlert? = nil
-        var deletionType: RevocationType? = nil
+        var alert: AppAlert? = nil {
+            didSet {
+                if let alert {
+                    self.logger.info(
+                        "A new alert was setted. Alert -> Title: \(alert.title); Description: \(alert.description)."
+                    )
+                }
+            }
+        }
+        
+        var deletionType: RevocationType? = nil {
+            didSet {
+                if let deletionType {
+                    self.logger.info(
+                        "The deletion type was setted for \(deletionType.rawValue)."
+                    )
+                }
+            }
+        }
         
         var isDisabled: Bool {
             #if CLIENT
@@ -53,36 +78,48 @@ extension ProfileView {
         }
         
         func performRevocation(
-            with session: URLSession = .shared,
+            with isPerfomingAction: Bool,
+            session: URLSession = .shared,
             revokeHandler: @escaping (RevocationType, URLSession) async throws -> Void
         ) {
-            self.startLoading()
-            
-            Task { [weak self] in
-                guard let self, let deletionType else { return }
-                
-                do {
-                    try await revokeHandler(deletionType, session)
-                } catch let appError as AppAlert {
-                    await self.setError(with: appError)
-                } catch {
-                    await self.setError(
-                        with: .init(
-                            title: "Failed to \(deletionType.rawValue).",
-                            description: "Try again later or contact us to solve the problem."
-                        )
-                    )
+            if let deletionType, self.executionScheduler.isEmpty {
+                guard !isPerfomingAction else {
+                    self.startLoad()
+                    self.executionScheduler.append { [weak self] in
+                        guard let self else { return }
+                        
+                        self.performRevocation(with: false, revokeHandler: revokeHandler)
+                    }
+                    
+                    return
                 }
                 
-                await MainActor.run { [weak self] in
+                Task { [weak self] in
                     guard let self else { return }
                     
-                    self.stopLoading()
+                    do {
+                        try await revokeHandler(deletionType, session)
+                    } catch let appError as AppAlert {
+                        await self.setError(with: appError)
+                    } catch {
+                        await self.setError(
+                            with: .init(
+                                title: "Failed to \(deletionType.rawValue).",
+                                description: "Try again later or contact us to solve the problem."
+                            )
+                        )
+                    }
+                    
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
+                        self.stopLoad()
+                    }
                 }
             }
         }
         
-        private func startLoading() {
+        private func startLoad() {
             switch self.deletionType {
             case .signOut:
                 self.isLoadingSignOutButton = true
@@ -95,7 +132,7 @@ extension ProfileView {
             }
         }
         
-        private func stopLoading() {
+        private func stopLoad() {
             self.isLoadingSignOutButton = false
             #if CLIENT
             self.isLoadingDeleteAccountButton = false

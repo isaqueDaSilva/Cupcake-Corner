@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct OrderRequestView: View {
+    @Environment(AccessHandler.self) private var accessHandler
     @Environment(\.dismiss) var dismiss
     
     @State private var viewModel: ViewModel
@@ -19,7 +20,8 @@ struct OrderRequestView: View {
             VStack {
                 AsyncCoverImageView(
                     imageName: cupcake.imageName,
-                    size: .midHighPicture
+                    size: .midHighPicture,
+                    accessHandler: self.accessHandler
                 )
                 .padding(.bottom)
                 

@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct MenuView: View {
-    @Binding var viewModel: MenuViewModel
+    @Bindable var viewModel: MenuViewModel
+    @Bindable var accessHandler: AccessHandler
     
     var body: some View {
         ZStack {
@@ -26,16 +27,22 @@ struct MenuView: View {
             ) { isVisible, index in
                 self.viewModel.fetchMorePages(
                     isVisible: isVisible,
-                    index: index
+                    index: index,
+                    isPerfomingAction: self.accessHandler.isPerfomingAction
                 )
             }
         }
         .navigationTitle("Menu")
         .onAppear {
-            self.viewModel.fetchPage()
+            self.viewModel.fetchPage(isPerfomingAction: self.accessHandler.isPerfomingAction)
         }
         .refreshable {
-            self.viewModel.refresh()
+            self.viewModel.refresh(isPerfomingAction: self.accessHandler.isPerfomingAction)
+        }
+        .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
+            guard newValue, newValue != oldValue, !self.viewModel.executionScheduler.isEmpty else { return }
+            
+            self.viewModel.executionScheduler[0]()
         }
         .appAlert(alert: self.$viewModel.error) { }
     }
@@ -43,7 +50,7 @@ struct MenuView: View {
 
 #Preview {
     NavigationStack {
-        MenuView(viewModel: .constant(.init()))
+        MenuView(viewModel: .init(), accessHandler: .init())
     }
 }
 

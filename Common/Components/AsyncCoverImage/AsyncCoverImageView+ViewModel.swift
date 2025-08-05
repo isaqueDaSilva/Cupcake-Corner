@@ -14,32 +14,46 @@ extension AsyncCoverImageView {
         private let imageName: String?
         private let logger = AppLogger(category: "AsyncCoverImageView")
         
-        var executionScheduler = [() -> Void]()
-        var isLoading = false
+        var executionScheduler = [() -> Void]() {
+            didSet {
+                self.logger.info("Execution Scheduler was changed. There is \(self.executionScheduler.count) tasks inside it.")
+            }
+        }
+        
+        var isLoading = false 
         var imageData: Data? = nil
         
         func startLoad() {
             self.isLoading = true
         }
         
-        func setImage() {
-            guard let imageName else { return }
-            
-            if !self.isLoading {
+        func setImage(isPerfomingAction: Bool) {
+            if let imageName, self.executionScheduler.isEmpty {
                 self.startLoad()
-            }
-            
-            Task { [weak self] in
-                guard let self else { return }
                 
-                if let imageData = await ImageCache.shared.imageData(withKey: imageName) {
-                    self.imageData = imageData
-                } else {
-                    await self.dowloadImage(imageName: imageName)
+                guard !isPerfomingAction else {
+                    self.startLoad()
+                    self.executionScheduler.append { [weak self] in
+                        guard let self else { return }
+                        
+                        self.setImage(isPerfomingAction: false)
+                    }
+                    
+                    return
                 }
                 
-                await MainActor.run {
-                    self.isLoading = false
+                Task { [weak self] in
+                    guard let self else { return }
+                    
+                    if let imageData = await ImageCache.shared.imageData(withKey: imageName) {
+                        self.imageData = imageData
+                    } else {
+                        await self.dowloadImage(imageName: imageName)
+                    }
+                    
+                    await MainActor.run {
+                        self.isLoading = false
+                    }
                 }
             }
         }

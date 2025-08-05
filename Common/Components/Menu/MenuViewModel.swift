@@ -34,6 +34,12 @@ final class MenuViewModel {
         }
     }
     
+    var executionScheduler = [() -> Void]() {
+        didSet {
+            self.logger.info("Execution Scheduler was changed. There is \(self.executionScheduler.count) tasks inside it.")
+        }
+    }
+    
     var isLoading: Bool {
         self.viewState == .loading ||
         self.viewState == .fetchingMore ||
@@ -48,67 +54,110 @@ final class MenuViewModel {
         self.cupcakes.isEmpty
     }
     
-    func fetchPage(session: URLSession = .shared) {
-        guard self.isCupcakeListEmpty && self.viewState == .default else { return }
-        
-        self.viewState = .loading
-        
-        Task { [weak self] in
-            guard let self else { return }
+    func fetchPage(isPerfomingAction: Bool, session: URLSession = .shared) {
+        if self.cupcakes.isEmpty && self.viewState == .default && self.executionScheduler.isEmpty {
             
-            await ImageCache.shared.removeAllImageData()
+            self.startLoad(with: .loading)
             
-            #if DEBUG
-            await self.fetchMocks()
-            #else
-            await self.fetch(page: 1, session: session)
-            #endif
-            
-            await MainActor.run {
-                self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+            guard !isPerfomingAction else {
+                self.executionScheduler.append { [weak self] in
+                    guard let self else { return }
+                    
+                    self.fetchPage(isPerfomingAction: false)
+                }
+                
+                return
             }
-        }
-    }
-    
-    func fetchMorePages(isVisible: Bool, index: Int, session: URLSession = .shared) {
-        guard viewState == .default && self.isValidToFetchMore(isVisible: isVisible, index: index) else { return }
-        
-        self.viewState = .fetchingMore
-        
-        Task { [weak self] in
-            guard let self else { return }
             
-            let nextPage = self.pageMetadata.page + 1
-            
-            #if DEBUG
-            await self.fetchMocks()
-            #else
-            await self.fetch(page: nextPage, session: session)
-            #endif
-            
-            await MainActor.run {
-                self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
-            }
-        }
-    }
-    
-    func refresh(session: URLSession = .shared) {
-        Task { [weak self] in
-            guard let self else { return }
-            
-            await self.resetCupcakeList()
-            
-            #if DEBUG
-            await self.fetchMocks()
-            #else
-            await self.fetch(page: 0, session: session)
-            #endif
-            
-            await MainActor.run { [weak self] in
+            Task { [weak self] in
                 guard let self else { return }
-                self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+                
+                await ImageCache.shared.removeAllImageData()
+                
+                #if DEBUG
+                await self.fetchMocks()
+                #else
+                await self.fetch(page: 1, session: session)
+                #endif
+                
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
+                    self.viewState = self.pageMetadata.isLoadedAll ? .loadedAll : .default
+                }
             }
         }
+    }
+    
+    func fetchMorePages(isVisible: Bool, index: Int, isPerfomingAction: Bool, session: URLSession = .shared) {
+        if self.isValidToFetchMore(isVisible: isVisible, index: index) && self.executionScheduler.isEmpty && self.viewState == .default {
+            
+            self.startLoad(with: .fetchingMore)
+            
+            guard !isPerfomingAction else {
+                self.executionScheduler.append { [weak self] in
+                    guard let self else { return }
+                    
+                    self.fetchMorePages(isVisible: isVisible, index: index, isPerfomingAction: false)
+                }
+                
+                return
+            }
+            
+            Task { [weak self] in
+                guard let self else { return }
+                
+                let nextPage = self.pageMetadata.page + 1
+                
+                #if DEBUG
+                await self.fetchMocks()
+                #else
+                await self.fetch(page: nextPage, session: session)
+                #endif
+                
+                await MainActor.run {
+                    self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+                }
+            }
+        }
+    }
+    
+    func refresh(isPerfomingAction: Bool, session: URLSession = .shared) {
+        if self.executionScheduler.isEmpty {
+            self.resetCupcakeList()
+            self.startLoad(with: .refreshing)
+            
+            guard !isPerfomingAction else {
+                self.executionScheduler.append { [weak self] in
+                    guard let self else { return }
+                    
+                    self.refresh(isPerfomingAction: false)
+                }
+                
+                return
+            }
+            
+            Task { [weak self] in
+                guard let self else { return }
+                
+                await ImageCache.shared.removeAllImageData()
+                
+                #if DEBUG
+                await self.fetchMocks()
+                #else
+                await self.fetch(page: 0, session: session)
+                #endif
+                
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+                }
+            }
+        }
+    }
+    
+    func startLoad(with state: ViewState) {
+        self.viewState = state
     }
     
     private func isValidToFetchMore(isVisible: Bool, index: Int) -> Bool {
@@ -155,16 +204,10 @@ final class MenuViewModel {
         }
     }
     
-    private func resetCupcakeList() async {
-        await ImageCache.shared.removeAllImageData()
-        
-        await MainActor.run { [weak self] in
-            guard let self else { return }
-            
-            self.cupcakes.removeAll()
-            self.pageMetadata = .init()
-            self.viewState = .refreshing
-        }
+    private func resetCupcakeList() {
+        self.cupcakes.removeAll()
+        self.pageMetadata = .init()
+        self.viewState = .refreshing
     }
     
     private func checkResponse(_ response: Response) throws(AppAlert) {
@@ -197,7 +240,18 @@ extension MenuViewModel {
                     self.cupcakes.updateValue(cupcake.value, forKey: cupcake.key)
                 }
                 
-                self.pageMetadata = .init(total: 30)
+                let page: Int = switch self.cupcakes.count {
+                case 10:
+                    1
+                case 20:
+                    2
+                case 30:
+                    3
+                default:
+                    3
+                }
+                
+                self.pageMetadata = .init(page: page, per: 10, total: 30)
             }
         } catch {
             await self.setError(.internalError)

@@ -34,23 +34,12 @@ struct AsyncCoverImageView: View {
             maxHeight: self.size.height
         )
         .onAppear {
-            guard !accessHandler.isPerfomingAction else {
-                self.viewModel.startLoad()
-                self.viewModel.executionScheduler.append {
-                    self.viewModel.setImage()
-                }
-                
-                return
-            }
-            
-            self.viewModel.setImage()
+            self.viewModel.setImage(isPerfomingAction: self.accessHandler.isPerfomingAction)
         }
         .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
             guard newValue, newValue != oldValue, !self.viewModel.executionScheduler.isEmpty else { return }
             
-            for action in self.viewModel.executionScheduler {
-                action()
-            }
+            self.viewModel.executionScheduler[0]()
         }
     }
     

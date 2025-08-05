@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HistoryView: View {
+    @Bindable var accessHandler: AccessHandler
     @State private var viewModel = ViewModel()
     
     var body: some View {
@@ -24,7 +25,8 @@ struct HistoryView: View {
                         .onScrollVisibilityChange(threshold: 0.8) { isVisible in
                             self.viewModel.fetchMorePages(
                                 isVisible: isVisible,
-                                index: index
+                                index: index,
+                                isPerfomingAction: self.accessHandler.isPerfomingAction
                             )
                         }
                     }
@@ -36,15 +38,24 @@ struct HistoryView: View {
         }
         .navigationTitle("History")
         .onAppear {
-            self.viewModel.fetchPage()
+            self.viewModel.fetchPage(
+                isPerfomingAction: self.accessHandler.isPerfomingAction
+            )
         }
         .refreshable {
-            self.viewModel.refresh()
+            self.viewModel.refresh(
+                isPerfomingAction: self.accessHandler.isPerfomingAction
+            )
         }
         .overlay {
             if viewModel.isLoading && viewModel.orders.isEmpty {
                 ProgressView()
             }
+        }
+        .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
+            guard newValue, newValue != oldValue, !self.viewModel.executionScheduler.isEmpty else { return }
+            
+            self.viewModel.executionScheduler[0]()
         }
         .appAlert(alert: self.$viewModel.error) { }
         .toolbarVisibility(.hidden, for: .tabBar)
@@ -53,6 +64,6 @@ struct HistoryView: View {
 
 #Preview {
     NavigationStack {
-        HistoryView()
+        HistoryView(accessHandler: .init())
     }
 }

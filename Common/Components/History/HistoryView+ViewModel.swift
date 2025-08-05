@@ -12,11 +12,41 @@ extension HistoryView {
     @Observable
     @MainActor
     final class ViewModel {
-        private var pageMetadata = PageMetadata()
-        private var ordersDicitionary: OrderedDictionary<UUID, Order> = [:]
-        var currentViewState = ViewState.default
-        var error: AppAlert? = nil
-        var viewState: ViewState = .default
+        private let logger = AppLogger(category: "HistoryView+ViewModel")
+        
+        private var pageMetadata = PageMetadata() {
+            didSet {
+                self.logger.info("Page metadata was changed: \(self.pageMetadata.description).")
+            }
+        }
+        
+        private var ordersDicitionary: OrderedDictionary<UUID, Order> = [:] {
+            didSet {
+                self.logger.info("Orders list was changed with \(self.ordersDicitionary.count) items.")
+            }
+        }
+        
+        var error: AppAlert? = nil {
+            didSet {
+                if let error {
+                    self.logger.info(
+                        "A new error was thrown. Error -> Title: \(error.title); Description: \(error.description)."
+                    )
+                }
+            }
+        }
+        
+        var viewState: ViewState = .default {
+            didSet {
+                self.logger.info("View state was changed for \(self.viewState) state.")
+            }
+        }
+        
+        var executionScheduler = [() -> Void]() {
+            didSet {
+                self.logger.info("Execution Scheduler was changed. There is \(self.executionScheduler.count) tasks inside it.")
+            }
+        }
         
         var isLoading: Bool {
             self.viewState == .loading ||
@@ -30,65 +60,106 @@ extension HistoryView {
         
         var orderIndices: Range<Int> { self.ordersDicitionary.values.indices }
         
-        func fetchPage() {
-            guard self.orders.isEmpty && self.viewState == .default else { return }
-            
-            self.viewState = .loading
-            
-            Task { [weak self] in
-                guard let self else { return }
+        func fetchPage(isPerfomingAction: Bool) {
+            if self.orders.isEmpty && self.viewState == .default && self.executionScheduler.isEmpty {
+                self.startLoad(with: .loading)
                 
-                #if DEBUG
-                await self.fetchMocks()
-                #else
-                await self.fetch(page: 1, session: session)
-                #endif
-                
-                await MainActor.run {
-                    self.viewState = self.orders.count == self.pageMetadata.total ? .loadedAll : .default
+                guard !isPerfomingAction else {
+                    self.executionScheduler.append { [weak self] in
+                        guard let self else { return }
+                        
+                        self.fetchPage(isPerfomingAction: false)
+                    }
+                    
+                    return
                 }
-            }
-        }
-        
-        func fetchMorePages(isVisible: Bool, index: Int) {
-            guard viewState == .default && self.isValidToFetchMore(isVisible: isVisible, index: index) else { return }
-            
-            self.viewState = .fetchingMore
-            
-            Task { [weak self] in
-                guard let self else { return }
                 
-                let nextPage = self.pageMetadata.page + 1
-                
-                #if DEBUG
-                await self.fetchMocks()
-                #else
-                await self.fetch(page: nextPage, session: session)
-                #endif
-                
-                await MainActor.run {
-                    self.viewState = self.orders.count == self.pageMetadata.total ? .loadedAll : .default
-                }
-            }
-        }
-        
-        func refresh() {
-            Task { [weak self] in
-                guard let self else { return }
-                
-                await self.resetOrderList()
-                
-                #if DEBUG
-                await self.fetchMocks()
-                #else
-                await self.fetch(page: 0, session: session)
-                #endif
-                
-                await MainActor.run { [weak self] in
+                Task { [weak self] in
                     guard let self else { return }
-                    self.viewState = self.orders.count == self.pageMetadata.total ? .loadedAll : .default
+                    
+                    #if DEBUG
+                    await self.fetchMocks()
+                    #else
+                    await self.fetch(page: 1, session: session)
+                    #endif
+                    
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        self.viewState = self.pageMetadata.isLoadedAll ? .loadedAll : .default
+                    }
                 }
             }
+        }
+        
+        func fetchMorePages(isVisible: Bool, index: Int, isPerfomingAction: Bool) {
+            if self.isValidToFetchMore(isVisible: isVisible, index: index)
+                && self.executionScheduler.isEmpty && self.viewState == .default {
+                
+                self.startLoad(with: .fetchingMore)
+                
+                guard !isPerfomingAction else {
+                    self.executionScheduler.append { [weak self] in
+                        guard let self else { return }
+                        
+                        self.fetchMorePages(isVisible: isVisible, index: index, isPerfomingAction: false)
+                    }
+                    
+                    return
+                }
+                
+                Task { [weak self] in
+                    guard let self else { return }
+                    
+                    let nextPage = self.pageMetadata.page + 1
+                    
+                    #if DEBUG
+                    await self.fetchMocks()
+                    #else
+                    await self.fetch(page: nextPage, session: session)
+                    #endif
+                    
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        self.viewState = self.pageMetadata.isLoadedAll ? .loadedAll : .default
+                    }
+                }
+            }
+        }
+        
+        func refresh(isPerfomingAction: Bool) {
+            if self.executionScheduler.isEmpty {
+                self.resetOrderList()
+                self.startLoad(with: .refreshing)
+                
+                guard !isPerfomingAction else {
+                    self.executionScheduler.append { [weak self] in
+                        guard let self else { return }
+                        
+                        self.refresh(isPerfomingAction: false)
+                    }
+                    
+                    return
+                }
+                
+                Task { [weak self] in
+                    guard let self else { return }
+                    
+                    #if DEBUG
+                    await self.fetchMocks()
+                    #else
+                    await self.fetch(page: 0, session: session)
+                    #endif
+                    
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        self.viewState = self.pageMetadata.isLoadedAll ? .loadedAll : .default
+                    }
+                }
+            }
+        }
+        
+        func startLoad(with state: ViewState) {
+            self.viewState = state
         }
         
         private func isValidToFetchMore(isVisible: Bool, index: Int) -> Bool {
@@ -131,14 +202,9 @@ extension HistoryView {
             }
         }
         
-        private func resetOrderList() async {
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                
-                self.ordersDicitionary.removeAll()
-                self.pageMetadata = .init()
-                self.viewState = .refreshing
-            }
+        private func resetOrderList() {
+            self.ordersDicitionary.removeAll()
+            self.pageMetadata = .init()
         }
         
         private func setError(_ error: AppAlert) async {
@@ -165,7 +231,18 @@ extension HistoryView.ViewModel {
                     self.ordersDicitionary.updateValue(order, forKey: order.id)
                 }
                 
-                self.pageMetadata = .init(total: 30)
+                let page: Int = switch self.orders.count {
+                case 10:
+                    1
+                case 20:
+                    2
+                case 30:
+                    3
+                default:
+                    3
+                }
+                
+                self.pageMetadata = .init(page: page, per: 10, total: 30)
             }
         } catch {
             await self.setError(.internalError)

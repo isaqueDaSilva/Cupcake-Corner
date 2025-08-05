@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct ClientMenuView: View {
+    @Environment(AccessHandler.self) private var accessHandler
     @State private var viewModel = MenuViewModel()
     
     var body: some View {
         NavigationStack {
-            MenuView(viewModel: $viewModel)
+            MenuView(viewModel: self.viewModel, accessHandler: self.accessHandler)
                 .navigationDestination(for: ReadCupcake.self) { cupcake in
                     OrderRequestView(cupcake: cupcake)
                 }

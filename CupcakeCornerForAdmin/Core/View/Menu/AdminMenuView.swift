@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AdminMenuView: View {
+    @Environment(AccessHandler.self) private var accessHandler
     @State private var viewModel = MenuViewModel()
     @State private var isShowingCreateNewCupcake = false
     @Namespace private var plusButtonNamespace
@@ -15,7 +16,7 @@ struct AdminMenuView: View {
     
     var body: some View {
         NavigationStack {
-            MenuView(viewModel: $viewModel)
+            MenuView(viewModel: self.viewModel, accessHandler: self.accessHandler)
                 .navigationDestination(for: ReadCupcake.self) { cupcake in
                     CupcakeDetailView(cupcake: cupcake) { action in
                         switch action {

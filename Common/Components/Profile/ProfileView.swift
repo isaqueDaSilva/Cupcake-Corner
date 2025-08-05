@@ -83,7 +83,8 @@ struct ProfileView: View {
                         Button("Cancel", role: .cancel) { }
                         
                         Button("OK", role: .destructive) {
-                            self.viewModel.performRevocation { revocationType, session in
+                            self.viewModel.performRevocation(with: self.accessHandler.isPerfomingAction) {
+                                revocationType, session in
                                 try await self.accessHandler.revokeAccess(
                                     with: revocationType,
                                     context: self.modelContext,
@@ -101,7 +102,7 @@ struct ProfileView: View {
 extension ProfileView {
     private var historyNavigationView: some View {
         NavigationLink {
-            HistoryView()
+            HistoryView(accessHandler: self.accessHandler)
         } label: {
             LabeledContent {
                 Icon.chevronRight.systemImage
