@@ -17,6 +17,10 @@ struct PageMetadata: Codable, CustomStringConvertible {
     let per: Int
     let total: Int
     
+    var isLoadedAll: Bool {
+        (self.page * self.per) == total
+    }
+    
     init(page: Int = 0, per: Int = 0, total: Int = 0) {
         self.page = page
         self.per = per
