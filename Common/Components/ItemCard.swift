@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ItemCard: View {
+    @Environment(AccessHandler.self) private var accessHandler
     private let imageName: String?
     private let name: String
     private let description: String
@@ -16,8 +17,11 @@ struct ItemCard: View {
     var body: some View {
         GroupBox {
             HStack {
-                AsyncCoverImageView(imageName: self.imageName)
-                    .padding(.trailing, 10)
+                AsyncCoverImageView(
+                    imageName: self.imageName,
+                    accessHandler: self.accessHandler
+                )
+                .padding(.trailing, 10)
                 
                 VStack(alignment: .leading) {
                     HStack(alignment: .top) {

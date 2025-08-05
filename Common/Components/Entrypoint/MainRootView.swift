@@ -10,6 +10,8 @@ import SwiftUI
 
 /// A main root that guides the app's flows from the ``SplashScreen`` to the ``HomeView``.
 struct MainRootView: View {
+    private let logger = AppLogger(category: "MainRootView")
+    
     @Environment(\.modelContext) private var modelContext
     
     @State private var isSplashViewPresented = true
@@ -36,7 +38,7 @@ struct MainRootView: View {
                         session: .shared
                     )
                 } catch {
-                    self.error = error as? AppAlert
+                    self.logger.error("Error to load user from persistent storage. Error: \(error.localizedDescription)")
                 }
             }
             .appAlert(alert: $error) { }

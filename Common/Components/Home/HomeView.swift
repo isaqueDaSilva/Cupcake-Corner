@@ -66,10 +66,9 @@ extension HomeView {
 #if DEBUG
 import SwiftData
 #Preview {
-    let userRepository = AccessHandler()
-    userRepository.isPerfomingAction = false
+    let accessHandler = AccessHandler()
     
     return HomeView()
-        .environment(userRepository)
+        .environment(accessHandler)
 }
 #endif
