@@ -13,15 +13,14 @@ import SwiftData
 @MainActor
 final class AccessHandler {
     private let logger = AppLogger(category: "AccessHandler")
+    private var accessTokenObserverTask: Task<Void, Never>? = nil
+    private var user: User? = nil
     
     /// A property that indicates that an action like,loading an user from persistent storage
     /// refresh or revocation their token or even deleting the user is happening on the background.
     var isPerfomingAction = false
-    
-    private var user: User? = nil
     var error: AppAlert? = nil
     var userProfile: UserProfile? { self.user?.profile }
-    private var accessTokenObserverTask: Task<Void, Never>? = nil
     
     func fillStorange(with response: SignInAndSignUpResponse, privateKey: PrivateKey, context: ModelContext, session: URLSession) throws {
         let currentAccessTokenExpirationTime = response.tokens.accessToken.expirationTime
@@ -45,10 +44,15 @@ final class AccessHandler {
     
     func load(modelContext: ModelContext, session: URLSession) throws {
         self.isPerfomingAction = true
+        
+        defer {
+            self.isPerfomingAction = false
+        }
+        
         let user = try self.fetchFromStorage(with: modelContext)
         
-        guard try TokenHandler.getTokenValue(with: .accessToken) != nil,
-                try TokenHandler.getTokenValue(with: .refreshToken) != nil
+        guard try ((try TokenHandler.getTokenValue(with: .accessToken) != nil) &&
+               (try TokenHandler.getTokenValue(with: .refreshToken) != nil))
         else {
             return try self.deleteRegistersOfUser(with: modelContext)
         }
@@ -72,14 +76,15 @@ final class AccessHandler {
         }
         
         self.user = user
-        self.isPerfomingAction = false
         self.observerExpirationTimeOfAccessToken(with: modelContext, session: session)
     }
     
     func revokeAccess(with revokeType: RevocationType, context: ModelContext, and session: URLSession) async throws {
-        await MainActor.run {
+        await MainActor.run { [weak self] in
+            guard let self else { return }
             self.isPerfomingAction = true
         }
+        
         
         guard let userProfile else {
             throw AppAlert.accessDenied
