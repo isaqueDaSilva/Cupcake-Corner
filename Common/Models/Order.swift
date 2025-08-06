@@ -100,7 +100,7 @@ extension Order {
     }
     
     #if CLIENT
-    func create(with token: String, cupcakeID: UUID, session: URLSession) async throws -> DataAndResponse {
+    func create(with token: String, cupcakeID: UUID, session: URLSession) async throws {
         let orderData = try EncoderAndDecoder.encodeData(self)
         
         let request = Network(
@@ -114,7 +114,11 @@ extension Order {
             requestType: .upload(orderData)
         )
         
-        return try await request.getResponse(with: session)
+        let (_, response) = try await request.getResponse(with: session)
+        
+        guard response.status == .created else {
+            throw AppAlert.badResponse
+        }
     }
     #endif
     
