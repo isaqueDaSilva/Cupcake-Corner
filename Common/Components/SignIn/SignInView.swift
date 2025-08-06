@@ -22,7 +22,6 @@ struct SignInView: View {
                     .bold()
                     .frame(maxHeight: .infinity, alignment: .top)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
                 
                 VStack {
                     LogoView(size: .midSizePicture)
@@ -46,13 +45,12 @@ struct SignInView: View {
                     #endif
 
                 }
-                .padding(.horizontal)
-                .navigationTitle("Login")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar(removing: .title)
-                .appAlert(alert: $viewModel.error) { }
-                .frame(maxHeight: .infinity)
             }
+            .padding(.horizontal)
+            .navigationTitle("Login")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(removing: .title)
+            .appAlert(alert: $viewModel.error) { }
         }
     }
 }
@@ -111,9 +109,9 @@ extension SignInView {
 extension SignInView {
     func loginAction() {
         if viewModel.email.isEmpty {
-            focusedField = .email
+            self.focusedField = .email
         } else if viewModel.password.isEmpty {
-            focusedField = .password
+            self.focusedField = .password
         } else {
             self.viewModel.signIn { response, privateKey, session in
                 try self.accessHandler.fillStorange(

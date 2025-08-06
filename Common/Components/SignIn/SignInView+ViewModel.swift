@@ -35,7 +35,6 @@ extension SignInView {
                     let refreshTokenKey = PrivateKey()
                     
                     let loginValue = try self.makeCredentials(
-                        with: serverPublicKeyID,
                         publicKey: publicKey,
                         sharedKey: sharedKey
                     )
@@ -61,8 +60,15 @@ extension SignInView {
             }
         }
         
+        private func setError(_ error: AppAlert) async {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
+                self.error = error
+            }
+        }
+        
         private func makeCredentials(
-            with privateKeyID: UUID,
             publicKey: PublicKey,
             sharedKey: SymmetricKey
         ) throws -> String {
@@ -79,14 +85,6 @@ extension SignInView {
             }
             
             return loginValue
-        }
-        
-        private func setError(_ error: AppAlert) async {
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                
-                self.error = error
-            }
         }
     }
 }
