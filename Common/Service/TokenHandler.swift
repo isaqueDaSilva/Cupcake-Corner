@@ -13,8 +13,8 @@ enum TokenHandler {
         _ = try KeychainService.store(refreshToken, key: SecureFieldType.refreshToken.rawValue)
     }
     
-    static func getTokenValue(with key: SecureFieldType, isWithBearerValue: Bool = false) throws -> String? {
-        guard let tokenValue = try KeychainService.retrive(Token.self, for: key.rawValue) else {
+    static func getTokenValue(with key: SecureFieldType, isWithBearerValue: Bool = false) -> String? {
+        guard let tokenValue = try? KeychainService.retrive(Token.self, for: key.rawValue) else {
             return nil
         }
         
@@ -22,20 +22,6 @@ enum TokenHandler {
             return "Bearer \(tokenValue.token)"
         } else {
             return tokenValue.token
-        }
-    }
-    
-    static func getValue(with token: Token? = nil, key: SecureFieldType) throws -> String {
-        let bearerValue = "Bearer"
-        
-        if let tokenValue = token {
-            return "\(bearerValue) \(tokenValue.token)"
-        } else {
-            if let tokenValue = try KeychainService.retrive(Token.self, for: key.rawValue) {
-                return "\(bearerValue) \(tokenValue.token)"
-            } else {
-                throw AppAlert.fetchFailed
-            }
         }
     }
 }
