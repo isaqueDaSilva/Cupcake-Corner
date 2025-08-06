@@ -18,54 +18,62 @@ extension CreateNewCupcakeView {
         var error: AppAlert? = nil
         var isLoading = false
         
+        var executionScheduler = [() -> Void]() {
+            didSet {
+                self.logger.info("Execution Scheduler was changed. There is \(self.executionScheduler.count) tasks inside it.")
+            }
+        }
+        
         func create(
+            isPerfomingAction: Bool,
             uploadPicture: @escaping (UUID, String, URLSession) async throws -> Void,
             action: @escaping (ReadCupcake) -> Void,
             session: URLSession = .shared
         ) {
-            self.isLoading = true
-            
-            Task { [weak self] in
-                guard let self else { return }
-                
-                do {
-                    guard let token = try TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
-                        throw AppAlert.accessDenied
-                    }
-                    let (data, response) = try await self.newCupcake.createCupcake(with: token, and: session)
-                    
-                    try self.checkResponse(response)
-                    
-                    let cupcake = try self.decodeResponse(from: data)
-                    
-                    try await uploadPicture(cupcake.id, token, session)
-                    
-                    await MainActor.run {
-                        action(cupcake)
-                    }
-                } catch let error as AppAlert {
-                    await self.setError(error)
+            if !self.newCupcake.flavor.isEmpty &&
+                !self.newCupcake.ingredients.isEmpty &&
+                self.newCupcake.price > 0.1 &&
+                self.executionScheduler.isEmpty
+            {
+                guard let token = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
+                    self.error = .accessDenied
+                    return
                 }
                 
-                await MainActor.run { [weak self] in
+                self.isLoading = true
+                
+                guard !isPerfomingAction else {
+                    self.executionScheduler.append { [weak self] in
+                        guard let self else { return }
+                        
+                        self.create(isPerfomingAction: false, uploadPicture: uploadPicture, action: action)
+                    }
+                    
+                    return
+                }
+                
+                Task { [weak self] in
                     guard let self else { return }
                     
-                    self.isLoading = false
+                    do {
+                        let cupcake = try await self.newCupcake.createCupcake(with: token, and: session)
+                        
+                        try await uploadPicture(cupcake.id, token, session)
+                        
+                        await MainActor.run {
+                            action(cupcake)
+                        }
+                    } catch let error as AppAlert {
+                        await self.setError(error)
+                    }
+                    
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
+                        self.isLoading = false
+                    }
                 }
             }
-        }
-        
-        private func checkResponse(_ response: Response) throws(AppAlert) {
-            guard response.status == .ok else {
-                throw .badResponse
-            }
-        }
-        
-        private func decodeResponse(from data: Data) throws -> ReadCupcake {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            
-            return try EncoderAndDecoder.decodeResponse(type: ReadCupcake.self, by: data)
         }
         
         private func setError(_ error: AppAlert) async {

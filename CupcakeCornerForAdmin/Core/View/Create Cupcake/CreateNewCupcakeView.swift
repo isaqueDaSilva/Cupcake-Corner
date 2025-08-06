@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CreateNewCupcakeView: View {
+    @Bindable var accessHandler: AccessHandler
+    
     @State private var viewModel = ViewModel()
     @State private var imageHandler = ImageHandler()
     var action: (ReadCupcake) -> Void
@@ -23,7 +25,7 @@ struct CreateNewCupcakeView: View {
             isLoading: $viewModel.isLoading,
             navigationTitle: "Create"
         ) { dismiss in
-            viewModel.create { cupcakeID, token, session in
+            self.viewModel.create(isPerfomingAction: self.accessHandler.isPerfomingAction) { cupcakeID, token, session in
                 try await imageHandler.sendImage(
                     with: cupcakeID,
                     token: token,
@@ -33,12 +35,16 @@ struct CreateNewCupcakeView: View {
                 self.action(newCupcake)
                 dismiss()
             }
-
         }
         .appAlert(alert: $viewModel.error) { }
+        .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
+            guard newValue, newValue != oldValue && !self.viewModel.executionScheduler.isEmpty else { return }
+            
+            self.viewModel.executionScheduler[0]()
+        }
     }
 }
 
 #Preview {
-    CreateNewCupcakeView { _ in }
+    CreateNewCupcakeView(accessHandler: .init()) { _ in }
 }

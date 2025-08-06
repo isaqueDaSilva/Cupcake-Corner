@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CupcakeDetailView: View {
+    @Bindable private var accessHandler: AccessHandler
     @Environment(\.dismiss) var dismiss
     @State private var viewModel = ViewModel()
     @State private var isUpdated: Action? = nil
@@ -22,7 +23,8 @@ struct CupcakeDetailView: View {
             VStack {
                 AsyncCoverImageView(
                     imageName: cupcake.imageName,
-                    size: .midSizePicture
+                    size: .midSizePicture,
+                    accessHandler: self.accessHandler
                 )
                 .padding(.bottom, 10)
                 
@@ -107,7 +109,10 @@ struct CupcakeDetailView: View {
             Button("Cancel", role: .cancel) { }
             
             Button("Delete", role: .destructive) {
-                viewModel.deleteCupcake(cupcake: self.cupcake) {
+                self.viewModel.deleteCupcake(
+                    isPerfomingAction: self.accessHandler.isPerfomingAction,
+                    cupcake: self.cupcake
+                ) {
                     self.action(.delete(self.cupcake.id))
                 }
             }
@@ -115,7 +120,7 @@ struct CupcakeDetailView: View {
             Text("Are you sure you want to delete this cupcake?")
         }
         .sheet(isPresented: $viewModel.isShowingUpdateCupcakeView) {
-            UpdateCupcakeView(cupcake: self.cupcake) { updatedCupcake in
+            UpdateCupcakeView(accessHandler: self.accessHandler, cupcake: self.cupcake) { updatedCupcake in
                 if let updatedCupcake {
                     self.cupcake = updatedCupcake
                     self.isUpdated = .update(updatedCupcake)
@@ -130,9 +135,15 @@ struct CupcakeDetailView: View {
         }
         .toolbarVisibility(.hidden, for: .tabBar)
         .appAlert(alert: $viewModel.error) { }
+        .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
+            guard newValue, newValue != oldValue && !self.viewModel.executionScheduler.isEmpty else { return }
+            
+            self.viewModel.executionScheduler[0]()
+        }
     }
     
-    init(cupcake: ReadCupcake, action: @escaping (Action) -> Void) {
+    init(accessHandler: AccessHandler, cupcake: ReadCupcake, action: @escaping (Action) -> Void) {
+        self._accessHandler = .init(accessHandler)
         self._cupcake = .init(initialValue: cupcake)
         self.action = action
     }
@@ -180,7 +191,7 @@ extension CupcakeDetailView {
 #if DEBUG
 #Preview {
     NavigationStack {
-        CupcakeDetailView(cupcake: .init()) { _ in }
+        CupcakeDetailView(accessHandler: .init(), cupcake: .init()) { _ in }
     }
 }
 #endif

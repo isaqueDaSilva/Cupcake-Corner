@@ -18,46 +18,67 @@ extension UpdateCupcakeView {
         var ingredients: [String]
         var price: Double
         var ingredientName = ""
-        
         var error: AppAlert? = nil
         var isLoading = false
         
+        var executionScheduler = [() -> Void]() {
+            didSet {
+                self.logger.info("Execution Scheduler was changed. There is \(self.executionScheduler.count) tasks inside it.")
+            }
+        }
+        
         func update(
+            isPerfomingAction: Bool,
             session: URLSession = .shared,
             uploadPicture: @escaping (_ cupcakeID: UUID, _ imageName: String, _ token: String) async throws -> Void,
             action: @escaping (ReadCupcake?) -> Void
         ) {
-            self.isLoading = true
-            
-            Task { [weak self] in
-                guard let self else { return }
+            if !self.flavor.isEmpty && !self.ingredients.isEmpty && self.price > 0.1 && self.executionScheduler.isEmpty {
+                guard let token = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
+                    self.error = .accessDenied
+                    return
+                }
                 
-                do {
-                    guard let token = try TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
-                        throw AppAlert.accessDenied
+                self.isLoading = true
+                
+                guard !isPerfomingAction else {
+                    self.executionScheduler.append { [weak self] in
+                        guard let self else { return }
+                        
+                        self.update(isPerfomingAction: false, uploadPicture: uploadPicture, action: action)
                     }
                     
-                    let updatedCupcakeJSON = self.makeUpdate(for: self.cupcake)
+                    return
+                }
+                
+                Task { [weak self] in
+                    guard let self else { return }
                     
-                    let updatedCupcake = try await self.updateCupcake(
-                        updatedCupcakeJSON: updatedCupcakeJSON,
-                        token: token,
-                        session: session
-                    )
-                    
-                    if let updatedCupcake, let imageName = updatedCupcake.imageName {
-                        try await uploadPicture(updatedCupcake.id, imageName, token)
+                    do {
+                        let updatedCupcakeJSON = self.makeUpdate(for: self.cupcake)
+                        
+                        let updatedCupcake = try await self.cupcake.update(
+                            keysAndValues: updatedCupcakeJSON,
+                            token: token,
+                            and: session
+                        )
+                        
+                        if let imageName = updatedCupcake.imageName {
+                            try await uploadPicture(updatedCupcake.id, imageName, token)
+                        }
+                        
+                        await MainActor.run { [weak self] in
+                            guard self != nil else { return }
+                            
+                            action(updatedCupcake)
+                        }
+                    } catch let error as AppAlert {
+                        await self.setError(error)
                     }
                     
                     await MainActor.run {
-                        action(updatedCupcake)
+                        self.isLoading = false
                     }
-                } catch let error as AppAlert {
-                    await self.setError(error)
-                }
-                
-                await MainActor.run {
-                    self.isLoading = false
                 }
             }
         }
@@ -78,32 +99,6 @@ extension UpdateCupcakeView {
             }
             
             return keysAndValues
-        }
-        
-        private func updateCupcake(
-            updatedCupcakeJSON: [ReadCupcake.Key.RawValue : Any],
-            token: String,
-            session: URLSession
-        ) async throws -> ReadCupcake? {
-            guard !updatedCupcakeJSON.isEmpty else { return nil }
-            
-            let (data, response) = try await self.cupcake.update(
-                keysAndValues: updatedCupcakeJSON,
-                token: token,
-                and: session
-            )
-            
-            try checkResponse(response)
-            
-            let updatedCupcake = try EncoderAndDecoder.decodeResponse(type: ReadCupcake.self, by: data)
-            
-            return updatedCupcake
-        }
-        
-        private func checkResponse(_ response: Response) throws(AppAlert) {
-            guard response.status == .ok else {
-                throw .badResponse
-            }
         }
         
         private func setError(_ error: AppAlert) async {

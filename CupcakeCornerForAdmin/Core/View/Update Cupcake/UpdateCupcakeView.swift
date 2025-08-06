@@ -9,6 +9,7 @@ import PhotosUI
 import SwiftUI
 
 struct UpdateCupcakeView: View {
+    @Bindable var accessHandler: AccessHandler
     @State private var viewModel: ViewModel
     @State private var imageHandler = ImageHandler()
     
@@ -25,7 +26,7 @@ struct UpdateCupcakeView: View {
             isLoading: $viewModel.isLoading,
             navigationTitle: "Update"
         ) { dismiss in
-            viewModel.update { cupcakeID, imageName, token in
+            self.viewModel.update(isPerfomingAction: self.accessHandler.isPerfomingAction) { cupcakeID, imageName, token in
                 try await imageHandler.updateImage(with: cupcakeID, imageName: imageName, token: token)
             } action: { updatedCupcake in
                 self.action(updatedCupcake)
@@ -35,9 +36,15 @@ struct UpdateCupcakeView: View {
 
         }
         .appAlert(alert: $viewModel.error) { }
+        .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
+            guard newValue, newValue != oldValue && !self.viewModel.executionScheduler.isEmpty else { return }
+            
+            self.viewModel.executionScheduler[0]()
+        }
     }
     
-    init(cupcake: ReadCupcake, action: @escaping (ReadCupcake?) -> Void) {
+    init(accessHandler: AccessHandler, cupcake: ReadCupcake, action: @escaping (ReadCupcake?) -> Void) {
+        self._accessHandler = .init(accessHandler)
         self._viewModel = .init(
             initialValue: .init(cupcake: cupcake)
         )
@@ -47,6 +54,6 @@ struct UpdateCupcakeView: View {
 
 #if DEBUG
 #Preview {
-    UpdateCupcakeView(cupcake: .init()) { _ in }
+    UpdateCupcakeView(accessHandler: .init(), cupcake: .init()) { _ in }
 }
 #endif
