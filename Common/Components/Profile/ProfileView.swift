@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(AccessHandler.self) private var accessHandler
+    @Bindable var accessHandler: AccessHandler
     
     @State private var viewModel = ViewModel()
     
@@ -94,6 +94,11 @@ struct ProfileView: View {
                         }
                     }
                 }
+                .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
+                    guard newValue, newValue != oldValue && !self.viewModel.executionScheduler.isEmpty else { return }
+                    
+                    self.viewModel.executionScheduler[0]()
+                }
             }
         }
     }
@@ -117,10 +122,6 @@ extension ProfileView {
     }
 }
 
-import SwiftData
 #Preview {
-    let userRepository = AccessHandler()
-    
-    return ProfileView()
-        .environment(userRepository)
+    ProfileView(accessHandler: .init())
 }
