@@ -42,7 +42,7 @@ extension CupcakeImage {
         with cupcakeID: String,
         token: String,
         session: URLSession
-    ) async throws -> (Data, Response) {
+    ) async throws -> Data {
         let request = Network(
             method: .get,
             scheme: .https,
@@ -54,6 +54,12 @@ extension CupcakeImage {
             requestType: .get
         )
         
-        return try await request.getResponse(with: session)
+        let (data, response) = try await request.getResponse(with: session)
+        
+        guard response.status == .ok else {
+            throw AppAlert.badResponse
+        }
+        
+        return try EncoderAndDecoder.decodeResponse(type: CupcakeImage.self, by: data).imageData
     }
 }
