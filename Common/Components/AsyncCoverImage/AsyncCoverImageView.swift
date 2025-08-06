@@ -37,7 +37,7 @@ struct AsyncCoverImageView: View {
             self.viewModel.setImage(isPerfomingAction: self.accessHandler.isPerfomingAction)
         }
         .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
-            guard newValue, newValue != oldValue, !self.viewModel.executionScheduler.isEmpty else { return }
+            guard newValue, newValue != oldValue && !self.viewModel.executionScheduler.isEmpty else { return }
             
             self.viewModel.executionScheduler[0]()
         }
