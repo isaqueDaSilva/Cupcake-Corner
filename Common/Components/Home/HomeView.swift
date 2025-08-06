@@ -56,7 +56,7 @@ extension HomeView {
                 systemImage: TabSection.profile.iconName,
                 value: .profile
             ) {
-                ProfileView()
+                ProfileView(accessHandler: accessHandler)
             }
         }
         .tabViewStyle(.sidebarAdaptable)
@@ -64,11 +64,8 @@ extension HomeView {
 }
 
 #if DEBUG
-import SwiftData
 #Preview {
-    let accessHandler = AccessHandler()
-    
     return HomeView()
-        .environment(accessHandler)
+        .environment(AccessHandler())
 }
 #endif
