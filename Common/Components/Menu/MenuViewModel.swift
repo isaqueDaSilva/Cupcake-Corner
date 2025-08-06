@@ -176,17 +176,15 @@ final class MenuViewModel {
         session: URLSession = .shared
     ) async {
         do {
-            let token = try TokenHandler.getValue(key: .accessToken)
+            guard let token = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
+                throw AppAlert.accessDenied
+            }
             
-            let (data, response) = try await ReadCupcake.fetch(
+            let cupcakesPage = try await ReadCupcake.fetch(
                 with: token,
                 currentPage: page,
                 and: session
             )
-            
-            try self.checkResponse(response)
-            
-            let cupcakesPage = try EncoderAndDecoder.decodeResponse(type: Page<ReadCupcake>.self, by: data)
             
             await MainActor.run { [weak self] in
                 guard let self else { return }
@@ -208,12 +206,6 @@ final class MenuViewModel {
         self.cupcakes.removeAll()
         self.pageMetadata = .init()
         self.viewState = .refreshing
-    }
-    
-    private func checkResponse(_ response: Response) throws(AppAlert) {
-        guard response.status == .ok else {
-            throw .badResponse
-        }
     }
     
     private func setError(_ error: AppAlert) async {

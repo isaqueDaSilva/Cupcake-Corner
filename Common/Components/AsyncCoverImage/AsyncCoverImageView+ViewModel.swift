@@ -60,21 +60,15 @@ extension AsyncCoverImageView {
         
         private func dowloadImage(imageName: String) async {
             do {
-                let token = try TokenHandler.getValue(key: .accessToken)
+                guard let token = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
+                    throw AppAlert.accessDenied
+                }
 
-                let (data, response) = try await CupcakeImage.getImage(
+                let cupcakeImagedata = try await CupcakeImage.getImage(
                     with: imageName,
                     token: token,
                     session: .shared
                 )
-
-                guard response.status == .ok else {
-                    throw AppAlert.badResponse
-                }
-                
-                try await Task.sleep(for: .seconds(4))
-                
-                let cupcakeImagedata = try EncoderAndDecoder.decodeResponse(type: CupcakeImage.self, by: data).imageData
                 
                 await ImageCache.shared.setImageData(cupcakeImagedata, forKey: imageName)
                 

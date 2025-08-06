@@ -178,7 +178,9 @@ extension HistoryView {
         
         private func fetch(with currentPage: Int, and session: URLSession) async {
             do {
-                let token = try TokenHandler.getValue(key: .accessToken)
+                guard let token = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
+                    throw AppAlert.accessDenied
+                }
                 
                 let ordersPage = try await Order.requestMorePages(
                     token: token,

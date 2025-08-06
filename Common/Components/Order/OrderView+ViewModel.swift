@@ -146,7 +146,10 @@ extension OrderView.ViewModel {
     
     private func setWSService(with session: URLSession) {
         do {
-            let token = try TokenHandler.getValue(key: .accessToken)
+            guard let token = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
+                throw AppAlert.accessDenied
+            }
+            
             self.configureService(with: token, session: session)
         } catch {
             Task { [weak self] in

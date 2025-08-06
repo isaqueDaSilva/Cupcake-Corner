@@ -51,8 +51,8 @@ final class AccessHandler {
         
         let user = try self.fetchFromStorage(with: modelContext)
         
-        guard try ((try TokenHandler.getTokenValue(with: .accessToken) != nil) &&
-               (try TokenHandler.getTokenValue(with: .refreshToken) != nil))
+        guard (TokenHandler.getTokenValue(with: .accessToken) != nil) &&
+               (TokenHandler.getTokenValue(with: .refreshToken) != nil)
         else {
             return try self.deleteRegistersOfUser(with: modelContext)
         }
@@ -138,8 +138,11 @@ extension AccessHandler {
             self.isPerfomingAction = true
         }
         
-        let currentAccessToken = try TokenHandler.getValue(key: .accessToken)
-        let currentRefreshToken = try TokenHandler.getValue(key: .refreshToken)
+        guard let currentAccessToken = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true),
+              let currentRefreshToken = TokenHandler.getTokenValue(with: .refreshToken, isWithBearerValue: false)
+        else {
+            throw AppAlert.accessDenied
+        }
         
         let clientPrivateKey = PrivateKey()
         
@@ -173,8 +176,11 @@ extension AccessHandler {
     }
     
     private func revokeAccess(with modelContext: ModelContext, session: URLSession) async throws {
-        let currentAccessToken = try TokenHandler.getValue(key: .accessToken)
-        let currentRefreshToken = try TokenHandler.getValue(key: .refreshToken)
+        guard let currentAccessToken = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true),
+              let currentRefreshToken = TokenHandler.getTokenValue(with: .refreshToken, isWithBearerValue: false)
+        else {
+            throw AppAlert.accessDenied
+        }
         
         let tokens = [currentAccessToken, currentRefreshToken]
         

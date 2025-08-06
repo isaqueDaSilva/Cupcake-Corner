@@ -25,8 +25,8 @@ struct UserProfile: Sendable, Equatable {
 
 extension UserProfile {
     func performRevocation(with type: RevocationType, and session: URLSession) async throws {
-        guard let accessToken = try TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true),
-              let refreshToken = try TokenHandler.getTokenValue(with: .refreshToken)
+        guard let accessToken = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true),
+              let refreshToken = TokenHandler.getTokenValue(with: .refreshToken)
         else {
             throw AppAlert.accessDenied
         }
