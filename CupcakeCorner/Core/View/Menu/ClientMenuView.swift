@@ -15,7 +15,10 @@ struct ClientMenuView: View {
         NavigationStack {
             MenuView(viewModel: self.viewModel, accessHandler: self.accessHandler)
                 .navigationDestination(for: ReadCupcake.self) { cupcake in
-                    OrderRequestView(cupcake: cupcake)
+                    OrderRequestView(
+                        accessHandler: self.accessHandler,
+                        cupcake: cupcake
+                    )
                 }
         }
     }
@@ -23,4 +26,5 @@ struct ClientMenuView: View {
 
 #Preview {
     ClientMenuView()
+        .environment(AccessHandler())
 }
