@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OrderRequestView: View {
-    @Environment(AccessHandler.self) private var accessHandler
+    @Bindable private var accessHandler: AccessHandler
     @Environment(\.dismiss) var dismiss
     
     @State private var viewModel: ViewModel
@@ -37,7 +37,10 @@ struct OrderRequestView: View {
                 ActionButton(isLoading: self.$viewModel.isLoading, width: .infinity) {
                     Text("Order")
                 } action: {
-                    viewModel.makeOrder(with: self.cupcake.id)
+                    self.viewModel.makeOrder(
+                        with: self.cupcake.id,
+                        isPerfomingAction: self.accessHandler.isPerfomingAction
+                    )
                 }
             }
             .padding([.horizontal, .bottom])
@@ -48,15 +51,21 @@ struct OrderRequestView: View {
                     }
                 }
             }
+            .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
+                guard newValue, newValue != oldValue && !self.viewModel.executionScheduler.isEmpty else { return }
+                
+                self.viewModel.executionScheduler[0]()
+            }
         }
         .navigationTitle(cupcake.flavor)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarVisibility(.hidden, for: .tabBar)
     }
     
-    init(cupcake: ReadCupcake) {
+    init(accessHandler: AccessHandler,cupcake: ReadCupcake) {
         self.cupcake = cupcake
         self._viewModel = .init(initialValue: .init(with: cupcake.price))
+        self._accessHandler = .init(accessHandler)
     }
 }
 
@@ -166,7 +175,7 @@ extension OrderRequestView {
 
 #Preview {
     NavigationStack {
-        OrderRequestView(cupcake: .init())
+        OrderRequestView(accessHandler: .init(), cupcake: .init())
             .environment(AccessHandler())
     }
 }
