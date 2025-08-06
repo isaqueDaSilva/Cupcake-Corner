@@ -63,7 +63,7 @@ extension CreateOrReadCupcake: Codable {
 
 // MARK: - Network strategy -
 extension ReadCupcake {
-    static func fetch(with token: String, currentPage: Int, and session: URLSession) async throws -> DataAndResponse {
+    static func fetch(with token: String, currentPage: Int, and session: URLSession) async throws -> Page<ReadCupcake> {
         let request = Network(
             method: .patch,
             scheme: .https,
@@ -75,7 +75,13 @@ extension ReadCupcake {
             requestType: .get
         )
         
-        return try await request.getResponse(with: session)
+        let (data, response) = try await request.getResponse(with: session)
+        
+        guard response.status == .ok else {
+            throw AppAlert.badResponse
+        }
+        
+        return try EncoderAndDecoder.decodeResponse(type: Page<ReadCupcake>.self, by: data)
     }
 }
 
@@ -94,7 +100,7 @@ extension CreateCupcake {
     func createCupcake(
         with token: String,
         and session: URLSession
-    ) async throws -> DataAndResponse {
+    ) async throws -> CreateCupcake {
         try self.checkIfIsValid()
         
         let cupcakeData = try EncoderAndDecoder.encodeData(self)
@@ -110,7 +116,13 @@ extension CreateCupcake {
             requestType: .upload(cupcakeData)
         )
         
-        return try await request.getResponse(with: session)
+        let (data, response) = try await request.getResponse(with: session)
+        
+        guard response.status == .ok else {
+            throw AppAlert.badResponse
+        }
+        
+        return try EncoderAndDecoder.decodeResponse(type: ReadCupcake.self, by: data)
     }
 }
 
@@ -119,7 +131,9 @@ extension CreateOrReadCupcake {
         keysAndValues json: [Key.RawValue: Any],
         token: String,
         and session: URLSession
-    ) async throws -> (Data, Response) {
+    ) async throws -> ReadCupcake {
+        guard !json.isEmpty else { throw AppAlert.missingData }
+        
         let updatedCupcakeData = try JSONSerialization.data(withJSONObject: json)
         
         let request = Network(
@@ -133,10 +147,16 @@ extension CreateOrReadCupcake {
             requestType: .upload(updatedCupcakeData)
         )
         
-        return try await request.getResponse(with: session)
+        let (data, response) = try await request.getResponse(with: session)
+        
+        guard response.status == .ok else {
+            throw AppAlert.badResponse
+        }
+        
+        return try EncoderAndDecoder.decodeResponse(type: ReadCupcake.self, by: data)
     }
     
-    func delete(with token: String, and session: URLSession) async throws -> Response {
+    func delete(with token: String, and session: URLSession) async throws {
         let request = Network(
             method: .patch,
             scheme: .https,
@@ -149,7 +169,9 @@ extension CreateOrReadCupcake {
         
         let (_, response) = try await request.getResponse(with: session)
         
-        return response
+        guard response.status == .ok else {
+            throw AppAlert.badResponse
+        }
     }
 }
 #endif
