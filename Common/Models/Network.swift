@@ -10,7 +10,7 @@ import HTTPTypes
 import HTTPTypesFoundation
 
 typealias Response = HTTPResponse
-typealias DataAndResponse = (Data, HTTPResponse)
+typealias DataAndResponse = (Data, Response)
 
 struct Network {
     private let authority = "localhost:8080"
@@ -20,7 +20,7 @@ struct Network {
     private let fields: [HTTPField.Name: String]
     private let requestType: RequestType?
     
-    func getResponse(with urlSession: URLSession) async throws -> (Data, HTTPResponse) {
+    func getResponse(with urlSession: URLSession) async throws -> DataAndResponse {
         var request = HTTPRequest(
             method: self.method,
             scheme: self.scheme.rawValue,
@@ -32,7 +32,7 @@ struct Network {
             request.headerFields.append(.init(name: field, value: value))
         }
         
-        guard let requestType else { throw AppAlert(title: "Failed to complete the request", description: "") }
+        guard let requestType else { throw AppAlert(title: "Failed to complete the request", description: "Request type is not available.") }
         
         return try await requestType.performTask(with: request, and: urlSession)
     }
@@ -42,7 +42,7 @@ struct Network {
             method: self.method,
             scheme: self.scheme.rawValue,
             authority: self.authority,
-            path: "/api/\(self.path)"
+            path: self.path
         )
         
         for (field, value) in self.fields {
@@ -63,7 +63,7 @@ struct Network {
     ) {
         self.method = method
         self.scheme = scheme
-        self.path = path
+        self.path = "/api/\(path)"
         self.fields = fields
         self.requestType = requestType
     }
@@ -74,7 +74,7 @@ extension Network {
         case upload(Data)
         case get
         
-        func performTask(with request: HTTPRequest, and urlSession: URLSession) async throws -> (Data, HTTPResponse) {
+        func performTask(with request: HTTPRequest, and urlSession: URLSession) async throws -> DataAndResponse {
             switch self {
             case .upload(let data):
                 try await urlSession.upload(for: request, from: data)
