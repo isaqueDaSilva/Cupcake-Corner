@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SignInView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.modelContext) private var modelContext
     @Environment(AccessHandler.self) private var accessHandler
     @FocusState var focusedField: FocusedField?
@@ -39,10 +40,6 @@ struct SignInView: View {
                         loginAction()
                     }
                     .buttonStyle(.borderedProminent)
-                    
-                    #if CLIENT
-                    self.createAccountButton
-                    #endif
 
                 }
             }
@@ -51,6 +48,13 @@ struct SignInView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(removing: .title)
             .appAlert(alert: $viewModel.error) { }
+            #if CLIENT
+            .toolbar {
+                ToolbarItem(placement: .bottomBar) {
+                    self.createAccountButton
+                }
+            }
+            #endif
         }
     }
 }
@@ -87,14 +91,20 @@ extension SignInView {
 extension SignInView {
     @ViewBuilder
     private var createAccountButton: some View {
-        NavigationLink {
-            CreateAccountView()
-        } label: {
-            Text("Create an Account")
-                .foregroundStyle(.black)
-                .frame(maxWidth: .infinity)
+        HStack(spacing: 0) {
+            Text("Dont have an account?")
+                .foregroundStyle(self.colorScheme == .light ? .black : .white)
+                .bold()
+            
+            NavigationLink {
+                CreateAccountView()
+            } label: {
+                Text("Create one")
+                    .underline()
+                    .foregroundStyle(.blue)
+            }
         }
-        .buttonStyle(.bordered)
+        .frame(maxWidth: .infinity)
     }
 }
 #endif
