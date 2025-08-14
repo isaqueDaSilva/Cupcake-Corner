@@ -19,7 +19,7 @@ final class AccessHandler {
     /// A property that indicates that an action like,loading an user from persistent storage
     /// refresh or revocation their token or even deleting the user is happening on the background.
     var isPerfomingAction = false
-    var error: AppAlert? = nil
+    var alert: AppAlert? = nil
     var userProfile: UserProfile? { self.user?.profile }
     
     func fillStorange(with response: SignInAndSignUpResponse, privateKey: PrivateKey, context: ModelContext, session: URLSession) throws {
@@ -127,7 +127,7 @@ extension AccessHandler {
             } catch {
                 await MainActor.run { [weak self] in
                     guard let self else { return }
-                    self.error = .accessDenied
+                    self.alert = .accessDenied
                 }
             }
         }
@@ -226,6 +226,11 @@ extension AccessHandler {
         try KeychainService.delete(with: SecureFieldType.refreshToken.rawValue)
         
         self.accessTokenObserverTask?.cancel()
+        
+        self.alert = .init(
+            title: "Session Expired",
+            description: "Your session was expired. To continue to use the app, reconnect in your account."
+        )
     }
 }
 
