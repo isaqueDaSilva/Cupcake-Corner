@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct CreateNewCupcakeView: View {
-    @Bindable var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) var accessHandler
     
     @State private var viewModel = ViewModel()
     @State private var imageHandler = ImageHandler()
     var action: (ReadCupcake) -> Void
     
     var body: some View {
+        
+        
         EditCupcake(
             pickerItemSelected: $imageHandler.pickerItemSelected,
             cupcakeImage: $imageHandler.cupcakeImage,
@@ -46,5 +48,5 @@ struct CreateNewCupcakeView: View {
 }
 
 #Preview {
-    CreateNewCupcakeView(accessHandler: .init()) { _ in }
+    CreateNewCupcakeView { _ in }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OrderRequestView: View {
-    @Bindable private var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) private var accessHandler
     @Environment(\.dismiss) var dismiss
     
     @State private var viewModel: ViewModel
@@ -16,12 +16,13 @@ struct OrderRequestView: View {
     let cupcake: ReadCupcake
     
     var body: some View {
+        
+        
         ScrollView {
             VStack {
                 AsyncCoverImageView(
                     imageName: cupcake.imageName,
-                    size: .midHighPicture,
-                    accessHandler: self.accessHandler
+                    size: .midHighPicture
                 )
                 .padding(.bottom)
                 
@@ -62,10 +63,9 @@ struct OrderRequestView: View {
         .toolbarVisibility(.hidden, for: .tabBar)
     }
     
-    init(accessHandler: AccessHandler,cupcake: ReadCupcake) {
+    init(cupcake: ReadCupcake) {
         self.cupcake = cupcake
         self._viewModel = .init(initialValue: .init(with: cupcake.price))
-        self._accessHandler = .init(accessHandler)
     }
 }
 
@@ -175,7 +175,7 @@ extension OrderRequestView {
 
 #Preview {
     NavigationStack {
-        OrderRequestView(accessHandler: .init(), cupcake: .init())
+        OrderRequestView(cupcake: .init())
             .environment(AccessHandler())
     }
 }

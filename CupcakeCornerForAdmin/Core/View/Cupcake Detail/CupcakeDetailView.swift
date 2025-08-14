@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CupcakeDetailView: View {
-    @Bindable private var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) private var accessHandler
     @Environment(\.dismiss) var dismiss
     @State private var viewModel = ViewModel()
     @State private var isUpdated: Action? = nil
@@ -19,12 +19,13 @@ struct CupcakeDetailView: View {
     var action: (Action) -> Void
     
     var body: some View {
+        
+        
         ScrollView {
             VStack {
                 AsyncCoverImageView(
                     imageName: cupcake.imageName,
-                    size: .midSizePicture,
-                    accessHandler: self.accessHandler
+                    size: .midSizePicture
                 )
                 .padding(.bottom, 10)
                 
@@ -120,7 +121,7 @@ struct CupcakeDetailView: View {
             Text("Are you sure you want to delete this cupcake?")
         }
         .sheet(isPresented: $viewModel.isShowingUpdateCupcakeView) {
-            UpdateCupcakeView(accessHandler: self.accessHandler, cupcake: self.cupcake) { updatedCupcake in
+            UpdateCupcakeView(cupcake: self.cupcake) { updatedCupcake in
                 if let updatedCupcake {
                     self.cupcake = updatedCupcake
                     self.isUpdated = .update(updatedCupcake)
@@ -142,8 +143,7 @@ struct CupcakeDetailView: View {
         }
     }
     
-    init(accessHandler: AccessHandler, cupcake: ReadCupcake, action: @escaping (Action) -> Void) {
-        self._accessHandler = .init(accessHandler)
+    init(cupcake: ReadCupcake, action: @escaping (Action) -> Void) {
         self._cupcake = .init(initialValue: cupcake)
         self.action = action
     }
@@ -191,7 +191,7 @@ extension CupcakeDetailView {
 #if DEBUG
 #Preview {
     NavigationStack {
-        CupcakeDetailView(accessHandler: .init(), cupcake: .init()) { _ in }
+        CupcakeDetailView(cupcake: .init()) { _ in }
     }
 }
 #endif

@@ -18,8 +18,7 @@ struct ItemCard: View {
         GroupBox {
             HStack {
                 AsyncCoverImageView(
-                    imageName: self.imageName,
-                    accessHandler: self.accessHandler
+                    imageName: self.imageName
                 )
                 .padding(.trailing, 10)
                 

@@ -9,9 +9,10 @@ import SwiftUI
 
 struct MenuView: View {
     @Bindable var viewModel: MenuViewModel
-    @Bindable var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) var accessHandler: AccessHandler
     
     var body: some View {
+        
         ZStack {
             if self.viewModel.isLoading && self.viewModel.isCupcakeListEmpty {
                 OverlayEmptyView(
@@ -50,7 +51,7 @@ struct MenuView: View {
 
 #Preview {
     NavigationStack {
-        MenuView(viewModel: .init(), accessHandler: .init())
+        MenuView(viewModel: .init())
     }
 }
 

@@ -48,7 +48,7 @@ extension HomeView {
                 systemImage: TabSection.orders.iconName,
                 value: .orders
             ) {
-                OrderView(accessHandler: accessHandler)
+                OrderView()
             }
             
             Tab(
@@ -56,7 +56,7 @@ extension HomeView {
                 systemImage: TabSection.profile.iconName,
                 value: .profile
             ) {
-                ProfileView(accessHandler: accessHandler)
+                ProfileView()
             }
         }
         .tabViewStyle(.sidebarAdaptable)

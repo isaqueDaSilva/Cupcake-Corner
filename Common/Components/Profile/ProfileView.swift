@@ -10,13 +10,15 @@ import SwiftUI
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
-    @Bindable var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) var accessHandler
     
     @State private var viewModel = ViewModel()
     
     private let colums: [GridItem] = [.init(.adaptive(minimum: 150))]
     
     var body: some View {
+        
+        
         NavigationStack {
             ScrollView {
                 VStack {
@@ -107,7 +109,7 @@ struct ProfileView: View {
 extension ProfileView {
     private var historyNavigationView: some View {
         NavigationLink {
-            HistoryView(accessHandler: self.accessHandler)
+            HistoryView()
         } label: {
             LabeledContent {
                 Icon.chevronRight.systemImage
@@ -123,5 +125,5 @@ extension ProfileView {
 }
 
 #Preview {
-    ProfileView(accessHandler: .init())
+    ProfileView()
 }

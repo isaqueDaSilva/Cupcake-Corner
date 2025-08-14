@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct HistoryView: View {
-    @Bindable var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) var accessHandler
     @State private var viewModel = ViewModel()
     
     var body: some View {
+        
+        
         ScrollView {
             LazyVStack {
                 ForEach(self.viewModel.orderIndices, id: \.self) { index in
@@ -64,6 +66,6 @@ struct HistoryView: View {
 
 #Preview {
     NavigationStack {
-        HistoryView(accessHandler: .init())
+        HistoryView()
     }
 }

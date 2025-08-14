@@ -16,12 +16,9 @@ struct AdminMenuView: View {
     
     var body: some View {
         NavigationStack {
-            MenuView(viewModel: self.viewModel, accessHandler: self.accessHandler)
+            MenuView(viewModel: self.viewModel)
                 .navigationDestination(for: ReadCupcake.self) { cupcake in
-                    CupcakeDetailView(
-                        accessHandler: accessHandler,
-                        cupcake: cupcake
-                    ) { action in
+                    CupcakeDetailView(cupcake: cupcake) { action in
                         switch action {
                         case .update(let updatedCupcake):
                             self.viewModel.cupcakes.updateValue(
@@ -51,7 +48,7 @@ struct AdminMenuView: View {
                     )
                 }
                 .sheet(isPresented: $isShowingCreateNewCupcake) {
-                    CreateNewCupcakeView(accessHandler: self.accessHandler) { newCupcake in
+                    CreateNewCupcakeView { newCupcake in
                         self.viewModel.cupcakes.updateValue(
                             newCupcake,
                             forKey: newCupcake.id

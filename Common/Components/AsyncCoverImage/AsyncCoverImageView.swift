@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct AsyncCoverImageView: View {
-    @Bindable private var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) private var accessHandler
     @State private var viewModel: ViewModel
-    
     private let size: CGSize
     
     var body: some View {
+        
+        
         Group {
             switch viewModel.isLoading {
             case true:
@@ -43,9 +44,8 @@ struct AsyncCoverImageView: View {
         }
     }
     
-    init(imageName: String?, size: CGSize = .smallSize, accessHandler: AccessHandler) {
+    init(imageName: String?, size: CGSize = .smallSize) {
         self._viewModel = .init(initialValue: .init(imageName: imageName))
         self.size = size
-        self._accessHandler = .init(accessHandler)
     }
 }

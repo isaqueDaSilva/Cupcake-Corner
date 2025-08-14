@@ -9,13 +9,15 @@ import PhotosUI
 import SwiftUI
 
 struct UpdateCupcakeView: View {
-    @Bindable var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) var accessHandler
     @State private var viewModel: ViewModel
     @State private var imageHandler = ImageHandler()
     
     var action: (ReadCupcake?) -> Void
     
     var body: some View {
+        
+        
         EditCupcake(
             pickerItemSelected: $imageHandler.pickerItemSelected,
             cupcakeImage: $imageHandler.cupcakeImage,
@@ -43,8 +45,7 @@ struct UpdateCupcakeView: View {
         }
     }
     
-    init(accessHandler: AccessHandler, cupcake: ReadCupcake, action: @escaping (ReadCupcake?) -> Void) {
-        self._accessHandler = .init(accessHandler)
+    init(cupcake: ReadCupcake, action: @escaping (ReadCupcake?) -> Void) {
         self._viewModel = .init(
             initialValue: .init(cupcake: cupcake)
         )
@@ -54,6 +55,6 @@ struct UpdateCupcakeView: View {
 
 #if DEBUG
 #Preview {
-    UpdateCupcakeView(accessHandler: .init(), cupcake: .init()) { _ in }
+    UpdateCupcakeView(cupcake: .init()) { _ in }
 }
 #endif

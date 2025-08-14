@@ -13,12 +13,9 @@ struct ClientMenuView: View {
     
     var body: some View {
         NavigationStack {
-            MenuView(viewModel: self.viewModel, accessHandler: self.accessHandler)
+            MenuView(viewModel: self.viewModel)
                 .navigationDestination(for: ReadCupcake.self) { cupcake in
-                    OrderRequestView(
-                        accessHandler: self.accessHandler,
-                        cupcake: cupcake
-                    )
+                    OrderRequestView(cupcake: cupcake)
                 }
         }
     }
