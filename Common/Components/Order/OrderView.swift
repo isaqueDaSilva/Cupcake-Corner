@@ -9,10 +9,12 @@ import SwiftUI
 
 struct OrderView: View {
     @Environment(\.scenePhase) private var scenePhase
-    @Bindable private var accessHandler: AccessHandler
+    @Environment(AccessHandler.self) private var accessHandler
     @State private var viewModel = ViewModel()
     
     var body: some View {
+        
+        
         NavigationStack {
             ZStack {
                 if self.viewModel.isLoading && self.viewModel.orders.isEmpty {
@@ -36,11 +38,12 @@ struct OrderView: View {
                     ) { isVisible, index in
                         self.viewModel.fetchMorePages(
                             isVisible: isVisible,
-                            index: index
+                            index: index,
+                            isPerfomingAction: accessHandler.isPerfomingAction
                         )
                     } updateAction: { index in
                         #if ADMIN
-                        self.viewModel.updateOrder(at: index)
+                        self.viewModel.updateOrder(at: index, isPerfomingAction: accessHandler.isPerfomingAction)
                         #endif
                     }
 
@@ -72,15 +75,24 @@ struct OrderView: View {
                     viewModel.disconnect(isWaitingForDisconnect: false)
                 }
             }
+            .onChange(of: self.accessHandler.isPerfomingAction) { oldValue, newValue in
+                if oldValue && newValue == false {
+                    self.viewModel.connect(isFetchRecords: false)
+                    
+                    for action in self.viewModel.executionScheduler {
+                        action()
+                    }
+                } else {
+                    self.viewModel.disconnect(isWaitingForDisconnect: false)
+                }
+            }
             .appAlert(alert: $viewModel.error) { }
         }
-    }
-    
-    init(accessHandler: AccessHandler) {
-        self._accessHandler = .init(accessHandler)
     }
 }
 
 #Preview {
-    OrderView(accessHandler: AccessHandler())
+    OrderView()
+        .environment(AccessHandler())
+    
 }

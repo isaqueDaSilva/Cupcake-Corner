@@ -47,6 +47,12 @@ extension OrderView {
             }
         }
         
+        var executionScheduler = [() -> Void]() {
+            didSet {
+                self.logger.info("Execution Scheduler was changed. There is \(self.executionScheduler.count) tasks inside it.")
+            }
+        }
+        
         var viewState: ViewState = .default {
             didSet {
                 self.logger.info("View state update for \(self.viewState) status.")
@@ -102,7 +108,7 @@ extension OrderView {
 
 // MARK: - Connect in channel -
 extension OrderView.ViewModel {
-    func connect(with session: URLSession = .shared) {
+    func connect(isFetchRecords: Bool = true, with session: URLSession = .shared) {
         self.viewState = .loading
         
         self.setWSService(with: session)
@@ -122,8 +128,13 @@ extension OrderView.ViewModel {
             
             logger.info("The connection was established with success.")
             
+            if isFetchRecords {
+                wsService.send(.init(data: .queryRecords(1)))
+            }
+            
             self.observerConnectionState()
             self.observerChangesInChannel()
+            
             #endif
             
             await MainActor.run { [weak self] in
@@ -141,7 +152,7 @@ extension OrderView.ViewModel {
         }
 
         self.removeDisconnectionRequest()
-        self.connect()
+        self.connect(isFetchRecords: false)
     }
     
     private func setWSService(with session: URLSession) {
@@ -226,11 +237,11 @@ extension OrderView.ViewModel {
 // MARK: - Channel Messages Observation -
 extension OrderView.ViewModel {
     private func observerChangesInChannel() {
-        channelObserverTask?.cancel()
+        self.channelObserverTask?.cancel()
         
         guard let wsService else { return }
         
-        channelObserverTask = Task { @WebSocketActor [weak self] in
+        self.channelObserverTask = Task { @WebSocketActor [weak self] in
             guard let self else { return }
             
             do {
@@ -342,32 +353,43 @@ extension OrderView.ViewModel {
     }
 }
 
-// MARK: -- Message in Channel --
-
 // MARK: Common
 
 extension OrderView.ViewModel {
-    func fetchMorePages(isVisible: Bool, index: Int) {
-        guard self.viewState == .default && self.isValidToFetchMore(isVisible: isVisible, index: index) else { return }
-        
-        self.viewState = .fetchingMore
-        
-        Task { [weak self] in
-            guard let self, let wsService else { return }
+    func fetchMorePages(isVisible: Bool, index: Int, isPerfomingAction: Bool) {
+        if self.viewState == .default &&
+            self.isValidToFetchMore(isVisible: isVisible, index: index) &&
+            self.executionScheduler.isEmpty
+        {
+            self.viewState = .fetchingMore
             
-            do {
-                try await Order.requestMorePages(
-                    currentPage: self.pageMetadata.page,
-                    with: wsService
-                )
-            } catch {
-                await MainActor.run { [weak self] in
+            guard !isPerfomingAction else {
+                self.executionScheduler.append { [weak self] in
                     guard let self else { return }
                     
-                    self.error = .init(
-                        title: "Failed to get more orders.",
-                        description: error.localizedDescription
+                    self.fetchMorePages(isVisible: isVisible, index: index, isPerfomingAction: false)
+                }
+                
+                return
+            }
+            
+            Task { [weak self] in
+                guard let self, let wsService else { return }
+                
+                do {
+                    try await Order.requestMorePages(
+                        currentPage: self.pageMetadata.page,
+                        with: wsService
                     )
+                } catch {
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
+                        self.error = .init(
+                            title: "Failed to get more orders.",
+                            description: error.localizedDescription
+                        )
+                    }
                 }
             }
         }
@@ -387,8 +409,25 @@ extension OrderView.ViewModel {
 
 #if ADMIN
 extension OrderView.ViewModel {
-    func updateOrder(at index: Int, session: URLSession = .shared) {
-        guard let wsService else { return }
+    func updateOrder(at index: Int, isPerfomingAction: Bool, session: URLSession = .shared) {
+        guard !isPerfomingAction else {
+            self.executionScheduler.append { [weak self] in
+                guard let self else { return }
+                
+                self.updateOrder(at: index, isPerfomingAction: false)
+            }
+            
+            return
+        }
+        
+        guard let wsService else {
+            self.error = .init(
+                title: "Failed to update order.",
+                description: "You are not connected at the channel to perform this action."
+            )
+            
+            return
+        }
         
         Task { [weak self] in
             guard let self else { return }
