@@ -116,7 +116,10 @@ extension AccessHandler {
                     
                     if user.currentAccessTokenExpirationTime > Date() {
                         let sleepTime = user.currentAccessTokenExpirationTime.timeIntervalSince(.now)
-                        try await Task.sleep(for: .seconds(sleepTime))
+                        
+                        let totalSleepTime = sleepTime > 60 ? sleepTime - 60 : sleepTime
+                        
+                        try await Task.sleep(for: .seconds(totalSleepTime))
                     }
                     
                     try await self.refreshAccessToken(with: session)
