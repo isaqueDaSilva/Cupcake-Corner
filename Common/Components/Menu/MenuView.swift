@@ -14,7 +14,7 @@ struct MenuView: View {
     var body: some View {
         
         ZStack {
-            if self.viewModel.isLoading && self.viewModel.isCupcakeListEmpty {
+            if self.viewModel.isCupcakeListEmpty {
                 OverlayEmptyView(
                     itemName: "Cupcakes",
                     isLoading: self.viewModel.isLoading,
@@ -52,6 +52,7 @@ struct MenuView: View {
 #Preview {
     NavigationStack {
         MenuView(viewModel: .init())
+            .environment(AccessHandler())
     }
 }
 

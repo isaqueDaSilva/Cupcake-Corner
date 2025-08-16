@@ -126,4 +126,5 @@ extension ProfileView {
 
 #Preview {
     ProfileView()
+        .environment(AccessHandler())
 }
