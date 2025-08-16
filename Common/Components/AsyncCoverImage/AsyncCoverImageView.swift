@@ -13,8 +13,6 @@ struct AsyncCoverImageView: View {
     private let size: CGSize
     
     var body: some View {
-        
-        
         Group {
             switch viewModel.isLoading {
             case true:

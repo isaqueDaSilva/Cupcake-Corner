@@ -17,7 +17,6 @@ struct MainRootView: View {
     @State private var isSplashViewPresented = true
     @State private var showError = false
     @State private var accessHandler = AccessHandler()
-    @State private var error: AppAlert? = nil
     
     var body: some View {
         HomeView()
@@ -41,7 +40,7 @@ struct MainRootView: View {
                     self.logger.error("Error to load user from persistent storage. Error: \(error.localizedDescription)")
                 }
             }
-            .appAlert(alert: $error) { }
+            .appAlert(alert: self.$accessHandler.alert) { }
     }
 }
 

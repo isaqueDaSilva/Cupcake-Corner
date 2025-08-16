@@ -32,7 +32,6 @@ extension AsyncCoverImageView {
                 self.startLoad()
                 
                 guard !isPerfomingAction else {
-                    self.startLoad()
                     self.executionScheduler.append { [weak self] in
                         guard let self else { return }
                         
