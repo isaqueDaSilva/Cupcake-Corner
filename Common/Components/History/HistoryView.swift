@@ -12,30 +12,41 @@ struct HistoryView: View {
     @State private var viewModel = ViewModel()
     
     var body: some View {
-        ScrollView {
-            LazyVStack {
-                ForEach(self.viewModel.orderIndices, id: \.self) { index in
-                    if !self.viewModel.orders.isEmpty {
-                        ItemCard(
-                            imageName: self.viewModel.orders[index].cupcakeImageName,
-                            name: self.viewModel.orders[index].title,
-                            description: self.viewModel.orders[index].description,
-                            price: self.viewModel.orders[index].finalPrice
-                        )
-                        .onScrollVisibilityChange(threshold: 0.8) { isVisible in
-                            self.viewModel.fetchMorePages(
-                                isVisible: isVisible,
-                                index: index,
-                                isPerfomingAction: self.accessHandler.isPerfomingAction
+        ZStack {
+            if self.viewModel.orders.isEmpty {
+                OverlayEmptyView(
+                    itemName: "Orders",
+                    isLoading: viewModel.isLoading,
+                    isListEmpty: viewModel.orders.isEmpty
+                )
+                
+            }
+            
+            ScrollView {
+                LazyVStack {
+                    ForEach(self.viewModel.orderIndices, id: \.self) { index in
+                        if !self.viewModel.orders.isEmpty {
+                            ItemCard(
+                                imageName: self.viewModel.orders[index].cupcakeImageName,
+                                name: self.viewModel.orders[index].title,
+                                description: self.viewModel.orders[index].description,
+                                price: self.viewModel.orders[index].finalPrice
                             )
+                            .onScrollVisibilityChange(threshold: 0.8) { isVisible in
+                                self.viewModel.fetchMorePages(
+                                    isVisible: isVisible,
+                                    index: index,
+                                    isPerfomingAction: self.accessHandler.isPerfomingAction
+                                )
+                            }
                         }
                     }
+                    
+                    Spinner(currentViewState: self.viewModel.viewState)
                 }
-                
-                Spinner(currentViewState: self.viewModel.viewState)
             }
-            .padding(.horizontal)
         }
+        .padding(.horizontal)
         .navigationTitle("History")
         .onAppear {
             self.viewModel.fetchPage(
@@ -46,11 +57,6 @@ struct HistoryView: View {
             self.viewModel.refresh(
                 isPerfomingAction: self.accessHandler.isPerfomingAction
             )
-        }
-        .overlay {
-            if viewModel.isLoading && viewModel.orders.isEmpty {
-                ProgressView()
-            }
         }
         .onChange(of: accessHandler.isPerfomingAction) { oldValue, newValue in
             guard newValue, newValue != oldValue && !self.viewModel.executionScheduler.isEmpty else { return }
@@ -65,5 +71,6 @@ struct HistoryView: View {
 #Preview {
     NavigationStack {
         HistoryView()
+            .environment(AccessHandler())
     }
 }
