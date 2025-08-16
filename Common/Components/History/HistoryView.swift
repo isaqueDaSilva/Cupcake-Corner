@@ -12,8 +12,6 @@ struct HistoryView: View {
     @State private var viewModel = ViewModel()
     
     var body: some View {
-        
-        
         ScrollView {
             LazyVStack {
                 ForEach(self.viewModel.orderIndices, id: \.self) { index in
