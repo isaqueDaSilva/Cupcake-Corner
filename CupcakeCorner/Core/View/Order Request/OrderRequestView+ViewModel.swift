@@ -13,6 +13,8 @@ extension OrderRequestView {
     final class ViewModel {
         private let logger = AppLogger(category: "OrderRequestView+ViewModel")
         private let basePrice: Double
+        private var makeOrderTask: Task<Void, Never>? = nil
+        
         var quantity = 1
         
         var isLoading = false
@@ -43,7 +45,7 @@ extension OrderRequestView {
                     return
                 }
                 
-                Task { [weak self] in
+                self.makeOrderTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
                     do {
@@ -72,6 +74,13 @@ extension OrderRequestView {
                             ),
                             isSuccessed: false
                         )
+                    }
+                    
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
+                        self.makeOrderTask?.cancel()
+                        self.makeOrderTask = nil
                     }
                 }
             }

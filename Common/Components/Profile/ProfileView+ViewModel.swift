@@ -13,6 +13,7 @@ extension ProfileView {
     @MainActor
     final class ViewModel {
         private let logger = AppLogger(category: "ProfileView+ViewModel")
+        private var performRevocationTask: Task<Void, Never>? = nil
         
         var executionScheduler = [() -> Void]() {
             didSet {
@@ -94,7 +95,7 @@ extension ProfileView {
                     return
                 }
                 
-                Task { [weak self] in
+                self.performRevocationTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
                     do {
@@ -114,6 +115,9 @@ extension ProfileView {
                         guard let self else { return }
                         
                         self.stopLoad()
+                        
+                        self.performRevocationTask?.cancel()
+                        self.performRevocationTask = nil
                     }
                 }
             }

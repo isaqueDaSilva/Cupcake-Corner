@@ -13,6 +13,9 @@ import OrderedCollections
 final class MenuViewModel {
     private let logger = AppLogger(category: "MenuViewModel")
     private var pageMetadata = PageMetadata()
+    private var fetchPagesTask: Task<Void, Never>? = nil
+    private var fetchMorePagesTask: Task<Void, Never>? = nil
+    private var refreshTask: Task<Void, Never>? = nil
     
     var cupcakes: OrderedDictionary<UUID, ReadCupcake> = [:] {
         didSet {
@@ -69,21 +72,19 @@ final class MenuViewModel {
                 return
             }
             
-            Task { [weak self] in
+            self.fetchPagesTask = Task.detached { [weak self] in
                 guard let self else { return }
                 
                 await ImageCache.shared.removeAllImageData()
                 
-                #if DEBUG
-                await self.fetchMocks()
-                #else
                 await self.fetch(page: 1, session: session)
-                #endif
                 
                 await MainActor.run { [weak self] in
                     guard let self else { return }
                     
                     self.viewState = self.pageMetadata.isLoadedAll ? .loadedAll : .default
+                    self.fetchPagesTask?.cancel()
+                    self.fetchPagesTask = nil
                 }
             }
         }
@@ -104,19 +105,19 @@ final class MenuViewModel {
                 return
             }
             
-            Task { [weak self] in
+            let nextPage = self.pageMetadata.page + 1
+            
+            self.fetchMorePagesTask = Task.detached { [weak self] in
                 guard let self else { return }
                 
-                let nextPage = self.pageMetadata.page + 1
-                
-                #if DEBUG
-                await self.fetchMocks()
-                #else
                 await self.fetch(page: nextPage, session: session)
-                #endif
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+                    self.fetchMorePagesTask?.cancel()
+                    self.fetchMorePagesTask = nil
                 }
             }
         }
@@ -137,20 +138,18 @@ final class MenuViewModel {
                 return
             }
             
-            Task { [weak self] in
+            self.refreshTask = Task.detached { [weak self] in
                 guard let self else { return }
                 
                 await ImageCache.shared.removeAllImageData()
                 
-                #if DEBUG
-                await self.fetchMocks()
-                #else
                 await self.fetch(page: 0, session: session)
-                #endif
                 
                 await MainActor.run { [weak self] in
                     guard let self else { return }
                     self.viewState = self.cupcakes.count == self.pageMetadata.total ? .loadedAll : .default
+                    self.refreshTask?.cancel()
+                    self.refreshTask = nil
                 }
             }
         }

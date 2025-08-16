@@ -13,6 +13,9 @@ extension HistoryView {
     @MainActor
     final class ViewModel {
         private let logger = AppLogger(category: "HistoryView+ViewModel")
+        private var fetchPagesTask: Task<Void, Never>? = nil
+        private var fetchMorePagesTask: Task<Void, Never>? = nil
+        private var refreshTask: Task<Void, Never>? = nil
         
         private var pageMetadata = PageMetadata() {
             didSet {
@@ -60,7 +63,7 @@ extension HistoryView {
         
         var orderIndices: Range<Int> { self.ordersDicitionary.values.indices }
         
-        func fetchPage(isPerfomingAction: Bool) {
+        func fetchPage(isPerfomingAction: Bool, with session: URLSession = .shared) {
             if self.orders.isEmpty && self.viewState == .default && self.executionScheduler.isEmpty {
                 self.startLoad(with: .loading)
                 
@@ -68,30 +71,28 @@ extension HistoryView {
                     self.executionScheduler.append { [weak self] in
                         guard let self else { return }
                         
-                        self.fetchPage(isPerfomingAction: false)
+                        self.fetchPage(isPerfomingAction: false, with: session)
                     }
                     
                     return
                 }
                 
-                Task { [weak self] in
+                self.fetchPagesTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
-                    #if DEBUG
-                    await self.fetchMocks()
-                    #else
-                    await self.fetch(page: 1, session: session)
-                    #endif
+                    await self.fetch(currentPage: 1, and: session)
                     
                     await MainActor.run { [weak self] in
                         guard let self else { return }
                         self.viewState = self.pageMetadata.isLoadedAll ? .loadedAll : .default
+                        self.fetchPagesTask?.cancel()
+                        self.fetchPagesTask = nil
                     }
                 }
             }
         }
         
-        func fetchMorePages(isVisible: Bool, index: Int, isPerfomingAction: Bool) {
+        func fetchMorePages(isVisible: Bool, index: Int, isPerfomingAction: Bool, with session: URLSession = .shared) {
             if self.isValidToFetchMore(isVisible: isVisible, index: index)
                 && self.executionScheduler.isEmpty && self.viewState == .default {
                 
@@ -101,32 +102,30 @@ extension HistoryView {
                     self.executionScheduler.append { [weak self] in
                         guard let self else { return }
                         
-                        self.fetchMorePages(isVisible: isVisible, index: index, isPerfomingAction: false)
+                        self.fetchMorePages(isVisible: isVisible, index: index, isPerfomingAction: false, with: session)
                     }
                     
                     return
                 }
                 
-                Task { [weak self] in
+                let nextPage = self.pageMetadata.page + 1
+                
+                self.fetchMorePagesTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
-                    let nextPage = self.pageMetadata.page + 1
-                    
-                    #if DEBUG
-                    await self.fetchMocks()
-                    #else
-                    await self.fetch(page: nextPage, session: session)
-                    #endif
+                    await self.fetch(currentPage: nextPage, and: session)
                     
                     await MainActor.run { [weak self] in
                         guard let self else { return }
                         self.viewState = self.pageMetadata.isLoadedAll ? .loadedAll : .default
+                        self.fetchMorePagesTask?.cancel()
+                        self.fetchMorePagesTask = nil
                     }
                 }
             }
         }
         
-        func refresh(isPerfomingAction: Bool) {
+        func refresh(isPerfomingAction: Bool, with session: URLSession = .shared) {
             if self.executionScheduler.isEmpty {
                 self.resetOrderList()
                 self.startLoad(with: .refreshing)
@@ -135,24 +134,22 @@ extension HistoryView {
                     self.executionScheduler.append { [weak self] in
                         guard let self else { return }
                         
-                        self.refresh(isPerfomingAction: false)
+                        self.refresh(isPerfomingAction: false, with: session)
                     }
                     
                     return
                 }
                 
-                Task { [weak self] in
+                self.refreshTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
-                    #if DEBUG
-                    await self.fetchMocks()
-                    #else
-                    await self.fetch(page: 0, session: session)
-                    #endif
+                    await self.fetch(currentPage: 1, and: session)
                     
                     await MainActor.run { [weak self] in
                         guard let self else { return }
                         self.viewState = self.pageMetadata.isLoadedAll ? .loadedAll : .default
+                        self.refreshTask?.cancel()
+                        self.refreshTask = nil
                     }
                 }
             }
@@ -176,7 +173,7 @@ extension HistoryView {
             return true
         }
         
-        private func fetch(with currentPage: Int, and session: URLSession) async {
+        private func fetch(currentPage: Int, and session: URLSession) async {
             do {
                 guard let token = TokenHandler.getTokenValue(with: .accessToken, isWithBearerValue: true) else {
                     throw AppAlert.accessDenied
@@ -219,36 +216,3 @@ extension HistoryView {
         }
     }
 }
-
-#if DEBUG
-extension HistoryView.ViewModel {
-    private func fetchMocks() async {
-        do {
-            try await Task.sleep(for: .seconds(4))
-            
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                
-                for order in Order.mocks {
-                    self.ordersDicitionary.updateValue(order, forKey: order.id)
-                }
-                
-                let page: Int = switch self.orders.count {
-                case 10:
-                    1
-                case 20:
-                    2
-                case 30:
-                    3
-                default:
-                    3
-                }
-                
-                self.pageMetadata = .init(page: page, per: 10, total: 30)
-            }
-        } catch {
-            await self.setError(.internalError)
-        }
-    }
-}
-#endif

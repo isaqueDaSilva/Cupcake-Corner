@@ -13,6 +13,7 @@ extension AsyncCoverImageView {
     final class ViewModel {
         private let imageName: String?
         private let logger = AppLogger(category: "AsyncCoverImageView")
+        private var setImageTask: Task<Void, Never>? = nil
         
         var executionScheduler = [() -> Void]() {
             didSet {
@@ -41,17 +42,26 @@ extension AsyncCoverImageView {
                     return
                 }
                 
-                Task { [weak self] in
+                self.setImageTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
                     if let imageData = await ImageCache.shared.imageData(withKey: imageName) {
-                        self.imageData = imageData
+                        await MainActor.run { [weak self] in
+                            guard let self else { return }
+                            
+                            self.imageData = imageData
+                        }
                     } else {
                         await self.dowloadImage(imageName: imageName)
                     }
                     
-                    await MainActor.run {
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
                         self.isLoading = false
+                        
+                        self.setImageTask?.cancel()
+                        self.setImageTask = nil
                     }
                 }
             }
@@ -71,11 +81,15 @@ extension AsyncCoverImageView {
                 
                 await ImageCache.shared.setImageData(cupcakeImagedata, forKey: imageName)
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.imageData = cupcakeImagedata
                 }
             } catch {
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
                     self.logger.error(
                         "Could not possible to download Image with error: \(error.localizedDescription)"
                     )

@@ -14,6 +14,8 @@ extension OrderView {
     @MainActor
     final class ViewModel {
         private let logger = AppLogger(category: "BagView+ViewModel")
+        private var fetchMorePagesTask: Task<Void, Never>? = nil
+        private var updateOrderTask: Task<Void, Never>? = nil
         
         @ObservationIgnored
         private var wsService: WebSocketClient?
@@ -116,11 +118,15 @@ extension OrderView.ViewModel {
         Task { [weak self] in
             guard let self else { return }
             
-            #if DEBUG
-            await self.setup()
-            #else
             guard let wsService else {
                 self.logger.error("The are no ws service to handle with the connection.")
+                
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
+                    self.viewState = .default
+                }
+                
                 return await setError(.noConnection)
             }
             
@@ -129,13 +135,15 @@ extension OrderView.ViewModel {
             logger.info("The connection was established with success.")
             
             if isFetchRecords {
-                wsService.send(.init(data: .queryRecords(1)))
+                do {
+                    try await wsService.send(.init(data: .queryRecords(1)))
+                } catch {
+                    await self.setError(.fetchFailed)
+                }
             }
             
             self.observerConnectionState()
             self.observerChangesInChannel()
-            
-            #endif
             
             await MainActor.run { [weak self] in
                 guard let self else { return }
@@ -353,8 +361,7 @@ extension OrderView.ViewModel {
     }
 }
 
-// MARK: Common
-
+// MARK: Common Tasks
 extension OrderView.ViewModel {
     func fetchMorePages(isVisible: Bool, index: Int, isPerfomingAction: Bool) {
         if self.viewState == .default &&
@@ -373,8 +380,10 @@ extension OrderView.ViewModel {
                 return
             }
             
-            Task { [weak self] in
-                guard let self, let wsService else { return }
+            guard let wsService else { return }
+            
+            self.fetchMorePagesTask = Task.detached { [weak self] in
+                guard let self else { return }
                 
                 do {
                     try await Order.requestMorePages(
@@ -390,6 +399,13 @@ extension OrderView.ViewModel {
                             description: error.localizedDescription
                         )
                     }
+                }
+                
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    
+                    self.fetchMorePagesTask?.cancel()
+                    self.fetchMorePagesTask = nil
                 }
             }
         }
@@ -407,6 +423,7 @@ extension OrderView.ViewModel {
     }
 }
 
+// MARK: ADMIN Tasks
 #if ADMIN
 extension OrderView.ViewModel {
     func updateOrder(at index: Int, isPerfomingAction: Bool, session: URLSession = .shared) {
@@ -429,7 +446,7 @@ extension OrderView.ViewModel {
             return
         }
         
-        Task { [weak self] in
+        self.updateOrderTask = Task.detached { [weak self] in
             guard let self else { return }
             
             do {
@@ -444,30 +461,13 @@ extension OrderView.ViewModel {
                     )
                 }
             }
-        }
-    }
-}
-#endif
-
-// MARK: - DEBUG Setup -
-#if DEBUG
-extension OrderView.ViewModel {
-    func setup() async {
-        try? await Task.sleep(for: .seconds(4))
-        
-        await MainActor.run {
-            for orderList in Order.mocksDict {
-                switch orderList.key {
-                case .ordered:
-                    self.orderedOrders = orderList.value
-                case .readyForDelivery:
-                    self.readyToDeliveryOrders = orderList.value
-                case .delivered:
-                    break
-                }
-            }
             
-            self.connectionStatus = .connected
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                
+                self.updateOrderTask?.cancel()
+                self.updateOrderTask = nil
+            }
         }
     }
 }

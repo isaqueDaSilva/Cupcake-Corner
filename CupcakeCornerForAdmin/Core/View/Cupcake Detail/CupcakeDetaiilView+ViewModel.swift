@@ -12,6 +12,7 @@ extension CupcakeDetailView {
     @MainActor
     final class ViewModel {
         private let logger = AppLogger(category: "CupcakeDetailView+ViewModel")
+        private var deleteCupcakeTask: Task<Void, Never>? = nil
         
         var isLoading = false
         var isShowingDeleteAlert = false
@@ -48,7 +49,7 @@ extension CupcakeDetailView {
                     return
                 }
                 
-                Task { [weak self] in
+                self.deleteCupcakeTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
                     do {
@@ -57,14 +58,21 @@ extension CupcakeDetailView {
                         await MainActor.run {
                             completation()
                         }
-                    } catch let error as AppAlert {
-                        await self.setError(error)
+                    } catch {
+                        await self.setError(
+                            .init(
+                                title: "Failed to delete cupcake.",
+                                description: error.localizedDescription
+                            )
+                        )
                     }
                     
                     await MainActor.run { [weak self] in
                         guard let self else { return }
                         
                         self.isLoading = false
+                        self.deleteCupcakeTask?.cancel()
+                        self.deleteCupcakeTask = nil
                     }
                 }
             }

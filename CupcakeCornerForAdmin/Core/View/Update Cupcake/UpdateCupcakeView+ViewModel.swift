@@ -12,6 +12,7 @@ extension UpdateCupcakeView {
     @MainActor
     final class ViewModel {
         private let logger = AppLogger(category: "UpdateCupcakeView+ViewModel")
+        private var updateCupcakeTask: Task<Void, Never>? = nil
         
         var cupcake: ReadCupcake
         var flavor: String
@@ -51,12 +52,12 @@ extension UpdateCupcakeView {
                     return
                 }
                 
-                Task { [weak self] in
+                let updatedCupcakeJSON = self.makeUpdate(for: self.cupcake)
+                
+                self.updateCupcakeTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
                     do {
-                        let updatedCupcakeJSON = self.makeUpdate(for: self.cupcake)
-                        
                         let updatedCupcake = try await self.cupcake.update(
                             keysAndValues: updatedCupcakeJSON,
                             token: token,
@@ -72,12 +73,21 @@ extension UpdateCupcakeView {
                             
                             action(updatedCupcake)
                         }
-                    } catch let error as AppAlert {
-                        await self.setError(error)
+                    } catch {
+                        await self.setError(
+                            .init(
+                                title: "Failed to delete cupcake",
+                                description: error.localizedDescription
+                            )
+                        )
                     }
                     
-                    await MainActor.run {
+                    await MainActor.run { [weak self] in
+                        guard let self else { return }
+                        
                         self.isLoading = false
+                        self.updateCupcakeTask?.cancel()
+                        self.updateCupcakeTask = nil
                     }
                 }
             }

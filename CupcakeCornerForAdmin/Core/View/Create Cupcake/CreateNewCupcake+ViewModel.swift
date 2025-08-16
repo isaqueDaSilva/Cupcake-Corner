@@ -13,6 +13,7 @@ extension CreateNewCupcakeView {
     @MainActor
     final class ViewModel {
         private let logger = AppLogger(category: "CreateNewCupcake+ViewModel")
+        private var createCupcakeTask: Task<Void, Never>? = nil
         
         var newCupcake = CreateOrReadCupcake(flavor: "", ingredients: [], price: 0.0)
         var error: AppAlert? = nil
@@ -52,7 +53,7 @@ extension CreateNewCupcakeView {
                     return
                 }
                 
-                Task { [weak self] in
+                self.createCupcakeTask = Task.detached { [weak self] in
                     guard let self else { return }
                     
                     do {
@@ -63,14 +64,21 @@ extension CreateNewCupcakeView {
                         await MainActor.run {
                             action(cupcake)
                         }
-                    } catch let error as AppAlert {
-                        await self.setError(error)
+                    } catch {
+                        await self.setError(
+                            .init(
+                                title: "Failed to create cupcake",
+                                description: error.localizedDescription
+                            )
+                        )
                     }
                     
                     await MainActor.run { [weak self] in
                         guard let self else { return }
                         
                         self.isLoading = false
+                        self.createCupcakeTask?.cancel()
+                        self.createCupcakeTask = nil
                     }
                 }
             }
